@@ -11,6 +11,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+.agentes
 node_modules
 docs
 dist
