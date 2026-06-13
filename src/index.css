@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --input-bg: #F0F4F8;
+    --input-border: transparent;
+    --input-border-focus: #2DAAA5;
+    --input-icon: #94A3B8;
+    --input-icon-focus: #2DAAA5;
+    --label-color: #00375A;
+    --text-primary: #1E293B;
+    --text-secondary: #64748B;
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F8FAFC;
+    --brand-primary: #2DAAA5;
+    --brand-hover: #248f8a;
+
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 178 58% 95%;
+    --sidebar-accent-foreground: 178 58% 42%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-border: 220 13% 91%;
+  }
+
+  .group:focus-within .group-icon {
+    color: var(--input-icon-focus) !important;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+    caret-color: var(--text-primary) !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    transition: background-color 50000s ease-in-out 0s;
+  }
+
+  [data-theme="dark"] {
+    --input-bg: #1E293B;
+    --input-border: transparent;
+    --input-border-focus: #4BC3BE;
+    --input-icon: #64748B;
+    --input-icon-focus: #4BC3BE;
+    --label-color: #E2E8F0;
+    --text-primary: #F1F5F9;
+    --text-secondary: #94A3B8;
+    --bg-primary: #0F172A;
+    --bg-secondary: #1E293B;
+    --brand-primary: #4BC3BE;
+    --brand-hover: #3DAFAA;
+
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 178 50% 15%;
+    --sidebar-accent-foreground: 178 50% 60%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-border: 240 3.7% 15.9%;
+  }
+}
