@@ -42,7 +42,6 @@ export default function TaskList({ tasks, canEdit }: TaskListProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["editProject", projectId] })
       queryClient.invalidateQueries({ queryKey: ["projectTasks", projectId] })
-      queryClient.invalidateQueries({ queryKey: ["projects"] })
     },
   })
 

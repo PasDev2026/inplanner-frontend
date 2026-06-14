@@ -46,7 +46,6 @@ export default function TaskTableSubtasks({
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["taskChildren", taskId] })
             queryClient.invalidateQueries({ queryKey: ["projectTasks", projectIdNum] })
-            queryClient.invalidateQueries({ queryKey: ["projects"] })
             setNewTaskName("")
             setShowForm(false)
         },

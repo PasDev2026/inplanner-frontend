@@ -73,7 +73,7 @@ api.interceptors.response.use(
             processQueue(refreshError, null)
             localStorage.removeItem('AUTH_TOKEN')
             localStorage.removeItem('REFRESH_TOKEN')
-            window.location.href = '/auth/login'
+            window.location.href = '/auth/login?session=expired'
             return Promise.reject(refreshError)
         } finally {
             isRefreshing = false

@@ -49,7 +49,6 @@ export function TaskModalDetails() {
     onSuccess: () => {
       queryCliente.invalidateQueries({ queryKey: ["task", taskId] })
       queryCliente.invalidateQueries({ queryKey: ["projectTasks", projectId] })
-      queryCliente.invalidateQueries({ queryKey: ["projects"] })
     },
   })
 

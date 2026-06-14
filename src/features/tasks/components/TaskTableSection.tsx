@@ -46,7 +46,7 @@ export default function TaskTableSection({
     const projectIdNum = Number(projectId)
 
     const { data, isLoading, isError } = useQuery({
-        queryKey: ["projectTasks", projectIdNum],
+        queryKey: ["dashboardProjectTasks", projectIdNum],
         queryFn: async () => {
             const result = await getProjectTasks(projectIdNum)
             if (!result) throw new Error("No data")
@@ -64,7 +64,7 @@ export default function TaskTableSection({
             createTask({ task_name: name, project_id: projectIdNum }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["projectTasks", projectIdNum] })
-            queryClient.invalidateQueries({ queryKey: ["projects"] })
+            queryClient.invalidateQueries({ queryKey: ["dashboardProjectTasks", projectIdNum] })
             setNewTaskName("")
             setShowForm(false)
         },

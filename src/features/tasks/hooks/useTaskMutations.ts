@@ -6,7 +6,6 @@ export function useTaskMutations(projectIdNum: number) {
     const queryClient = useQueryClient()
     const invalidateProject = () => {
         queryClient.invalidateQueries({ queryKey: ["projectTasks", projectIdNum] })
-        queryClient.invalidateQueries({ queryKey: ["taskChildren"] })
     }
 
     const statusMutation = useMutation({
@@ -56,7 +55,6 @@ export function useTaskMutations(projectIdNum: number) {
         mutationFn: (taskId: number) => deleteTask(taskId),
         onSuccess: () => {
             invalidateProject()
-            queryClient.invalidateQueries({ queryKey: ["projects"] })
         },
         onError: (error) => {
             toast.error((error as Error).message)

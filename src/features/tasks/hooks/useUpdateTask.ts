@@ -10,7 +10,6 @@ export const useUpdateTaskName = () => {
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: ["task", String(variables.taskId)] })
             queryClient.invalidateQueries({ queryKey: ["projectTasks"] })
-            queryClient.invalidateQueries({ queryKey: ["projects"] })
         },
     })
 }

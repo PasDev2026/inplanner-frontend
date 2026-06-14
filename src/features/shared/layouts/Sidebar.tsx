@@ -1,6 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { User, Folder, Users, LogOut } from "lucide-react";
+import { disconnectSocket } from "@/features/shared/lib/socket";
+import { logoutApi } from "@/features/shared/actions/auth.api";
 import {
   Sidebar as SidebarBase,
   SidebarContent,
@@ -31,11 +33,13 @@ export default function Sidebar({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const logout = () => {
+  const handleLogout = async () => {
+    await logoutApi();
     localStorage.removeItem("AUTH_TOKEN");
     localStorage.removeItem("REFRESH_TOKEN");
     queryClient.removeQueries({ queryKey: ["user"] });
-    navigate("/auth/login");
+    disconnectSocket();
+    navigate("/auth/login?session=closed");
   };
 
   const navLinks = [
@@ -105,7 +109,7 @@ export default function Sidebar({
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={logout} tooltip="Cerrar Sesión">
+            <SidebarMenuButton onClick={handleLogout} tooltip="Cerrar Sesión">
               <LogOut className="text-red-500" />
               <span>Cerrar Sesión</span>
             </SidebarMenuButton>

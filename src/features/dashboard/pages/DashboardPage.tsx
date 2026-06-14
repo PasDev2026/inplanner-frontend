@@ -114,6 +114,7 @@ export default function Dashboard() {
             const { page, totalPages } = lastPage.meta
             return page < totalPages ? page + 1 : undefined
         },
+        staleTime: 60_000,
         retry: false,
         placeholderData: (prev) => prev,
     })

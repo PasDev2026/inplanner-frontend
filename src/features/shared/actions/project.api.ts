@@ -98,9 +98,9 @@ export async function deleteProject(id: number) {
   }
 }
 
-export async function getProjectTasks(projectId: number) {
+export async function getProjectTasks(projectId: number, page = 1, limit = 0) {
   try {
-    const { data } = await api.get(`/tasks`, { params: { project_id: projectId } });
+    const { data } = await api.get(`/tasks`, { params: { project_id: projectId, page, limit } });
     return data;
   } catch (error) {
     if (isAxiosError(error) && error.response) {

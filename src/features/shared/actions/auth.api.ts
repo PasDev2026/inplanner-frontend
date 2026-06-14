@@ -1,6 +1,6 @@
 import { isAxiosError } from "axios";
 import api from "@/features/shared/lib/axios";
-import { CheckPasswordForm, ConfirmToken, ForgotPasswordForm, NewPasswordForm, RequestConfirmationCodeForm, UserRegistrationForm } from "@/features/auth/schemas/auth.schema";
+import { CheckPasswordForm } from "@/features/auth/schemas/auth.schema";
 
 export interface BackendUserProfile {
     idUser: number;
@@ -18,45 +18,6 @@ export interface LoginResponse {
     refreshToken: string;
 }
 
-export async function createAccount(formData:UserRegistrationForm) {
-    try {
-        const url = '/auth/register'
-        const data = await api.post<string>(url, formData)
-        return data
-    } catch (error) {
-        if(isAxiosError(error) && error.response){
-            throw new Error(error.response.data.message);
-        }
-        throw new Error('Error de conexión con el servidor');
-    }
-}
-
-export async function confirmAccount(formData:ConfirmToken) {
-    try {
-        const url = '/auth/confirmation-account'
-        const {data} = await api.post<string>(url, formData)
-        return data
-    } catch (error) {
-        if(isAxiosError(error) && error.response){
-            throw new Error(error.response.data.message);
-        }
-        throw new Error('Error de conexión con el servidor');
-    }
-}
-
-export async function requestConfirmationCodeForm(formData:RequestConfirmationCodeForm) {
-    try {
-        const url = '/auth/reset-token'
-        const {data} = await api.post<string>(url, formData)
-        return data
-    } catch (error) {
-        if(isAxiosError(error) && error.response){
-            throw new Error(error.response.data.message);
-        }
-        throw new Error('Error de conexión con el servidor');
-    }
-}
-
 export async function authenticate(formData: { username: string; password: string }) {
     try {
         const url = '/auth/login'
@@ -69,47 +30,6 @@ export async function authenticate(formData: { username: string; password: strin
             const err = new Error(error.response.data.error || error.response.data.message);
             (err as any).field = error.response.data.field || 'general';
             throw err;
-        }
-        throw new Error('Error de conexión con el servidor');
-    }
-}
-
-export async function changePassword(formData:ForgotPasswordForm) {
-    try {
-        const url = '/auth/change-password'
-        const {data} = await api.post<string>(url, formData)
-        return data
-    } catch (error) {
-        if(isAxiosError(error) && error.response){
-            throw new Error(error.response.data.message);
-        }
-        throw new Error('Error de conexión con el servidor');
-    }
-}
-
-export async function validateToken(formData:ConfirmToken) {
-    try {
-        const url = '/auth/validate-token'
-        const {data} = await api.post<string>(url, formData)
-        return data
-    } catch (error) {
-        if(isAxiosError(error) && error.response){
-            throw new Error(error.response.data.message);
-        }
-        throw new Error('Error de conexión con el servidor');
-    }
-}
-
-
-export async function updatePasswordWithToken({formData, token}:{formData: NewPasswordForm, token: ConfirmToken['token']}) {
- 
-    try {
-        const url = `/auth/change-password/${token}`
-        const {data} = await api.post<string>(url, formData)
-        return data
-    } catch (error) {
-        if(isAxiosError(error) && error.response){
-            throw new Error(error.response.data.message);
         }
         throw new Error('Error de conexión con el servidor');
     }
@@ -140,5 +60,15 @@ export async function checkPasswordApi(formData:CheckPasswordForm) {
             throw new Error(error.response.data.message);
         }
         throw new Error('Error de conexión con el servidor');
+    }
+}
+
+export async function logoutApi() {
+    const refreshToken = localStorage.getItem('REFRESH_TOKEN')
+    if (!refreshToken) return
+    try {
+        await api.post('/auth/logout', { refreshToken })
+    } catch {
+        // Si falla (token ya revocado, red caída), igual procedemos con logout local
     }
 }

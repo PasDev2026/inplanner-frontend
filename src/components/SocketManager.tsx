@@ -13,12 +13,15 @@ export default function SocketManager() {
 
         const socket = connectSocket(token)
 
-        const handleForceLogout = () => {
+        const handleForceLogout = (payload: { message: string }) => {
             localStorage.removeItem('AUTH_TOKEN')
             localStorage.removeItem('REFRESH_TOKEN')
             queryClient.removeQueries({ queryKey: ['user'] })
             disconnectSocket()
-            navigate('/auth/login?inactivo=true')
+            const reason = payload.message.includes('desactivada') ? 'disabled'
+                         : payload.message.includes('inactividad') ? 'expired'
+                         : 'closed'
+            navigate(`/auth/login?session=${reason}`)
         }
 
         socket.on('force-logout', handleForceLogout)

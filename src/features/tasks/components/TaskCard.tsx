@@ -81,7 +81,6 @@ export default function TaskCard({ task, canEdit }: TaskCardProps) {
     onSuccess: () => {
       toast.success("Tarea eliminada correctamente")
       queryClient.invalidateQueries({ queryKey: ["editProject", projectId] })
-      queryClient.invalidateQueries({ queryKey: ["projects"] })
       navigate(location.pathname, { replace: true })
     },
   })

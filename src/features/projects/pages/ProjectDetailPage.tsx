@@ -35,10 +35,13 @@ export default function ProjectDetailPage() {
     queryFn: async () => {
       const result = await getProjectTasks(projectId)
       if (!result) throw new Error("No data")
-      return result as unknown as { data: BackendTask[] }
+      return result
     },
+    staleTime: 30_000,
     enabled: !!projectId,
   })
+
+  const tasks = (tasksResponse as { data: BackendTask[] } | undefined)?.data ?? []
 
   if(isLoading && authLoading) return <Spinner />
   if(isError) return <Navigate to='/404'/>
@@ -76,7 +79,7 @@ export default function ProjectDetailPage() {
         </CardContent>
       </Card>
 
-      <TaskList tasks={tasksResponse?.data ?? []} canEdit={!!user && isManager(data.manager_id, user.idUser)} />
+      <TaskList tasks={tasks} canEdit={!!user && isManager(data.manager_id, user.idUser)} />
       <CreateTaskModal />
       <TaskModalDetails />
     </div>

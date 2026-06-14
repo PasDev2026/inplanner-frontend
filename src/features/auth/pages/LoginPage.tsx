@@ -38,9 +38,21 @@ export default function Login() {
   const [searchParams] = useSearchParams()
 
   useEffect(() => {
-    if (searchParams.get('inactivo') === 'true') {
+    const reason = searchParams.get('session')
+    if (reason === 'disabled') {
       toast.error('Cuenta desactivada', {
+        id: 'session-disabled-toast',
         description: 'Tu cuenta ha sido desactivada por un administrador. No puedes continuar en el sistema.',
+      })
+    } else if (reason === 'expired') {
+      toast.error('Sesión expirada', {
+        id: 'session-expired-toast',
+        description: 'Tu sesión ha expirado. Inicia sesión nuevamente.',
+      })
+    } else if (reason === 'closed') {
+      toast.info('Sesión cerrada', {
+        id: 'session-closed-toast',
+        description: 'Has cerrado sesión correctamente.',
       })
     }
   }, [])

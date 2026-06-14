@@ -14,7 +14,11 @@ export default function AppLayout() {
 
   if(isLoading) return <Spinner />
   
-  if(isError && !isFetching) return <Navigate to='/auth/login'/>
+  if(isError && !isFetching) {
+    const hasToken = localStorage.getItem('AUTH_TOKEN')
+    if (hasToken) return <Navigate to='/auth/login'/>
+    return null
+  }
   
   if(data) return (
     <TooltipProvider>
