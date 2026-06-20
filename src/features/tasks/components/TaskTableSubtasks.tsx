@@ -1,12 +1,14 @@
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { TASK_CHILDREN_KEY } from "@/features/tasks/lib/task-keys"
+import { PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { getTaskChildren, createTask } from "@/features/shared/actions/task.api"
 import { Plus, Check, X } from "lucide-react"
 import { toast } from "sonner"
 import SubtaskRow from "./SubtaskRow"
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table"
 import { COL_GROUP } from "@/features/shared/lib/tableColumns"
-import Spinner from "@/components/ui/Spinner"
+import PageSpinner from "@/components/ui/PageSpinner"
 
 type TaskTableSubtasksProps = {
     taskId: number
@@ -35,7 +37,7 @@ export default function TaskTableSubtasks({
     const projectIdNum = Number(projectId)
 
     const { data: children = [], isLoading } = useQuery({
-        queryKey: ["taskChildren", taskId],
+        queryKey: TASK_CHILDREN_KEY(taskId),
         queryFn: () => getTaskChildren(taskId),
         staleTime: 30000,
     })
@@ -44,8 +46,8 @@ export default function TaskTableSubtasks({
         mutationFn: (name: string) =>
             createTask({ task_name: name, project_id: projectIdNum, parent_task_id: taskId }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["taskChildren", taskId] })
-            queryClient.invalidateQueries({ queryKey: ["projectTasks", projectIdNum] })
+            queryClient.invalidateQueries({ queryKey: TASK_CHILDREN_KEY(taskId) })
+            queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectIdNum) })
             setNewTaskName("")
             setShowForm(false)
         },
@@ -57,7 +59,7 @@ export default function TaskTableSubtasks({
     const padLeft = `${depth * 24}px`
 
     if (isLoading) {
-        return <div className="px-4 py-6 flex items-center justify-center" style={{ paddingLeft: padLeft }}><Spinner fullPage={false} size={12} /></div>
+        return <div className="px-4 py-6 flex items-center justify-center" style={{ paddingLeft: padLeft }}><PageSpinner fullPage={false} centered={false} size={12} /></div>
     }
 
     return (
@@ -105,7 +107,7 @@ export default function TaskTableSubtasks({
                                     value={newTaskName}
                                     onChange={(e) => setNewTaskName(e.target.value)}
                                     placeholder="Nombre de la subtarea"
-                                    className="flex-1 text-xs border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:border-brand-primary"
+                                    className="flex-1 text-xs border border-border rounded px-2 py-1.5 focus:outline-none focus:border-brand-primary"
                                     autoFocus
                                     onKeyDown={(e) => {
                                         if (e.key === "Enter" && newTaskName.trim()) {
@@ -122,7 +124,7 @@ export default function TaskTableSubtasks({
                                         if (newTaskName.trim()) createSubtask.mutate(newTaskName.trim())
                                     }}
                                     disabled={!newTaskName.trim() || createSubtask.isPending}
-                                    className="p-1 text-brand-primary hover:text-brand-dark disabled:text-gray-300"
+                                    className="p-1 text-brand-primary hover:text-brand-dark disabled:text-muted-foreground"
                                 >
                                     <Check className="h-3.5 w-3.5" />
                                 </button>
@@ -131,7 +133,7 @@ export default function TaskTableSubtasks({
                                         setShowForm(false)
                                         setNewTaskName("")
                                     }}
-                                    className="p-1 text-gray-400 hover:text-gray-600"
+                                    className="p-1 text-muted-foreground hover:text-foreground"
                                 >
                                     <X className="h-3.5 w-3.5" />
                                 </button>

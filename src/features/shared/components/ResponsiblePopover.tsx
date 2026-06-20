@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { ALL_USERS_KEY } from "@/features/shared/lib/shared-keys"
+import { PROJECT_SEDE_USERS_KEY } from "@/features/projects/lib/project-keys"
 import { getAllUsers } from "@/features/shared/actions/admin.api"
 import { User, Check } from "lucide-react"
 import type { UserAdmin } from "@/features/admin/schemas/user.schema"
@@ -27,7 +29,7 @@ export default function ResponsiblePopover({ projectId, assignedTo, onAssign, is
   const queryClient = useQueryClient()
 
   const { data: users = [] } = useQuery({
-    queryKey: ["allUsers", page],
+    queryKey: ALL_USERS_KEY(page),
     queryFn: async () => {
       const result = await getAllUsers(page, 50)
       return (result.users as UserAdmin[]) ?? []
@@ -60,8 +62,8 @@ export default function ResponsiblePopover({ projectId, assignedTo, onAssign, is
         render={
           <button className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border transition-colors
             ${assignedTo.length > 0
-              ? "bg-brand-primary/10 text-brand-primary border-brand-primary/20"
-              : "bg-slate-50 text-slate-400 border-slate-200"
+              ? "bg-brand-primary/10 text-brand-primary border-border"
+              : "bg-muted text-muted-foreground border-border"
             }
             ${isPending ? "opacity-50 pointer-events-none" : ""}
           `}>
@@ -73,7 +75,7 @@ export default function ResponsiblePopover({ projectId, assignedTo, onAssign, is
 
       <PopoverContent sideOffset={6} align="start" className="w-64 p-3">
         <div className="space-y-2">
-          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-1 pb-2">
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pb-2">
             Responsable
           </div>
 
@@ -86,13 +88,13 @@ export default function ResponsiblePopover({ projectId, assignedTo, onAssign, is
                   key={user.id_user}
                   onClick={() => {
                     toggleUser(user.id_user)
-                    queryClient.invalidateQueries({ queryKey: ["projectSedeUsers", projectId] })
+                    queryClient.invalidateQueries({ queryKey: PROJECT_SEDE_USERS_KEY(projectId) })
                   }}
                   className={`flex items-center gap-2.5 px-2 py-2 rounded-md cursor-pointer transition-colors 
                     ${isSelected ? "bg-brand-primary/5" : "hover:bg-brand-primary/5"}`}
                 >
                   <div className="flex-1 min-w-0 flex items-center gap-1.5">
-                    <span className={`text-xs font-medium truncate ${isSelected ? "text-brand-primary" : "text-slate-700"}`}>
+                    <span className={`text-xs font-medium truncate ${isSelected ? "text-brand-primary" : "text-foreground"}`}>
                       {user.name}{initial ? ` ${initial}.` : ""}
                     </span>
                   </div>
@@ -103,7 +105,7 @@ export default function ResponsiblePopover({ projectId, assignedTo, onAssign, is
               )
             })}
             {users.length === 0 && (
-              <p className="text-xs text-slate-400 text-center py-6">No se encontraron usuarios</p>
+              <p className="text-xs text-muted-foreground text-center py-6">No se encontraron usuarios</p>
             )}
           </div>
         </div>

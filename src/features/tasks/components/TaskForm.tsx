@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormGetValues } from "react-hook-form"
 import { format } from "date-fns"
-import { TaskFormData } from "@/features/shared/lib/types"
+import type { TaskFormData } from "@/features/tasks/schemas/task.schema"
 import { priorityTranslation, PRIORITY_VALUES } from "@/features/shared/i18n/es"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -38,9 +38,7 @@ export default function TaskForm({errors, register, setValue, getValues, showDat
                     id="name"
                     type="text"
                     placeholder="Nombre de la tarea"
-                    {...register("name", {
-                        required: "El nombre de la tarea es obligatorio",
-                    })}
+                    {...register("name")}
                 />
                 {errors.name && (
                     <p>{errors.name.message}</p>
@@ -71,7 +69,7 @@ export default function TaskForm({errors, register, setValue, getValues, showDat
                     value={getValues?.("priority") ?? ""}
                     onValueChange={(v) => setValue?.("priority", v as TaskFormData["priority"])}
                 >
-                    <Select.Trigger id="priority" className="w-full p-3 h-auto border-gray-300">
+                    <Select.Trigger id="priority" className="w-full p-3 h-auto border-border">
                         <Select.Value placeholder="Selecciona prioridad">
                             {getValues?.("priority") ? priorityTranslation[getValues("priority") as keyof typeof priorityTranslation] : ""}
                         </Select.Value>

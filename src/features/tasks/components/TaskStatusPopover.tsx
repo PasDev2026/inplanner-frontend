@@ -15,41 +15,41 @@ type TaskStatusPopoverProps = {
 const OPTIONS = [0, 1, 2, 3, 4] as const
 
 const DOT_COLORS: Record<number, string> = {
-  0: "bg-slate-500",
-  1: "bg-red-500",
-  2: "bg-blue-500",
-  3: "bg-amber-500",
-  4: "bg-emerald-500",
+  0: "bg-muted-foreground",
+  1: "bg-warning",
+  2: "bg-info",
+  3: "bg-success",
+  4: "bg-success",
 }
 
 const TEXT_COLORS: Record<number, string> = {
-  0: "text-slate-700",
-  1: "text-red-700",
-  2: "text-blue-700",
-  3: "text-amber-700",
-  4: "text-emerald-700",
+  0: "text-foreground",
+  1: "text-warning",
+  2: "text-info",
+  3: "text-success",
+  4: "text-success",
 }
 
 const HOVER_BG: Record<number, string> = {
-  0: "hover:bg-slate-50",
-  1: "hover:bg-red-50",
-  2: "hover:bg-blue-50",
-  3: "hover:bg-amber-50",
-  4: "hover:bg-emerald-50",
+  0: "hover:bg-muted",
+  1: "hover:bg-warning/10",
+  2: "hover:bg-info/10",
+  3: "hover:bg-success/10",
+  4: "hover:bg-success/10",
 }
 
 const SELECTED_BG: Record<number, string> = {
-  0: "bg-slate-100",
-  1: "bg-red-100",
-  2: "bg-blue-100",
-  3: "bg-amber-100",
-  4: "bg-emerald-100",
+  0: "bg-muted",
+  1: "bg-warning/15",
+  2: "bg-info/15",
+  3: "bg-success/15",
+  4: "bg-success/15",
 }
 
 export default function TaskStatusPopover({ status, onSelect, isPending = false }: TaskStatusPopoverProps) {
     const [open, setOpen] = useState(false)
     const info = TASK_STATUS_MAP[status]
-    const triggerStyle = info?.style ?? "bg-slate-100 text-slate-600 border-slate-300"
+    const triggerStyle = info?.style ?? "bg-muted text-muted-foreground border-border"
 
     const handleSelect = (value: number, e?: React.MouseEvent) => {
         e?.stopPropagation()

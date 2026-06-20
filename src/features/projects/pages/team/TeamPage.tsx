@@ -1,6 +1,7 @@
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import AddMemberModal from "../../components/team/AddMemberModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { PROJECT_TEAM_KEY } from "@/features/projects/lib/project-keys";
 import { getResponsibles, removeResponsible } from "@/features/shared/actions/project.api";
 import { MoreVertical } from "lucide-react";
 import { toast } from "sonner";
@@ -25,13 +26,13 @@ type ResponsibleMember = {
 
 export default function TeamPage() {
   const navigate = useNavigate();
-  const paramas = useParams();
-  const projectId = paramas.projectId!;
+  const params = useParams();
+  const projectId = params.projectId!;
 
   const queryClient = useQueryClient()
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["projectTeam", projectId],
+    queryKey: PROJECT_TEAM_KEY(projectId),
     queryFn: () => getResponsibles(Number(projectId)),
     retry: false,
   });
@@ -43,7 +44,7 @@ export default function TeamPage() {
     },
     onSuccess: () => {
       toast.success("Colaborador eliminado")
-      queryClient.invalidateQueries({queryKey: ["projectTeam", projectId]})
+      queryClient.invalidateQueries({queryKey: PROJECT_TEAM_KEY(projectId)})
     },
   });
 
@@ -74,7 +75,7 @@ export default function TeamPage() {
       {members.length ? (
         <ul
           role="list"
-          className="divide-y divide-gray-100 border border-gray-100 mt-10 bg-white shadow-lg"
+          className="divide-y divide-border border border-border mt-10 bg-card shadow-lg"
         >
           {members.map((member) => (
             <li
@@ -83,17 +84,17 @@ export default function TeamPage() {
             >
               <div className="flex min-w-0 gap-x-4">
                 <div className="min-w-0 flex-auto space-y-2">
-                  <p className="text-2xl font-black text-gray-600">
+                  <p className="text-2xl font-black text-foreground">
                     {member.user.name} {member.user.apellido_paterno ?? ''}
                   </p>
-                  <p className="text-sm text-gray-400">{member.user.email}</p>
+                  <p className="text-sm text-muted-foreground">{member.user.email}</p>
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-x-6">
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={
-                      <button className="-m-2.5 block p-2.5 text-gray-500 hover:text-gray-900 cursor-pointer">
+                      <button className="-m-2.5 block p-2.5 text-muted-foreground hover:text-foreground cursor-pointer">
                         <span className="sr-only">opciones</span>
                         <MoreVertical
                           className="h-9 w-9"
@@ -105,7 +106,7 @@ export default function TeamPage() {
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuItem
                       onClick={() => mutate(member.user_id)}
-                      className="text-red-500 focus:text-red-500"
+                      className="text-destructive focus:text-destructive"
                     >
                       Eliminar del Proyecto
                     </DropdownMenuItem>

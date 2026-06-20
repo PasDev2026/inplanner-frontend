@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { UserLoginForm } from "@/features/auth/schemas/auth.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "@/features/auth/schemas/auth.schema";
+import type { UserLoginForm } from "@/features/auth/schemas/auth.schema";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { authenticate } from "@/features/shared/actions/auth.api";
+import { useAuthContext } from "@/features/auth/hooks/useAuthContext";
 import { Eye, EyeOff } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -33,7 +35,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [apiErrors, setApiErrors] = useState<ApiErrors>({})
   const initialValues: UserLoginForm = {username: '',password: ''}
-  const { register, handleSubmit, formState: { errors } } = useForm({ defaultValues: initialValues })
+  const { register, handleSubmit, formState: { errors } } = useForm<UserLoginForm>({ defaultValues: initialValues, resolver: zodResolver(loginSchema) })
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -55,16 +57,15 @@ export default function Login() {
         description: 'Has cerrado sesión correctamente.',
       })
     }
-  }, [])
+  },)
   
+  const { login } = useAuthContext()
+
   const {mutate} = useMutation({
-    mutationFn: authenticate,
-    onError: (error: any) => {
-      if (error.field) {
-        setApiErrors(prev => ({ ...prev, [error.field]: error.message }));
-      } else {
-        setApiErrors(prev => ({ ...prev, general: error.message }));
-      }
+    mutationFn: login,
+    onError: (error: { message: string }) => {
+      toast.error(error.message, { position: 'top-center' });
+      setApiErrors({});
     },
     onSuccess: () => {
       navigate('/dashboard')
@@ -99,7 +100,6 @@ export default function Login() {
           icon={<UserIcon />}
           error={errors.username?.message || apiErrors.username}
           {...register("username", {
-            required: "El nombre de usuario es obligatorio",
             onChange: () => clearFieldError('username'),
           })}
         />
@@ -115,20 +115,15 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           }
           {...register("password", {
-            required: "El Password es obligatorio",
             onChange: () => clearFieldError('password'),
           })}
         />
-
-        {apiErrors.general && (
-          <p className="text-xs font-medium text-center text-red-500">{apiErrors.general}</p>
-        )}
 
         <button
           type="submit"

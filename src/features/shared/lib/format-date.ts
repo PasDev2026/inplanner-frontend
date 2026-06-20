@@ -5,7 +5,7 @@ export function formatDate(isoString: string | null | undefined): string {
     if (!isoString || typeof isoString !== 'string') return '—'
     const date = new Date(isoString);
     if (isNaN(date.getTime())) return '—'
-    const formatter = new Intl.DateTimeFormat('es-Es', {
+    const formatter = new Intl.DateTimeFormat('es-PE', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'

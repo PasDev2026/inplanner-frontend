@@ -1,8 +1,9 @@
-import { useState } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/core"
 import type { BackendTask } from "@/features/shared/lib/types"
 import TaskColumn from "./TaskColumn"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { PROJECT_DETAIL_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { updateTaskStatus } from "@/features/shared/actions/task.api"
 import { toast } from "sonner"
 import { useParams } from "react-router-dom"
@@ -24,11 +25,13 @@ export default function TaskList({ tasks, canEdit }: TaskListProps) {
   const queryClient = useQueryClient()
   const [activeTask, setActiveTask] = useState<BackendTask | null>(null)
 
-  const rootTasks = tasks.filter(task => !task.parent_task_id)
-  const groupedTasks: GroupedTask = STATUS_KEYS.reduce((acc, key) => {
-    acc[key] = rootTasks.filter(t => (t.status ?? 0) === Number(key))
-    return acc
-  }, {} as GroupedTask)
+  const groupedTasks: GroupedTask = useMemo(() => {
+    const rootTasks = tasks.filter(task => !task.parent_task_id)
+    return STATUS_KEYS.reduce((acc, key) => {
+      acc[key] = rootTasks.filter(t => (t.status ?? 0) === Number(key))
+      return acc
+    }, {} as GroupedTask)
+  }, [tasks])
 
   const { mutate } = useMutation({
     mutationFn: async ({ taskId, status }: { taskId: number; status: number }) => {
@@ -40,18 +43,18 @@ export default function TaskList({ tasks, canEdit }: TaskListProps) {
       toast.error(error.message)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["editProject", projectId] })
-      queryClient.invalidateQueries({ queryKey: ["projectTasks", projectId] })
+      queryClient.invalidateQueries({ queryKey: PROJECT_DETAIL_KEY(projectId) })
+      queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectId) })
     },
   })
 
-  const handleDragStart = (e: DragStartEvent) => {
+  const handleDragStart = useCallback((e: DragStartEvent) => {
     const taskId = e.active.id.toString()
     const task = tasks.find(t => t.id_task.toString() === taskId)
     if (task) setActiveTask(task)
-  }
+  }, [tasks])
 
-  const handleDragEnd = (e: DragEndEvent) => {
+  const handleDragEnd = useCallback((e: DragEndEvent) => {
     setActiveTask(null)
     const { over, active } = e
 
@@ -62,7 +65,7 @@ export default function TaskList({ tasks, canEdit }: TaskListProps) {
         mutate({ taskId, status })
       }
     }
-  }
+  }, [mutate])
 
   return (
     <div>
@@ -75,7 +78,7 @@ export default function TaskList({ tasks, canEdit }: TaskListProps) {
           ))}
           <DragOverlay>
             {activeTask ? (
-              <div className="p-4 bg-white rounded-lg shadow-lg w-[300px] border-l-4 border-l-slate-500">
+              <div className="p-4 bg-card rounded-lg shadow-lg w-[300px] border-l-4 border-l-muted-foreground">
                 <p className="font-bold text-foreground">{activeTask.task_name}</p>
                 <p className="text-muted-foreground text-sm mt-1">{activeTask.task_description}</p>
               </div>

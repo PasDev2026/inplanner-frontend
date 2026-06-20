@@ -1,8 +1,11 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 import { useForm } from "react-hook-form"
-import { TaskFormData } from "@/features/shared/lib/types"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { taskFormSchema } from "@/features/tasks/schemas/task.schema"
+import type { TaskFormData } from "@/features/tasks/schemas/task.schema"
 import TaskForm from "./TaskForm"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { PROJECT_DETAIL_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { createTask } from "@/features/shared/actions/task.api"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -35,9 +38,9 @@ export function CreateTaskModal() {
     reset,
     handleSubmit,
     formState: { errors },
-  } = useForm<TaskFormData>({ defaultValues: initialValues })
+  } = useForm<TaskFormData>({ defaultValues: initialValues, resolver: zodResolver(taskFormSchema) })
 
-  const queryCliente = useQueryClient()
+  const queryClient = useQueryClient()
 
   const { mutate } = useMutation({
     mutationFn: async (formData: TaskFormData) => {
@@ -50,8 +53,8 @@ export function CreateTaskModal() {
       toast.error(error.message ?? "Error")
     },
     onSuccess: () => {
-      queryCliente.invalidateQueries({ queryKey: ['editProject', projectId] })
-      queryCliente.invalidateQueries({ queryKey: ['projectTasks', projectId] })
+      queryClient.invalidateQueries({ queryKey: PROJECT_DETAIL_KEY(projectId) })
+      queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectId) })
       toast.success('Tarea creada')
       reset()
       navigate(location.pathname, { replace: true })

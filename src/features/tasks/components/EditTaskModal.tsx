@@ -1,8 +1,12 @@
 import { useNavigate, useParams, useLocation } from "react-router-dom"
-import type { BackendTask, TaskFormData } from "@/features/shared/lib/types"
+import type { BackendTask } from "@/features/shared/lib/types"
 import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { taskFormSchema } from "@/features/tasks/schemas/task.schema"
+import type { TaskFormData } from "@/features/tasks/schemas/task.schema"
 import TaskForm from "./TaskForm"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { PROJECT_DETAIL_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { updateTask } from "@/features/shared/actions/task.api"
 import { toast } from "sonner"
 import {
@@ -50,6 +54,7 @@ export default function EditTaskModal({ data, taskId }: EditTaskModalProps) {
     getValues,
     formState: { errors },
   } = useForm<TaskFormData>({
+    resolver: zodResolver(taskFormSchema),
     defaultValues: {
       name: data.task_name,
       description: data.task_description ?? "",
@@ -75,8 +80,8 @@ export default function EditTaskModal({ data, taskId }: EditTaskModalProps) {
       toast.error(error.message)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['editProject', projectId] })
-      queryClient.invalidateQueries({ queryKey: ['projectTasks', projectId] })
+      queryClient.invalidateQueries({ queryKey: PROJECT_DETAIL_KEY(projectId) })
+      queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectId) })
       toast.success("Tarea actualizada correctamente")
       reset()
       navigate(location.pathname, { replace: true })

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { UpdateCurrentUserPasswordForm } from "@/features/auth/schemas/auth.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { updateCurrentUserPasswordSchema } from "@/features/auth/schemas/auth.schema";
+import type { UpdateCurrentUserPasswordForm } from "@/features/auth/schemas/auth.schema";
 import { useMutation } from "@tanstack/react-query";
 import { changePasswordProfile } from "@/features/shared/actions/profile.api";
 import { toast } from "sonner";
@@ -19,9 +21,8 @@ export default function ChangePasswordProfile() {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
-  } = useForm({ defaultValues: initialValues });
+  } = useForm<UpdateCurrentUserPasswordForm>({ defaultValues: initialValues, resolver: zodResolver(updateCurrentUserPasswordSchema) });
 
   const { mutate } = useMutation({
     mutationFn: (formData: UpdateCurrentUserPasswordForm) =>
@@ -40,14 +41,13 @@ export default function ChangePasswordProfile() {
     password_confirmation: false,
   });
 
-  const password = watch("password");
   const handleChangePassword = (formData: UpdateCurrentUserPasswordForm) => mutate(formData);
 
   return (
     <>
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-2xl font-semibold text-gray-900">Cambiar Password</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-2xl font-semibold text-foreground">Cambiar Password</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           Actualiza tu contraseña
         </p>
 
@@ -65,9 +65,7 @@ export default function ChangePasswordProfile() {
                 id="current_password"
                 type={showPasswords.current_password ? "text" : "password"}
                 className="pr-10"
-                {...register("current_password", {
-                  required: "El password actual es obligatorio",
-                })}
+                {...register("current_password")}
               />
               <button
                 type="button"
@@ -77,7 +75,7 @@ export default function ChangePasswordProfile() {
                     current_password: !prev.current_password,
                   }))
                 }
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 {showPasswords.current_password ? (
                   <EyeOff className="h-5 w-5" />
@@ -87,7 +85,7 @@ export default function ChangePasswordProfile() {
               </button>
             </div>
             {errors.current_password && (
-              <p className="text-xs text-red-500 mt-1">{errors.current_password.message}</p>
+              <p className="text-xs text-destructive mt-1">{errors.current_password.message}</p>
             )}
           </div>
 
@@ -100,13 +98,7 @@ export default function ChangePasswordProfile() {
                 id="password"
                 type={showPasswords.password ? "text" : "password"}
                 className="pr-10"
-                {...register("password", {
-                  required: "El Nuevo Password es obligatorio",
-                  minLength: {
-                    value: 8,
-                    message: "El Password debe ser mínimo de 8 caracteres",
-                  },
-                })}
+                {...register("password")}
               />
               <button
                 type="button"
@@ -116,7 +108,7 @@ export default function ChangePasswordProfile() {
                     password: !prev.password,
                   }))
                 }
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 {showPasswords.password ? (
                   <EyeOff className="h-5 w-5" />
@@ -125,7 +117,7 @@ export default function ChangePasswordProfile() {
                 )}
               </button>
             </div>
-            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
+            {errors.password && <p className="text-xs text-destructive mt-1">{errors.password.message}</p>}
           </div>
 
           <div>
@@ -138,11 +130,7 @@ export default function ChangePasswordProfile() {
                 id="password_confirmation"
                 type={showPasswords.password_confirmation ? "text" : "password"}
                 className="pr-10"
-                {...register("password_confirmation", {
-                  required: "Este campo es obligatorio",
-                  validate: (value) =>
-                    value === password || "Los Passwords no son iguales",
-                })}
+                {...register("password_confirmation")}
               />
               <button
                 type="button"
@@ -152,7 +140,7 @@ export default function ChangePasswordProfile() {
                     password_confirmation: !prev.password_confirmation,
                   }))
                 }
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 {showPasswords.password_confirmation ? (
                   <EyeOff className="h-5 w-5" />
@@ -162,7 +150,7 @@ export default function ChangePasswordProfile() {
               </button>
             </div>
             {errors.password_confirmation && (
-              <p className="text-xs text-red-500 mt-1">{errors.password_confirmation.message}</p>
+              <p className="text-xs text-destructive mt-1">{errors.password_confirmation.message}</p>
             )}
           </div>
 

@@ -90,11 +90,11 @@ export default function TagInput({ label, options, value, onChange, placeholder 
 
   return (
     <div className="flex flex-col gap-1 relative">
-      <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1 select-none">
+      <label className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground mb-1 select-none">
         {label}
       </label>
       <div
-        className="w-full min-h-[42px] px-3 py-2 border border-slate-200 rounded-lg bg-white focus-within:ring-4 focus-within:ring-brand-primary/10 focus-within:border-brand-primary transition-all duration-150 cursor-text"
+        className="w-full min-h-[42px] px-3 py-2 border border-border rounded-lg bg-card focus-within:ring-4 focus-within:ring-brand-primary/10 focus-within:border-brand-primary transition-all duration-150 cursor-text"
         onClick={() => inputRef.current?.focus()}
       >
         <div className="flex flex-wrap gap-1.5">
@@ -104,7 +104,7 @@ export default function TagInput({ label, options, value, onChange, placeholder 
             return (
               <span
                 key={id}
-                className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold bg-brand-primary/10 text-brand-primary rounded-md border border-brand-primary/20"
+                className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold bg-brand-primary/10 text-brand-primary rounded-md border border-border"
               >
                 {opt.nombre}
                 <button
@@ -120,7 +120,7 @@ export default function TagInput({ label, options, value, onChange, placeholder 
           <input
             ref={inputRef}
             type="text"
-            className="flex-1 min-w-[80px] text-xs text-slate-700 bg-transparent outline-none border-none p-0 leading-6"
+            className="flex-1 min-w-[80px] text-xs text-foreground bg-transparent outline-none border-none p-0 leading-6"
             placeholder={value.length === 0 ? (placeholder ?? "Buscar...") : ""}
             value={query}
             onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
@@ -132,7 +132,7 @@ export default function TagInput({ label, options, value, onChange, placeholder 
       {open && visible.length > 0 && (
         <div
           ref={listRef}
-          className="absolute top-full mt-1 left-0 right-0 z-50 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto"
+          className="absolute top-full mt-1 left-0 right-0 z-50 bg-card border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto"
         >
           {visible.map((opt, i) => (
             <button
@@ -143,7 +143,7 @@ export default function TagInput({ label, options, value, onChange, placeholder 
               className={`w-full text-left px-3 py-2 text-xs transition-colors cursor-pointer ${
                 i === focusedIndex
                   ? "bg-brand-primary/10 text-brand-primary"
-                  : "text-slate-600 hover:bg-slate-50"
+                  : "text-foreground hover:bg-muted"
               }`}
             >
               {opt.nombre}

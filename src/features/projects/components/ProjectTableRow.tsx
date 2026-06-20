@@ -86,7 +86,7 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
                 <TableCell>
                     <button
                         onClick={() => setExpanded(!expanded)}
-                        className="p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-200 transition-colors flex-shrink-0 cursor-pointer"
+                        className="p-1 text-muted-foreground hover:text-foreground rounded hover:bg-muted transition-colors flex-shrink-0 cursor-pointer"
                     >
                         <ChevronDown
                             className={`h-4 w-4 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
@@ -159,7 +159,7 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
                     <DropdownMenu>
                         <DropdownMenuTrigger
                             render={
-                                <button className="block p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-200 transition-colors cursor-pointer">
+                                <button className="block p-1 text-muted-foreground hover:text-foreground rounded hover:bg-muted transition-colors cursor-pointer">
                                     <span className="sr-only">opciones</span>
                                     <MoreVertical className="h-4 w-4" aria-hidden="true" />
                                 </button>
@@ -176,7 +176,7 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         onClick={() => navigate(location.pathname + `?deleteProject=${project.id_project}`)}
-                                        className="text-red-500 focus:text-red-500"
+                                        className="text-destructive focus:text-destructive"
                                     >
                                         Eliminar Proyecto
                                     </DropdownMenuItem>

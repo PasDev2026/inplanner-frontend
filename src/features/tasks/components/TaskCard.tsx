@@ -1,8 +1,9 @@
 import type { BackendTask } from "@/features/shared/lib/types"
-import { useRef, useState } from "react"
+import { memo, useRef, useState } from "react"
 import { MoreVertical } from "lucide-react"
 import { useNavigate, useParams, useLocation } from "react-router-dom"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { PROJECT_DETAIL_KEY } from "@/features/projects/lib/project-keys"
 import { deleteTask } from "@/features/shared/actions/task.api"
 import { toast } from "sonner"
 import { useDraggable } from '@dnd-kit/core'
@@ -16,20 +17,28 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Card, CardContent } from "@/components/ui/card"
 
+const BORDER_COLORS: Record<number, string> = {
+  0: "border-muted-foreground",
+  1: "border-warning",
+  2: "border-info",
+  3: "border-warning",
+  4: "border-success",
+}
+
 type TaskCardProps = {
   task: BackendTask
   canEdit: boolean
 }
 
-export default function TaskCard({ task, canEdit }: TaskCardProps) {
+const TaskCard = memo(function TaskCard({ task, canEdit }: TaskCardProps) {
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: task.id_task.toString()
   })
 
   const navigate = useNavigate()
   const location = useLocation()
-  const paramas = useParams()
-  const projectId = paramas.projectId!
+  const params = useParams()
+  const projectId = params.projectId!
   const updateTaskNameHook = useUpdateTaskName()
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState("")
@@ -80,15 +89,13 @@ export default function TaskCard({ task, canEdit }: TaskCardProps) {
     },
     onSuccess: () => {
       toast.success("Tarea eliminada correctamente")
-      queryClient.invalidateQueries({ queryKey: ["editProject", projectId] })
+      queryClient.invalidateQueries({ queryKey: PROJECT_DETAIL_KEY(projectId) })
       navigate(location.pathname, { replace: true })
     },
   })
 
   return (
-    <Card className={`group border-l-4`}
-      style={{ borderLeftColor: task.status != null ? (task.status === 0 ? '#64748b' : task.status === 1 ? '#ef4444' : task.status === 2 ? '#3b82f6' : task.status === 3 ? '#f59e0b' : task.status === 4 ? '#10b981' : '#64748b') : '#64748b' }}
-    >
+    <Card className={`group border-l-4 ${BORDER_COLORS[task.status] ?? "border-muted-foreground"}`}>
       <CardContent className="p-5 flex justify-between">
       <div
         {...listeners}
@@ -113,7 +120,15 @@ export default function TaskCard({ task, canEdit }: TaskCardProps) {
             <span
               onClick={handleTaskNameClick}
               onDoubleClick={handleTaskNameDoubleClick}
-              className="text-xl font-bold text-foreground hover:text-muted-foreground cursor-pointer"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault()
+                  handleTaskNameClick()
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              className="text-xl font-bold text-foreground hover:text-muted-foreground cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none rounded"
             >
               {task.task_name}
             </span>
@@ -126,7 +141,7 @@ export default function TaskCard({ task, canEdit }: TaskCardProps) {
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <button className="-m-2.5 block p-2.5 text-gray-500 hover:text-gray-900 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button className="-m-2.5 block p-2.5 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity">
                 <span className="sr-only">opciones</span>
                 <MoreVertical className="h-9 w-9" aria-hidden="true" />
               </button>
@@ -142,7 +157,7 @@ export default function TaskCard({ task, canEdit }: TaskCardProps) {
                 <DropdownMenuItem onClick={() => navigate(location.pathname + `?editTaskId=${task.id_task}`)}>
                   Editar Tarea
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => mutate()} className="text-red-500 focus:text-red-500">
+                <DropdownMenuItem onClick={() => mutate()} className="text-destructive focus:text-destructive">
                   Eliminar Tarea
                 </DropdownMenuItem>
               </>
@@ -153,4 +168,6 @@ export default function TaskCard({ task, canEdit }: TaskCardProps) {
     </CardContent>
     </Card>
   )
-}
+})
+
+export default TaskCard

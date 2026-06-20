@@ -14,7 +14,7 @@ export function NotesPanel({ notes, taskId }: NotesPanelProps) {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-gray-500 tracking-wider uppercase">
+                <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">
                     Notas ({notes.length})
                 </label>
                 <button
@@ -29,7 +29,7 @@ export function NotesPanel({ notes, taskId }: NotesPanelProps) {
 
             <div className="space-y-2 max-h-60 overflow-y-auto">
                 {notes.length === 0 ? (
-                    <p className="text-sm text-slate-400 italic text-center py-4">
+                    <p className="text-sm text-muted-foreground italic text-center py-4">
                         Sin notas aún
                     </p>
                 ) : (

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { PROJECTS_KEY, PROJECT_DETAIL_KEY, PROJECT_SEDE_USERS_KEY } from "@/features/projects/lib/project-keys"
 import { createResponsible, removeResponsible, getResponsibles } from "@/features/shared/actions/project.api"
 
 type UseUpdateProjectResponsibleParams = {
@@ -22,9 +23,9 @@ export const useUpdateProjectResponsible = () => {
             await Promise.all(ops)
         },
         onSuccess: (_data, variables) => {
-            queryClient.invalidateQueries({ queryKey: ["projects"] })
-            queryClient.invalidateQueries({ queryKey: ["editProject", variables.projectId] })
-            queryClient.invalidateQueries({ queryKey: ["projectSedeUsers", variables.projectId] })
+            queryClient.invalidateQueries({ queryKey: PROJECTS_KEY })
+            queryClient.invalidateQueries({ queryKey: PROJECT_DETAIL_KEY(variables.projectId) })
+            queryClient.invalidateQueries({ queryKey: PROJECT_SEDE_USERS_KEY(variables.projectId) })
         },
     })
 }

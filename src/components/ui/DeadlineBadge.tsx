@@ -28,14 +28,14 @@ export default function DeadlineBadge({
 
     const baseClasses = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border"
     
-    let colorClasses = "bg-slate-100 text-slate-600 border-slate-300"
+    let colorClasses = "bg-muted text-muted-foreground border-border"
     let text = `Vence: ${formattedDate}`
 
     if (isOverdue) {
-        colorClasses = "bg-red-100 text-red-700 border-red-300"
+        colorClasses = "bg-destructive/15 text-destructive border-destructive/25"
         text = `Vencido: ${formattedDate}`
     } else if (isNearDue) {
-        colorClasses = "bg-amber-100 text-amber-700 border-amber-300"
+        colorClasses = "bg-warning/15 text-warning border-warning/25"
         text = daysUntilDue === 0 ? "Vence hoy" : `Vence en ${daysUntilDue} días`
     }
 

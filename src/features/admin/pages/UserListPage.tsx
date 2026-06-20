@@ -1,12 +1,16 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, memo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Key, Pencil, ChevronLeft, ChevronRight } from "lucide-react"
+import { USERS_KEY, USERS_PAGINATED_KEY } from "@/features/admin/lib/admin-keys";
+import { ROLES_KEY, SEDES_KEY } from "@/features/shared/lib/shared-keys";
+import { Key, Pencil } from "lucide-react"
 import { getAllUsers, updateUserStatus } from "@/features/shared/actions/admin.api";
 import { getRoles, getSedes } from "@/features/shared/actions/centralizado.api";
-import Spinner from "@/components/ui/Spinner";
+import PageSpinner from "@/components/ui/PageSpinner";
 import UserStatusModal from "@/features/admin/components/UserStatusModal";
-import UserModal from "@/features/admin/components/UserModal";
+import CreateUserModal from "@/features/admin/components/CreateUserModal";
+import EditUserModal from "@/features/admin/components/EditUserModal";
 import ResetPasswordModal from "@/features/admin/components/ResetPasswordModal";
+import { Pagination } from "@/components/ui/pagination";
 import { UserAdmin } from "@/features/admin/schemas/user.schema";
 import {
   Table,
@@ -17,7 +21,135 @@ import {
   TableCell,
 } from "@/components/ui/table";
 
-export default function UserList() {
+type UserTableProps = {
+  users: UserAdmin[]
+  roleMap: Map<number, string>
+  sedeMap: Map<number, string>
+  onEdit: (id: number) => void
+  onResetPassword: (id: number, name: string) => void
+  onStatusChange: (user: UserAdmin) => void
+}
+
+const UserTable = memo(function UserTable({
+  users, roleMap, sedeMap, onEdit, onResetPassword, onStatusChange
+}: UserTableProps) {
+  return (
+    <Table>
+      <TableHeader className="bg-brand-primary">
+        <TableRow className="hover:bg-transparent border-none">
+          <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">Usuario</TableHead>
+          <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">DNI</TableHead>
+          <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">Rol / Área</TableHead>
+          <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">Estado</TableHead>
+          <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">Sede</TableHead>
+          <TableHead className="px-6 py-2.5 text-right text-[10px] font-extrabold text-white uppercase tracking-wider">Acciones</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {users.map((user: UserAdmin) => (
+          <TableRow key={user.id_user} className="hover:bg-muted/40 transition-colors duration-150 group">
+            <TableCell className="px-6 py-2.5 whitespace-nowrap">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center font-bold text-xs text-foreground shrink-0 select-none group-hover:border-brand-primary/20 group-hover:bg-brand-primary/[0.02] transition-colors duration-150">
+                  {user.name.charAt(0).toUpperCase()}
+                  {user.apellido_paterno?.charAt(0).toUpperCase() || ""}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-foreground truncate group-hover:text-foreground transition-colors duration-150">
+                    {user.name} {user.apellido_paterno} {user.apellido_materno || ""}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground font-normal truncate mt-0">
+                    {user.email} <span className="text-muted-foreground mx-0.5 font-light">•</span> @{user.username}
+                  </div>
+                </div>
+              </div>
+            </TableCell>
+            <TableCell className="px-6 py-2.5 whitespace-nowrap">
+              <div className="text-xs text-muted-foreground font-medium">{user.dni || "—"}</div>
+            </TableCell>
+            <TableCell className="px-6 py-2.5 whitespace-nowrap">
+              {user.userRoles && user.userRoles.length > 0 ? (
+                <div className="flex flex-wrap gap-1">
+                  {user.userRoles.slice(0, 2).map(r => (
+                    <span key={Number(r.rol_id)} className="px-2 py-0.5 text-[9px] rounded bg-muted text-muted-foreground border border-border font-medium whitespace-nowrap">
+                      {roleMap.get(Number(r.rol_id)) ?? "—"}
+                    </span>
+                  ))}
+                  {user.userRoles.length > 2 && (
+                    <span className="px-2 py-0.5 text-[9px] rounded bg-muted text-muted-foreground border border-border font-medium whitespace-nowrap">
+                      +{user.userRoles.length - 2}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="text-xs font-bold text-foreground">Sin rol</div>
+              )}
+              <div className="text-[11px] text-muted-foreground font-normal mt-0.5">
+                {user.area?.nombre_area
+                  ? user.area.nombre_area.charAt(0).toUpperCase() + user.area.nombre_area.slice(1)
+                  : "Sin área"}
+              </div>
+            </TableCell>
+            <TableCell className="px-6 py-2.5 whitespace-nowrap">
+              <button
+                onClick={() => onStatusChange(user)}
+                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold border transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98] ${
+                  user.estado
+                    ? "bg-success/15 text-success border-success/25"
+                    : "bg-muted text-muted-foreground border-border"
+                }`}
+                title="Click para cambiar estado"
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${user.estado ? "bg-success animate-pulse" : "bg-muted-foreground"}`} />
+                {user.estado ? "Activo" : "Inactivo"}
+              </button>
+            </TableCell>
+            <TableCell className="px-6 py-2.5">
+              {user.userSedes && user.userSedes.length > 0 ? (
+                <div className="flex flex-wrap gap-1">
+                  {user.userSedes.slice(0, 2).map(s => (
+                    <span key={Number(s.sede_id)} className="px-2 py-0.5 text-[9px] rounded bg-muted text-muted-foreground border border-border font-medium whitespace-nowrap">
+                      {sedeMap.get(Number(s.sede_id)) ?? "—"}
+                    </span>
+                  ))}
+                  {user.userSedes.length > 2 && (
+                    <span className="px-2 py-0.5 text-[9px] rounded bg-muted text-muted-foreground border border-border font-medium whitespace-nowrap">
+                      +{user.userSedes.length - 2}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <span className="text-[10px] text-muted-foreground font-light">—</span>
+              )}
+            </TableCell>
+            <TableCell className="px-6 py-2.5 whitespace-nowrap text-right">
+              <div className="flex items-center justify-end gap-1">
+                <button
+                  type="button"
+                  onClick={() => onEdit(user.id_user)}
+                  className="p-1 text-muted-foreground hover:text-brand-primary hover:bg-muted rounded-lg transition-all duration-200 cursor-pointer"
+                  title="Editar usuario"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onResetPassword(user.id_user, `${user.name} ${user.apellido_paterno}`)}
+                  className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all duration-200 cursor-pointer"
+                  title="Restablecer contraseña"
+                >
+                  <Key className="h-4 w-4" />
+                </button>
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+})
+
+const UserList = memo(function UserList() {
 
   const queryClient = useQueryClient()
   const [selectedUser, setSelectedUser] = useState<UserAdmin | null>(null)
@@ -28,20 +160,20 @@ export default function UserList() {
   const PAGE_SIZE = 10
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["users", { page, limit: PAGE_SIZE }],
+    queryKey: USERS_PAGINATED_KEY(page, PAGE_SIZE),
     queryFn: () => getAllUsers(page, PAGE_SIZE),
     retry: false,
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: roles } = useQuery({
-    queryKey: ["roles"],
+    queryKey: ROLES_KEY,
     queryFn: getRoles,
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: sedes } = useQuery({
-    queryKey: ["sedes"],
+    queryKey: SEDES_KEY,
     queryFn: getSedes,
     staleTime: 5 * 60 * 1000,
   });
@@ -60,14 +192,14 @@ export default function UserList() {
     mutationFn: ({ userId, estado }: { userId: number; estado: boolean }) =>
       updateUserStatus(userId, estado),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] })
+      queryClient.invalidateQueries({ queryKey: USERS_KEY })
     },
     onError: (error) => {
       console.error(error.message)
     },
   });
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <PageSpinner />;
 
   if (isError) {
     return (
@@ -84,8 +216,8 @@ export default function UserList() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-2">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-800">Gestión de usuarios</h1>
-          <p className="text-sm font-medium text-slate-400 mt-1">
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Gestión de usuarios</h1>
+          <p className="text-sm font-medium text-muted-foreground mt-1">
             Administra los roles, áreas y accesos de los usuarios del sistema
           </p>
         </div>
@@ -101,193 +233,29 @@ export default function UserList() {
       </div>
 
       {data && data.users.length ? (
-        <div className="bg-white border border-slate-100 rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
-          <Table>
-            <TableHeader className="bg-brand-primary">
-              <TableRow className="hover:bg-transparent border-none">
-                <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">
-                  Usuario
-                </TableHead>
-                <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">
-                  DNI
-                </TableHead>
-                <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">
-                  Rol / Área
-                </TableHead>
-                <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">
-                  Estado
-                </TableHead>
-                <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">
-                  Sede
-                </TableHead>
-                <TableHead className="px-6 py-2.5 text-right text-[10px] font-extrabold text-white uppercase tracking-wider">
-                  Acciones
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.users.map((user: UserAdmin) => (
-                <TableRow key={user.id_user} className="hover:bg-slate-50/40 transition-colors duration-150 group">
-                  <TableCell className="px-6 py-2.5 whitespace-nowrap">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center font-bold text-xs text-slate-600 shrink-0 select-none group-hover:border-brand-primary/20 group-hover:bg-brand-primary/[0.02] transition-colors duration-150">
-                        {user.name.charAt(0).toUpperCase()}
-                        {user.apellido_paterno?.charAt(0).toUpperCase() || ""}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-xs font-bold text-slate-700 truncate group-hover:text-slate-900 transition-colors duration-150">
-                          {user.name} {user.apellido_paterno} {user.apellido_materno || ""}
-                        </div>
-                        <div className="text-[11px] text-slate-400 font-normal truncate mt-0">
-                          {user.email} <span className="text-slate-300 mx-0.5 font-light">•</span> @{user.username}
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="px-6 py-2.5 whitespace-nowrap">
-                    <div className="text-xs text-slate-500 font-medium">{user.dni || "—"}</div>
-                  </TableCell>
-                  <TableCell className="px-6 py-2.5 whitespace-nowrap">
-                    {user.userRoles && user.userRoles.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {user.userRoles.slice(0, 2).map(r => (
-                          <span key={Number(r.rol_id)} className="px-2 py-0.5 text-[9px] rounded bg-slate-50 text-slate-500 border border-slate-100 font-medium whitespace-nowrap">
-                            {roleMap.get(Number(r.rol_id)) ?? "—"}
-                          </span>
-                        ))}
-                        {user.userRoles.length > 2 && (
-                          <span className="px-2 py-0.5 text-[9px] rounded bg-brand-primary/10 text-brand-primary border border-brand-primary/20 font-medium whitespace-nowrap">
-                            +{user.userRoles.length - 2}
-                          </span>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-xs font-bold text-slate-700">Sin rol</div>
-                    )}
-                    <div className="text-[11px] text-slate-400 font-normal mt-0.5">
-                      {user.area?.nombre_area
-                        ? user.area.nombre_area.charAt(0).toUpperCase() + user.area.nombre_area.slice(1)
-                        : "Sin área"}
-                    </div>
-                  </TableCell>
-                  <TableCell className="px-6 py-2.5 whitespace-nowrap">
-                    <button
-                      onClick={() => setSelectedUser(user)}
-                      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold border transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98] ${
-                        user.estado
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-                          : "bg-slate-50 text-slate-500 border-slate-100"
-                      }`}
-                      title="Click para cambiar estado"
-                    >
-                      <span className={`w-1.5 h-1.5 rounded-full ${user.estado ? "bg-emerald-500 animate-pulse" : "bg-slate-400"}`} />
-                      {user.estado ? "Activo" : "Inactivo"}
-                    </button>
-                  </TableCell>
-                  <TableCell className="px-6 py-2.5">
-                    {user.userSedes && user.userSedes.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {user.userSedes.slice(0, 2).map(s => (
-                          <span key={Number(s.sede_id)} className="px-2 py-0.5 text-[9px] rounded bg-slate-50 text-slate-500 border border-slate-100 font-medium whitespace-nowrap">
-                            {sedeMap.get(Number(s.sede_id)) ?? "—"}
-                          </span>
-                        ))}
-                        {user.userSedes.length > 2 && (
-                          <span className="px-2 py-0.5 text-[9px] rounded bg-brand-primary/10 text-brand-primary border border-brand-primary/20 font-medium whitespace-nowrap">
-                            +{user.userSedes.length - 2}
-                          </span>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-[10px] text-slate-300 font-light">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="px-6 py-2.5 whitespace-nowrap text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() => setEditingUserId(user.id_user)}
-                        className="p-1 text-slate-400 hover:text-brand-primary hover:bg-slate-50 rounded-lg transition-all duration-200 cursor-pointer"
-                        title="Editar usuario"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setResetPasswordUserId({ id: user.id_user, name: `${user.name} ${user.apellido_paterno}` })}
-                        className="p-1 text-slate-400 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-all duration-200 cursor-pointer"
-                        title="Restablecer contraseña"
-                      >
-                        <Key className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <div className="flex items-center justify-between px-6 py-3 border-t border-slate-100 bg-slate-50/20">
-            <p className="text-xs text-slate-400 font-medium">
-              Mostrando {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, data.total)} de {data.total} usuarios
-            </p>
-            <div className="flex items-center gap-1">
-              <button
-                disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                aria-label="Página anterior"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              {Array.from({ length: Math.ceil(data.total / PAGE_SIZE) }, (_, i) => i + 1)
-                .reduce<(number | "...")[]>((pages, p, _i, all) => {
-                  const first = p === 1;
-                  const last = p === all.length;
-                  const near = Math.abs(p - page) <= 1;
-                  const prevIsEllipsis = pages[pages.length - 1] === "...";
-                  if (first || last || near) {
-                    pages.push(p);
-                  } else if (!prevIsEllipsis) {
-                    pages.push("...");
-                  }
-                  return pages;
-                }, [])
-                .map((item, i) =>
-                  item === "..." ? (
-                    <span key={`ellipsis-${i}`} className="px-2 text-xs text-slate-300 select-none">
-                      ...
-                    </span>
-                  ) : (
-                    <button
-                      key={item}
-                      onClick={() => setPage(item)}
-                      className={`min-w-[28px] h-7 text-xs font-semibold rounded-md transition-all duration-150 cursor-pointer ${
-                        item === page
-                          ? "bg-brand-primary text-white shadow-sm"
-                          : "text-slate-500 hover:bg-slate-100"
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  )
-                )}
-              <button
-                disabled={page * PAGE_SIZE >= data.total}
-                onClick={() => setPage((p) => p + 1)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                aria-label="Página siguiente"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
+        <div className="bg-card border border-border rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+          <UserTable
+            users={data.users}
+            roleMap={roleMap}
+            sedeMap={sedeMap}
+            onEdit={setEditingUserId}
+            onResetPassword={(id, name) => setResetPasswordUserId({ id, name })}
+            onStatusChange={setSelectedUser}
+          />
+          <Pagination
+            page={page}
+            total={data.total}
+            pageSize={PAGE_SIZE}
+            onPageChange={setPage}
+            label="usuarios"
+          />
         </div>
       ) : (
-        <div className="bg-white border border-slate-100 rounded-xl p-12 text-center shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
-          <p className="text-lg font-semibold text-slate-500">
+        <div className="bg-card border border-border rounded-xl p-12 text-center shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+          <p className="text-lg font-semibold text-muted-foreground">
             No hay usuarios registrados aún
           </p>
-          <p className="text-sm text-slate-400 mt-1 mb-6">
+          <p className="text-sm text-muted-foreground mt-1 mb-6">
             Comienza creando el primer usuario del sistema.
           </p>
           <button
@@ -310,14 +278,12 @@ export default function UserList() {
         }}
         onClose={() => setSelectedUser(null)}
       />
-      <UserModal
-        mode="edit"
+      <EditUserModal
         isOpen={editingUserId !== null}
         onClose={() => setEditingUserId(null)}
-        userId={editingUserId}
+        userId={editingUserId!}
       />
-      <UserModal
-        mode="create"
+      <CreateUserModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
       />
@@ -330,4 +296,6 @@ export default function UserList() {
       )}
     </div>
   );
-}
+})
+
+export default UserList

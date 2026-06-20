@@ -40,7 +40,7 @@ export default function Tabs() {
             </div>
 
             <div className="hidden sm:block">
-                <div className="border-b border-gray-200">
+                <div className="border-b border-border">
                     <nav className="-mb-px flex space-x-8" aria-label="Tabs">
                         {tabs.map((tab) => (
                             <Link
@@ -49,13 +49,13 @@ export default function Tabs() {
                                 className={classNames(
                                     location.pathname === tab.href
                                         ? 'border-brand-primary text-brand-primary'
-                                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                                        : 'border-transparent text-muted-foreground hover:border-border hover:text-foreground',
                                     'group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium'
                                 )}
                             >
                                 <tab.icon
                                     className={classNames(
-                                        location.pathname === tab.href ? 'text-brand-primary' : 'text-gray-400 group-hover:text-gray-500',
+                                        location.pathname === tab.href ? 'text-brand-primary' : 'text-muted-foreground group-hover:text-foreground',
                                         '-ml-0.5 mr-2 h-5 w-5'
                                     )}
                                     aria-hidden="true"

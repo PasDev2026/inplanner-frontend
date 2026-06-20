@@ -1,8 +1,9 @@
 import { Link, Navigate, useParams } from "react-router-dom"
 import { getProjectById, getProjectTasks } from "@/features/shared/actions/project.api"
 import { useQuery } from "@tanstack/react-query"
+import { PROJECT_DETAIL_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { Plus, Users } from "lucide-react"
-import Spinner from "../../../components/ui/Spinner"
+import PageSpinner from "../../../components/ui/PageSpinner"
 import { useAuth } from "@/features/auth/hooks/useAuth"
 import isManager from "@/features/shared/lib/policies"
 import DeadlineBadge from "../../../components/ui/DeadlineBadge"
@@ -21,7 +22,7 @@ export default function ProjectDetailPage() {
   const projectId = Number(params.projectId!)
 
   const {data, isLoading,isError} = useQuery({
-    queryKey: ['editProject', projectId],
+    queryKey: PROJECT_DETAIL_KEY(projectId),
     queryFn: async () => {
       const result = await getProjectById(projectId)
       if (!result) throw new Error("No data")
@@ -31,7 +32,7 @@ export default function ProjectDetailPage() {
   })
 
   const { data: tasksResponse } = useQuery({
-    queryKey: ["projectTasks", projectId],
+    queryKey: PROJECT_TASKS_KEY(projectId),
     queryFn: async () => {
       const result = await getProjectTasks(projectId)
       if (!result) throw new Error("No data")
@@ -43,7 +44,7 @@ export default function ProjectDetailPage() {
 
   const tasks = (tasksResponse as { data: BackendTask[] } | undefined)?.data ?? []
 
-  if(isLoading && authLoading) return <Spinner />
+  if(isLoading && authLoading) return <PageSpinner />
   if(isError) return <Navigate to='/404'/>
   if (data && user) return (
     <div className="space-y-6">

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { ChevronUp } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
 
 const SCROLL_THRESHOLD = 400
 
@@ -18,21 +17,15 @@ export default function ScrollToTop() {
   }
 
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.button
-          type="button"
-          onClick={scrollToTop}
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 16 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-brand-primary text-white shadow-lg hover:bg-brand-dark hover:shadow-xl transition-shadow focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
-          aria-label="Volver arriba"
-        >
-          <ChevronUp className="h-5 w-5" />
-        </motion.button>
-      )}
-    </AnimatePresence>
+    <button
+      type="button"
+      onClick={scrollToTop}
+      className={`fixed bottom-6 right-6 z-50 p-3 rounded-full bg-brand-primary text-white shadow-lg transition-all duration-200 ease-out hover:bg-brand-dark hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/40 ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+      }`}
+      aria-label="Volver arriba"
+    >
+      <ChevronUp className="h-5 w-5" />
+    </button>
   )
 }

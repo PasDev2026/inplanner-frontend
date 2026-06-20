@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { addMemberSchema } from "@/features/projects/schemas/project.schema";
+import type { TeamMemberFormulario } from "@/features/projects/schemas/project.schema";
 import { useMutation } from "@tanstack/react-query";
-import { TeamMemberFormulario } from "@/features/shared/lib/types";
 import { getAllUsers } from "@/features/shared/actions/admin.api";
 import SearchResult from "./SearchResult";
 import { Button } from "@/components/ui/button";
@@ -17,8 +19,9 @@ export default function AddMemberForm() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm({
+  } = useForm<TeamMemberFormulario>({
     defaultValues: initialValues,
+    resolver: zodResolver(addMemberSchema),
   });
 
   const mutation = useMutation({
@@ -50,15 +53,9 @@ export default function AddMemberForm() {
             id="email"
             type="text"
             placeholder="E-mail del usuario a agregar"
-            {...register("email", {
-              required: "El Email es obligatorio",
-              pattern: {
-                value: /\S+@\S+\.\S+/,
-                message: "E-mail no válido",
-              },
-            })}
+            {...register("email")}
           />
-          {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
+          {errors.email && <p className="text-xs text-destructive mt-1">{errors.email.message}</p>}
         </div>
 
         <Button type="submit" className="w-full">

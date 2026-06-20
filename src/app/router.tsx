@@ -1,17 +1,18 @@
+import { lazy } from "react"
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import AppLayout from "@/features/shared/layouts/AppLayout"
-import DashboardPage from "@/features/dashboard/pages/DashboardPage"
-import UserListPage from "@/features/admin/pages/UserListPage"
-import ProjectCreatePage from "@/features/projects/pages/ProjectCreatePage"
-import ProjectEditPage from "@/features/projects/pages/ProjectEditPage"
-import ProjectDetailPage from "@/features/projects/pages/ProjectDetailPage"
-import LoginPage from "@/features/auth/pages/LoginPage"
 import AuthLayout from "@/features/shared/layouts/AuthLayout"
-import TeamPage from "@/features/projects/pages/team/TeamPage"
-import ProfilePage from "@/features/profile/pages/ProfilePage"
-import ChangePasswordProfile from "@/features/profile/components/ChangePasswordProfile"
 import ProfileLayout from "@/features/shared/layouts/ProfileLayout"
 import NotFoundPage from "@/features/shared/pages/NotFoundPage"
+
+const ProjectListPage = lazy(() => import("@/features/projects/pages/ProjectListPage"))
+const UserListPage = lazy(() => import("@/features/admin/pages/UserListPage"))
+const ProjectEditPage = lazy(() => import("@/features/projects/pages/ProjectEditPage"))
+const ProjectDetailPage = lazy(() => import("@/features/projects/pages/ProjectDetailPage"))
+const TeamPage = lazy(() => import("@/features/projects/pages/team/TeamPage"))
+const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"))
+const ProfilePage = lazy(() => import("@/features/profile/pages/ProfilePage"))
+const ChangePasswordProfile = lazy(() => import("@/features/profile/components/ChangePasswordProfile"))
 
 
 
@@ -22,9 +23,8 @@ export default function Router() {
             <Routes>
                 <Route path="/" element={<Navigate to="/auth/login" replace />} />
                 <Route element={<AppLayout/>}>
-<Route path="/dashboard" element={<DashboardPage/>} index/>
+<Route path="/dashboard" element={<ProjectListPage/>} index/>
 <Route path="/admin/users" element={<UserListPage/>}/>
-                    <Route path="/projects/create" element={<ProjectCreatePage/>}/>
                     <Route path="/projects/:projectId/details-projects" element={<ProjectDetailPage />}/>
                     <Route path="/projects/:projectId/edit" element={<ProjectEditPage/>}/>
                     <Route path="/projects/:projectId/details-projects/team" element={<TeamPage />}/>

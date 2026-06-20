@@ -15,11 +15,11 @@ type StatusPopoverProps = {
 const STATUS_KEYS = [0, 1, 2, 3, 4] as const
 
 const SELECTED_BG: Record<number, string> = {
-  0: "bg-purple-100",
-  1: "bg-blue-100",
-  2: "bg-amber-100",
-  3: "bg-emerald-100",
-  4: "bg-gray-100",
+  0: "bg-info/15",
+  1: "bg-success/15",
+  2: "bg-warning/15",
+  3: "bg-success/15",
+  4: "bg-muted",
 }
 
 export default function StatusPopover({ status, onSelect, isPending = false }: StatusPopoverProps) {
@@ -38,7 +38,7 @@ export default function StatusPopover({ status, onSelect, isPending = false }: S
                 disabled={isPending}
                 render={
                     <button className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors
-                        ${current ? current.style : "bg-slate-100 text-slate-500 border-slate-200"}
+                        ${current ? current.style : "bg-muted text-muted-foreground border-border"}
                         ${isPending ? "opacity-50 pointer-events-none" : ""}
                     `}>
                         {current ? current.label : "—"}
@@ -54,7 +54,7 @@ export default function StatusPopover({ status, onSelect, isPending = false }: S
                             <button
                                 key={key}
                                 onClick={(e) => handleSelect(key, e)}
-                                className={`flex items-center gap-2 w-full px-2 py-1.5 text-xs font-medium rounded-md transition-colors text-slate-700 ${isSelected ? SELECTED_BG[key] : 'hover:bg-slate-50'}`}
+                                className={`flex items-center gap-2 w-full px-2 py-1.5 text-xs font-medium rounded-md transition-colors text-foreground ${isSelected ? SELECTED_BG[key] : 'hover:bg-muted'}`}
                             >
                                 <span className={`w-2 h-2 rounded-full ${opt.dotColor}`} />
                                 {opt.label}

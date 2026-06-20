@@ -8,8 +8,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { resetPasswordSchema } from "@/features/auth/schemas/auth.schema"
+import type { ResetPasswordForm } from "@/features/auth/schemas/auth.schema"
 import { resetUserPassword } from "@/features/shared/actions/admin.api"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { USERS_KEY } from "@/features/admin/lib/admin-keys"
 import { toast } from "sonner"
 
 type ResetPasswordModalProps = {
@@ -18,14 +22,9 @@ type ResetPasswordModalProps = {
   onClose: () => void
 }
 
-type ResetPasswordForm = {
-  password: string
-  password_confirmation: string
-}
-
 export default function ResetPasswordModal({ userId, userName, onClose }: ResetPasswordModalProps) {
   const queryClient = useQueryClient()
-  const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordForm>()
+  const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordForm>({ resolver: zodResolver(resetPasswordSchema) })
 
   const { mutate, isPending } = useMutation({
     mutationFn: (formData: ResetPasswordForm) => resetUserPassword(userId, formData.password),
@@ -34,7 +33,7 @@ export default function ResetPasswordModal({ userId, userName, onClose }: ResetP
     },
     onSuccess: () => {
       toast.success(`La contraseña de ${userName} fue restablecida correctamente`)
-      queryClient.invalidateQueries({ queryKey: ["users"] })
+      queryClient.invalidateQueries({ queryKey: USERS_KEY })
       onClose()
     },
   })
@@ -58,10 +57,7 @@ export default function ResetPasswordModal({ userId, userName, onClose }: ResetP
             <Input
               id="reset-password"
               type="password"
-              {...register("password", {
-                required: "La contraseña es obligatoria",
-                minLength: { value: 8, message: "Debe tener al menos 8 caracteres" },
-              })}
+              {...register("password")}
             />
             {errors.password && (
               <p className="text-xs text-destructive font-medium">{errors.password.message}</p>
@@ -73,10 +69,7 @@ export default function ResetPasswordModal({ userId, userName, onClose }: ResetP
             <Input
               id="reset-password-confirm"
               type="password"
-              {...register("password_confirmation", {
-                required: "Confirma la contraseña",
-                validate: (value, formValues) => value === formValues.password || "Las contraseñas no coinciden",
-              })}
+              {...register("password_confirmation")}
             />
             {errors.password_confirmation && (
               <p className="text-xs text-destructive font-medium">{errors.password_confirmation.message}</p>

@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { TASK_KEY } from "@/features/tasks/lib/task-keys"
 import { createNote } from "@/features/shared/actions/note.api"
 import { toast } from "sonner"
 
@@ -15,7 +16,7 @@ export default function AddNotesForm({ taskId }: AddNotesFormProps) {
         mutationFn: () => createNote({ content, task_id: taskId }),
         onSuccess: () => {
             setContent("")
-            queryClient.invalidateQueries({ queryKey: ["task", String(taskId)] })
+            queryClient.invalidateQueries({ queryKey: TASK_KEY(String(taskId)) })
         },
         onError: (error) => {
             toast.error((error as Error).message)
@@ -35,7 +36,7 @@ export default function AddNotesForm({ taskId }: AddNotesFormProps) {
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Escribe una nota..."
                 rows={3}
-                className="w-full rounded-lg border border-slate-200 p-3 text-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none resize-none"
+                className="w-full rounded-lg border border-border p-3 text-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none resize-none"
             />
             <button
                 type="submit"

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
+import { TASK_CHILDREN_KEY } from "@/features/tasks/lib/task-keys"
 import { getTaskChildren } from "@/features/shared/actions/task.api"
-import Spinner from "../../../components/ui/Spinner"
+import PageSpinner from "../../../components/ui/PageSpinner"
 
 type SubtaskChecklistProps = {
     projectId: number
@@ -9,12 +10,12 @@ type SubtaskChecklistProps = {
 
 export function SubtaskChecklist({ projectId: _projectId, taskId }: SubtaskChecklistProps) {
     const { data, isLoading } = useQuery({
-        queryKey: ["taskChildren", taskId],
+        queryKey: TASK_CHILDREN_KEY(taskId),
         queryFn: () => getTaskChildren(taskId),
         enabled: !!taskId,
     })
 
-    if (isLoading) return <Spinner />
+    if (isLoading) return <PageSpinner />
 
     const children = data ?? []
 

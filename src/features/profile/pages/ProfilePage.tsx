@@ -1,11 +1,11 @@
 import ProfileForm from "@/features/profile/components/ProfileForm"
-import Spinner from "@/components/ui/Spinner"
+import PageSpinner from "@/components/ui/PageSpinner"
 import { useAuth } from "@/features/auth/hooks/useAuth"
 
 export default function ProfilePage() {
     const {data, isLoading} = useAuth()
 
-    if(isLoading) return <Spinner />
+    if(isLoading) return <PageSpinner />
 
   if(data) return <ProfileForm data={data} />
 }

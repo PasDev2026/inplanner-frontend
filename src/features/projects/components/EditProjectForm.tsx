@@ -1,7 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { PROJECTS_KEY, PROJECT_DETAIL_KEY } from "@/features/projects/lib/project-keys";
 import ProjectForm from "./ProjectForm";
 import { BackendProject } from "@/features/shared/lib/types";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { projectFormSchema } from "@/features/projects/schemas/project.schema";
 import { updateProjectField } from "@/features/shared/actions/project.api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +28,7 @@ export default function EditProjectForm({
     getValues,
     formState: { errors },
   } = useForm<ProjectFormValues>({
+    resolver: zodResolver(projectFormSchema),
     defaultValues: {
       name_project: data.name_project,
       description_project: data.description_project ?? "",
@@ -50,8 +54,8 @@ export default function EditProjectForm({
     },
     onSuccess: () => {
       toast.success("Proyecto editado correctamente")
-      queryClient.invalidateQueries({queryKey: ['projects']})
-      queryClient.invalidateQueries({queryKey: ['editProject', projectId]})
+      queryClient.invalidateQueries({queryKey: PROJECTS_KEY})
+      queryClient.invalidateQueries({queryKey: PROJECT_DETAIL_KEY(projectId)})
       navigate("/dashboard");
     },
   });

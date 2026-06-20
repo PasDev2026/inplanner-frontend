@@ -18,9 +18,9 @@ const badgeVariants = cva(
         brand:
           "bg-brand-primary/10 text-brand-primary border-brand-primary/20",
         "brand-light":
-          "bg-brand-light/10 text-brand-light border-brand-light/30",
+          "bg-brand-light/10 text-brand-light border-border",
         slate:
-          "bg-slate-100 text-slate-600 border-slate-300",
+          "bg-muted text-muted-foreground border-border",
       },
     },
     defaultVariants: {

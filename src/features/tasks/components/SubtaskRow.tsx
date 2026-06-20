@@ -2,6 +2,8 @@ import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { getTaskChildren, createTask } from "@/features/shared/actions/task.api"
 import type { BackendTask } from "@/features/shared/lib/types"
+import { TASK_CHILDREN_KEY } from "@/features/tasks/lib/task-keys"
+import { PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { useTaskMutations } from "../hooks/useTaskMutations"
 import TaskStatusPopover from "./TaskStatusPopover"
 import ResponsiblePopover from "../../shared/components/ResponsiblePopover"
@@ -11,7 +13,7 @@ import { ChevronRight, ChevronDown, Plus, Check, X, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table"
 import { COL_GROUP } from "@/features/shared/lib/tableColumns"
-import Spinner from "@/components/ui/Spinner"
+import PageSpinner from "@/components/ui/PageSpinner"
 
 type SubtaskRowProps = {
     subtask: BackendTask
@@ -43,7 +45,7 @@ export default function SubtaskRow({
     const projectIdNum = Number(projectId)
 
     const { data: children = [], isLoading } = useQuery({
-        queryKey: ["taskChildren", subtask.id_task],
+        queryKey: TASK_CHILDREN_KEY(subtask.id_task),
         queryFn: () => getTaskChildren(subtask.id_task),
         enabled: expanded,
         staleTime: 30000,
@@ -57,8 +59,8 @@ export default function SubtaskRow({
         mutationFn: (name: string) =>
             createTask({ task_name: name, project_id: projectIdNum, parent_task_id: subtask.id_task }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["taskChildren", subtask.id_task] })
-            queryClient.invalidateQueries({ queryKey: ["projectTasks", projectIdNum] })
+            queryClient.invalidateQueries({ queryKey: TASK_CHILDREN_KEY(subtask.id_task) })
+            queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectIdNum) })
             setNewTaskName("")
             setShowForm(false)
         },
@@ -111,12 +113,12 @@ export default function SubtaskRow({
                         <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); setExpanded(!expanded) }}
-                            className={`p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-200 transition-all flex-shrink-0 ${(subtask.subtasks_count ?? 0) > 0 || expanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                            className={`p-1 text-muted-foreground hover:text-foreground rounded hover:bg-muted transition-all flex-shrink-0 ${(subtask.subtasks_count ?? 0) > 0 || expanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                         >
                             {expanded ? (
-                                <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
+                                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                             ) : (
-                                <ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+                                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                             )}
                         </button>
                         {isEditing ? (
@@ -186,7 +188,7 @@ export default function SubtaskRow({
                             e.stopPropagation()
                             handleDelete()
                         }}
-                        className="p-1 text-red-400 hover:text-red-600 rounded hover:bg-red-50 transition-colors"
+                        className="p-1 text-destructive hover:text-destructive/80 rounded hover:bg-destructive/10 transition-colors"
                         title="Eliminar subtarea"
                     >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -208,7 +210,7 @@ export default function SubtaskRow({
                                     <TableRow>
                                         <TableCell colSpan={9} className="py-6">
                                             <div className="flex justify-center">
-                                                <Spinner fullPage={false} size={12} />
+                                                <PageSpinner fullPage={false} centered={false} size={12} />
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -268,7 +270,7 @@ export default function SubtaskRow({
                                                         if (newTaskName.trim()) createSubtask.mutate(newTaskName.trim())
                                                     }}
                                                     disabled={!newTaskName.trim() || createSubtask.isPending}
-                                                    className="p-1 text-brand-primary hover:text-brand-dark disabled:text-gray-300"
+                                                    className="p-1 text-brand-primary hover:text-brand-dark disabled:text-muted-foreground"
                                                 >
                                                     <Check className="h-3.5 w-3.5" />
                                                 </button>
@@ -277,7 +279,7 @@ export default function SubtaskRow({
                                                         setShowForm(false)
                                                         setNewTaskName("")
                                                     }}
-                                                    className="p-1 text-gray-400 hover:text-gray-600"
+                                                    className="p-1 text-muted-foreground hover:text-foreground"
                                                 >
                                                     <X className="h-3.5 w-3.5" />
                                                 </button>

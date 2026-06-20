@@ -81,11 +81,11 @@ export default function DateRangePopover({
 
   const triggerClass = cn(
     "text-left text-sm rounded px-1 py-0.5 -ml-1 transition-colors",
-    !hasDates && "text-slate-400 hover:text-brand-primary hover:bg-brand-primary/5",
-    hasDates && !showDueStatus && "text-slate-700 hover:text-brand-primary hover:bg-brand-primary/5",
-    hasDates && showDueStatus && dueStatus === "overdue" && "text-red-600 hover:text-red-700 hover:bg-red-50",
-    hasDates && showDueStatus && dueStatus === "near" && "text-amber-600 hover:text-amber-700 hover:bg-amber-50",
-    hasDates && showDueStatus && (dueStatus === "normal" || !dueStatus) && "text-slate-700 hover:text-brand-primary hover:bg-brand-primary/5",
+    !hasDates && "text-muted-foreground hover:text-brand-primary hover:bg-brand-primary/5",
+    hasDates && !showDueStatus && "text-foreground hover:text-brand-primary hover:bg-brand-primary/5",
+    hasDates && showDueStatus && dueStatus === "overdue" && "text-destructive hover:text-destructive/80 hover:bg-destructive/10",
+    hasDates && showDueStatus && dueStatus === "near" && "text-warning hover:text-warning/80 hover:bg-warning/10",
+    hasDates && showDueStatus && (dueStatus === "normal" || !dueStatus) && "text-foreground hover:text-brand-primary hover:bg-brand-primary/5",
     isPending && "opacity-50 pointer-events-none",
   )
 
@@ -102,7 +102,7 @@ export default function DateRangePopover({
       <PopoverContent className="w-auto p-3" align="start">
         <div className="space-y-3">
           {projectRangeLabel && (
-            <p className="text-[10px] text-slate-400 italic">{projectRangeLabel}</p>
+            <p className="text-[10px] text-muted-foreground italic">{projectRangeLabel}</p>
           )}
           <Calendar
             mode="range"

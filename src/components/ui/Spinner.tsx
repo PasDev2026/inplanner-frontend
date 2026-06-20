@@ -1,32 +1,10 @@
-import { PropagateLoader } from "react-spinners"
 import { cn } from "@/features/shared/lib/utils"
+import { Loader2Icon } from "lucide-react"
 
-type SpinnerProps = {
-  size?: number
-  color?: string
-  className?: string
-  fullPage?: boolean
-}
-
-export default function Spinner({
-  size = 15,
-  color = "var(--brand-primary)",
-  className,
-  fullPage = true,
-}: SpinnerProps) {
-  const loader = (
-    <PropagateLoader
-      color={color}
-      size={size}
-      aria-label="Cargando..."
-    />
-  )
-
-  if (!fullPage) return loader
-
+function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
   return (
-    <div className={cn("flex items-center justify-center h-screen", className)}>
-      {loader}
-    </div>
+    <Loader2Icon data-slot="spinner" role="status" aria-label="Loading" className={cn("size-4 animate-spin", className)} {...props} />
   )
 }
+
+export { Spinner }

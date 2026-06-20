@@ -24,19 +24,19 @@ type StatusOption = {
 }
 
 const PROJECT_OPTIONS: StatusOption[] = [
-    { value: "0", label: "Planificación", dotColor: "bg-purple-500", hoverBg: "hover:bg-purple-50", textColor: "text-purple-700" },
-    { value: "1", label: "Activo", dotColor: "bg-blue-500", hoverBg: "hover:bg-blue-50", textColor: "text-blue-700" },
-    { value: "2", label: "En espera", dotColor: "bg-amber-500", hoverBg: "hover:bg-amber-50", textColor: "text-amber-700" },
-    { value: "3", label: "Completado", dotColor: "bg-emerald-500", hoverBg: "hover:bg-emerald-50", textColor: "text-emerald-700" },
-    { value: "4", label: "Cancelado", dotColor: "bg-gray-500", hoverBg: "hover:bg-gray-50", textColor: "text-gray-600" },
+    { value: "0", label: "Planificación", dotColor: "bg-info", hoverBg: "hover:bg-info/10", textColor: "text-info" },
+    { value: "1", label: "Activo", dotColor: "bg-success", hoverBg: "hover:bg-success/10", textColor: "text-success" },
+    { value: "2", label: "En espera", dotColor: "bg-warning", hoverBg: "hover:bg-warning/10", textColor: "text-warning" },
+    { value: "3", label: "Completado", dotColor: "bg-success", hoverBg: "hover:bg-success/10", textColor: "text-success" },
+    { value: "4", label: "Cancelado", dotColor: "bg-muted-foreground", hoverBg: "hover:bg-muted", textColor: "text-muted-foreground" },
 ]
 
 const TASK_OPTIONS: StatusOption[] = [
-    { value: "0", label: "Pendiente", dotColor: "bg-slate-500", hoverBg: "hover:bg-slate-50", textColor: "text-slate-700" },
-    { value: "1", label: "En espera", dotColor: "bg-red-500", hoverBg: "hover:bg-red-50", textColor: "text-red-700" },
-    { value: "2", label: "En progreso", dotColor: "bg-blue-500", hoverBg: "hover:bg-blue-50", textColor: "text-blue-700" },
-    { value: "3", label: "En revisión", dotColor: "bg-amber-500", hoverBg: "hover:bg-amber-50", textColor: "text-amber-700" },
-    { value: "4", label: "Completado", dotColor: "bg-emerald-500", hoverBg: "hover:bg-emerald-50", textColor: "text-emerald-700" },
+    { value: "0", label: "Pendiente", dotColor: "bg-muted-foreground", hoverBg: "hover:bg-muted", textColor: "text-foreground" },
+    { value: "1", label: "En espera", dotColor: "bg-warning", hoverBg: "hover:bg-warning/10", textColor: "text-warning" },
+    { value: "2", label: "En progreso", dotColor: "bg-info", hoverBg: "hover:bg-info/10", textColor: "text-info" },
+    { value: "3", label: "En revisión", dotColor: "bg-warning", hoverBg: "hover:bg-warning/10", textColor: "text-warning" },
+    { value: "4", label: "Completado", dotColor: "bg-success", hoverBg: "hover:bg-success/10", textColor: "text-success" },
 ]
 
 const DOT_MAP: Record<string, string> = {}
@@ -45,7 +45,7 @@ for (const opt of [...PROJECT_OPTIONS, ...TASK_OPTIONS]) {
 }
 
 function getDotColor(value: string): string {
-    return DOT_MAP[value] || "bg-gray-500"
+    return DOT_MAP[value] || "bg-muted-foreground"
 }
 
 export default function StatusColumnFilter({ filterType, filterStatus, onChange }: StatusColumnFilterProps) {
@@ -88,8 +88,8 @@ export default function StatusColumnFilter({ filterType, filterStatus, onChange 
         }}>
             <PopoverTrigger
                 render={
-                    <button className={`flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider cursor-pointer select-none hover:text-slate-600 transition-colors group ${
-                        hasFilter ? 'text-brand-primary' : 'text-slate-400'
+                    <button className={`flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider cursor-pointer select-none hover:text-foreground transition-colors group ${
+                        hasFilter ? 'text-brand-primary' : 'text-muted-foreground'
                     }`}>
                         <span>{triggerLabel}</span>
                         {hasFilter && (
@@ -101,19 +101,19 @@ export default function StatusColumnFilter({ filterType, filterStatus, onChange 
             <PopoverContent sideOffset={6} align="start" className="w-48 p-1.5">
                 {category === null ? (
                     <div className="space-y-0.5">
-                        <div className="px-2 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                        <div className="px-2 py-1.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                             Filtrar por...
                         </div>
-                        <div className="border-t border-slate-100 pt-0.5 space-y-0.5">
+                        <div className="border-t border-border pt-0.5 space-y-0.5">
                             <button
                                 onClick={() => handleCategorySelect('project')}
-                                className="flex items-center gap-2 w-full px-2 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-md transition-colors"
+                                className="flex items-center gap-2 w-full px-2 py-1.5 text-xs font-medium text-foreground hover:bg-muted rounded-md transition-colors"
                             >
                                 Proyecto
                             </button>
                             <button
                                 onClick={() => handleCategorySelect('task')}
-                                className="flex items-center gap-2 w-full px-2 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-md transition-colors"
+                                className="flex items-center gap-2 w-full px-2 py-1.5 text-xs font-medium text-foreground hover:bg-muted rounded-md transition-colors"
                             >
                                 Tarea
                             </button>
@@ -123,12 +123,12 @@ export default function StatusColumnFilter({ filterType, filterStatus, onChange 
                     <div className="space-y-0.5">
                         <button
                             onClick={handleBack}
-                            className="flex items-center gap-1 w-full px-2 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-50 rounded-md transition-colors"
+                            className="flex items-center gap-1 w-full px-2 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
                         >
                             <ChevronLeft className="h-3.5 w-3.5" />
                             {category === 'project' ? 'Proyecto' : 'Tarea'}
                         </button>
-                        <div className="border-t border-slate-100 pt-0.5 space-y-0.5">
+                        <div className="border-t border-border pt-0.5 space-y-0.5">
                             {(category === 'project' ? PROJECT_OPTIONS : TASK_OPTIONS).map((opt) => {
                                 const isSelected = filterType === category && filterStatus === opt.value
                                 return (

@@ -1,13 +1,3 @@
-export type TaskFormData = {
-  name: string;
-  description?: string;
-  priority?: "low" | "medium" | "high" | null;
-  startDate?: string | null;
-  dueDate?: string | null;
-};
-
-export type TeamMemberFormulario = { email: string };
-
 export interface BackendProject {
   id_project: number;
   name_project: string;

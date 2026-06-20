@@ -4,8 +4,7 @@ const defaultTheme = require('tailwindcss/defaultTheme')
 module.exports = {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-    "./node_modules/flowbite/**/*.js"
+    "./src/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
     extend: {
@@ -15,9 +14,9 @@ module.exports = {
       },
       colors: {
         brand: {
-          primary: '#2DAAA5',
-          dark: '#00375A',
-          light: '#4BC3BE',
+          primary: 'var(--brand-primary)',
+          dark: 'var(--brand-dark)',
+          light: 'var(--brand-light)',
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -35,6 +34,15 @@ module.exports = {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -59,6 +67,8 @@ module.exports = {
           "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
           accent: "hsl(var(--sidebar-accent))",
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          active: "hsl(var(--sidebar-active))",
+          "active-foreground": "hsl(var(--sidebar-active-foreground))",
           ring: "hsl(var(--sidebar-ring))",
           border: "hsl(var(--sidebar-border))",
         },
@@ -71,7 +81,6 @@ module.exports = {
     },
   },
   plugins: [
-    require('flowbite/plugin'),
     require('@tailwindcss/forms'),
     require('tailwindcss-animate'),
   ],

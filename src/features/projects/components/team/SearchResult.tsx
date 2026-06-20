@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { PROJECT_TEAM_KEY } from "@/features/projects/lib/project-keys";
 import { UserAdmin } from "@/features/admin/schemas/user.schema";
 import { createResponsible } from "@/features/shared/actions/project.api";
 import { toast } from "sonner";
@@ -30,7 +31,7 @@ export default function SearchResult({ user, reset, resetMutation }: SearchResul
       resetMutation()
       navigate(location.pathname, {replace:true})
 
-      queryClient.invalidateQueries({queryKey: ['projectTeam', projectId]})
+      queryClient.invalidateQueries({queryKey: PROJECT_TEAM_KEY(projectId)})
     },
   })
 

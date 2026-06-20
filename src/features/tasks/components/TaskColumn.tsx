@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { useDroppable } from "@dnd-kit/core"
 import { TASK_STATUS_MAP } from "@/features/shared/i18n/es"
 import type { BackendTask } from "@/features/shared/lib/types"
@@ -10,31 +11,31 @@ type TaskColumnProps = {
 }
 
 const COLUMN_STYLES: Record<number, { columnBg: string }> = {
-  0: { columnBg: "bg-slate-50" },
-  1: { columnBg: "bg-red-50" },
-  2: { columnBg: "bg-blue-50" },
-  3: { columnBg: "bg-amber-50" },
-  4: { columnBg: "bg-emerald-50" },
+  0: { columnBg: "bg-muted" },
+  1: { columnBg: "bg-warning/10" },
+  2: { columnBg: "bg-info/10" },
+  3: { columnBg: "bg-warning/10" },
+  4: { columnBg: "bg-success/10" },
 }
 
 const DOT_COLORS: Record<number, string> = {
-  0: "bg-slate-500",
-  1: "bg-red-500",
-  2: "bg-blue-500",
-  3: "bg-amber-500",
-  4: "bg-emerald-500",
+  0: "bg-muted-foreground",
+  1: "bg-warning",
+  2: "bg-info",
+  3: "bg-warning",
+  4: "bg-success",
 }
 
-export default function TaskColumn({ status, tasks, canEdit }: TaskColumnProps) {
+const TaskColumn = memo(function TaskColumn({ status, tasks, canEdit }: TaskColumnProps) {
   const { isOver, setNodeRef } = useDroppable({ id: status.toString() })
   const info = TASK_STATUS_MAP[status]
-  const colors = COLUMN_STYLES[status] ?? { columnBg: "bg-slate-50" }
-  const dotColor = DOT_COLORS[status] ?? "bg-slate-500"
+  const colors = COLUMN_STYLES[status] ?? { columnBg: "bg-muted" }
+  const dotColor = DOT_COLORS[status] ?? "bg-muted-foreground"
 
   return (
     <div
       ref={setNodeRef}
-      className={`flex-1 rounded-lg transition-all ${colors.columnBg} ${isOver ? "ring-2 ring-blue-400/30" : ""}`}
+       className={`flex-1 rounded-lg transition-all ${colors.columnBg} ${isOver ? "ring-2 ring-brand-primary/30" : ""}`}
     >
       <div className="flex items-center gap-2 px-3 py-3">
         <span className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
@@ -51,4 +52,6 @@ export default function TaskColumn({ status, tasks, canEdit }: TaskColumnProps) 
       </div>
     </div>
   )
-}
+})
+
+export default TaskColumn

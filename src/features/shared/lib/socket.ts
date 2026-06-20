@@ -7,14 +7,18 @@ const getSocketUrl = () => {
     return apiUrl.replace(/\/api\/.*$/, '')
 }
 
-export const connectSocket = (token: string): Socket => {
+export const connectSocket = (): Socket => {
     if (socket?.connected) {
         return socket
     }
 
     socket = io(getSocketUrl(), {
-        auth: { token },
+        withCredentials: true,
         transports: ['polling', 'websocket']
+    })
+
+    socket.on('connect', () => {
+        socket?.emit('ping')
     })
 
     socket.on('connect_error', (error) => {

@@ -9,9 +9,9 @@ const sizeConfig = {
 }
 
 function colorClass(pct: number): string {
-  if (pct < 30) return 'stroke-red-500'
-  if (pct < 70) return 'stroke-amber-500'
-  return 'stroke-green-500'
+  if (pct < 30) return 'stroke-destructive'
+  if (pct < 70) return 'stroke-warning'
+  return 'stroke-success'
 }
 
 export default function CircularProgress({ percentage, size = 'md' }: CircularProgressProps) {
@@ -30,7 +30,7 @@ export default function CircularProgress({ percentage, size = 'md' }: CircularPr
           fill="none"
           stroke="currentColor"
           strokeWidth={cfg.stroke}
-          className="text-gray-200"
+          className="text-muted"
         />
         <circle
           cx={cfg.dimension / 2}
@@ -44,7 +44,7 @@ export default function CircularProgress({ percentage, size = 'md' }: CircularPr
           strokeDashoffset={offset}
         />
       </svg>
-      <span className={`absolute font-semibold text-gray-700 ${cfg.fontSize}`}>
+      <span className={`absolute font-semibold text-foreground ${cfg.fontSize}`}>
         {percentage}%
       </span>
     </div>

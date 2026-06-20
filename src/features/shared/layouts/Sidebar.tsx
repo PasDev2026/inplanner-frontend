@@ -1,8 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
 import { User, Folder, Users, LogOut } from "lucide-react";
+import { useAuthContext } from "@/features/auth/hooks/useAuthContext";
 import { disconnectSocket } from "@/features/shared/lib/socket";
-import { logoutApi } from "@/features/shared/actions/auth.api";
 import {
   Sidebar as SidebarBase,
   SidebarContent,
@@ -29,15 +28,12 @@ export default function Sidebar({
   email,
   isAdmin,
 }: SidebarProps) {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuthContext();
 
   const handleLogout = async () => {
-    await logoutApi();
-    localStorage.removeItem("AUTH_TOKEN");
-    localStorage.removeItem("REFRESH_TOKEN");
-    queryClient.removeQueries({ queryKey: ["user"] });
+    await logout();
     disconnectSocket();
     navigate("/auth/login?session=closed");
   };
@@ -74,11 +70,9 @@ export default function Sidebar({
               <p className="truncate text-sm font-semibold text-sidebar-foreground">
                 {name} {apellido_paterno}
               </p>
-              {email && (
-                <p className="truncate text-xs text-sidebar-foreground/70">
-                  {email}
-                </p>
-              )}
+              <p className="truncate text-xs text-sidebar-foreground/70 min-h-[1em]">
+                {email || "\u00A0"}
+              </p>
             </div>
           </div>
         </div>
@@ -94,7 +88,7 @@ export default function Sidebar({
                     isActive={matchPaths.some(p => location.pathname.startsWith(p))}
                     onClick={() => navigate(to)}
                     tooltip={label}
-                    className={matchPaths.some(p => location.pathname.startsWith(p)) ? "border-l-2 border-brand-primary rounded-l-none" : ""}
+                    className={matchPaths.some(p => location.pathname.startsWith(p)) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""}
                   >
                     <Icon />
                     <span>{label}</span>
@@ -110,7 +104,7 @@ export default function Sidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleLogout} tooltip="Cerrar Sesión">
-              <LogOut className="text-red-500" />
+              <LogOut className="text-destructive" />
               <span>Cerrar Sesión</span>
             </SidebarMenuButton>
           </SidebarMenuItem>

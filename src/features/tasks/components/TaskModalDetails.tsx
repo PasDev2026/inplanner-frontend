@@ -8,6 +8,8 @@ import {
 import { getTaskById, updateTaskStatus } from "@/features/shared/actions/task.api"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { TASK_KEY } from "@/features/tasks/lib/task-keys"
+import { PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { formatDate } from "@/features/shared/lib/format-date"
 import { TASK_STATUS_MAP } from "@/features/shared/i18n/es"
 import {
@@ -23,7 +25,7 @@ import { Select } from "@/components/ui/select"
 export function TaskModalDetails() {
   const params = useParams()
   const projectId = params.projectId!
-  const queryCliente = useQueryClient()
+  const queryClient = useQueryClient()
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -33,7 +35,7 @@ export function TaskModalDetails() {
   const show = taskId ? true : false
 
   const { data, isError, error } = useQuery({
-    queryKey: ['task', taskId],
+    queryKey: TASK_KEY(taskId),
     queryFn: () => getTaskById(Number(taskId)),
     enabled: !!taskId,
     retry: false,
@@ -47,8 +49,8 @@ export function TaskModalDetails() {
       toast.error(error.message ?? "Error")
     },
     onSuccess: () => {
-      queryCliente.invalidateQueries({ queryKey: ["task", taskId] })
-      queryCliente.invalidateQueries({ queryKey: ["projectTasks", projectId] })
+      queryClient.invalidateQueries({ queryKey: TASK_KEY(taskId) })
+      queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectId) })
     },
   })
 
@@ -92,14 +94,14 @@ export function TaskModalDetails() {
 
             <div className="w-80 shrink-0 bg-muted/80 rounded-xl p-6 flex flex-col gap-y-8 border border-border overflow-y-auto">
               <div className="flex flex-col gap-y-3">
-                <label className="text-xs font-bold text-gray-500 tracking-wider uppercase">
+                <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">
                   Prioridad
                 </label>
                 <PriorityBadge priority={data.priority} />
               </div>
 
               <div className="flex flex-col gap-y-3">
-                <label className="text-xs font-bold text-gray-500 tracking-wider uppercase">
+                <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">
                   Cronograma
                 </label>
                 <div className="space-y-2 text-sm">
@@ -129,7 +131,7 @@ export function TaskModalDetails() {
               </div>
 
               <div className="flex flex-col gap-y-3">
-                <label className="text-xs font-bold text-gray-500 tracking-wider uppercase">
+                <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">
                   Estado actual
                 </label>
                 <Select value={String(data.status ?? 0)} onValueChange={(val) => mutate(Number(val))}>

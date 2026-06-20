@@ -1,28 +1,34 @@
 import axios from 'axios'
+import { getCsrfToken } from './token'
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL
+    baseURL: import.meta.env.VITE_API_URL,
+    withCredentials: true,
 })
 
 let isRefreshing = false
 let pendingQueue: Array<{
-    resolve: (token: string) => void
+    resolve: () => void
     reject: (err: unknown) => void
 }> = []
 
-const processQueue = (error: unknown, token: string | null = null) => {
+const processQueue = (error: unknown) => {
     pendingQueue.forEach(({ resolve, reject }) => {
         if (error) reject(error)
-        else resolve(token!)
+        else resolve()
     })
     pendingQueue = []
 }
 
-api.interceptors.request.use(config => {
-    const token = localStorage.getItem('AUTH_TOKEN')
-    if (token) config.headers.Authorization = `Bearer ${token}`
-    return config
-})
+api.interceptors.request.use(
+    config => {
+        const csrfToken = getCsrfToken()
+        if (csrfToken && config.method && !['get', 'head', 'options'].includes(config.method)) {
+            config.headers['X-CSRF-Token'] = csrfToken
+        }
+        return config
+    }
+)
 
 api.interceptors.response.use(
     response => {
@@ -43,10 +49,9 @@ api.interceptors.response.use(
         }
 
         if (isRefreshing) {
-            return new Promise<string>((resolve, reject) => {
+            return new Promise<void>((resolve, reject) => {
                 pendingQueue.push({ resolve, reject })
-            }).then(token => {
-                originalRequest.headers.Authorization = `Bearer ${token}`
+            }).then(() => {
                 return api(originalRequest)
             })
         }
@@ -55,24 +60,17 @@ api.interceptors.response.use(
         isRefreshing = true
 
         try {
-            const refreshToken = localStorage.getItem('REFRESH_TOKEN')
-            if (!refreshToken) throw new Error('No refresh token')
-
-            const { data: raw } = await axios.post(
+            await axios.post(
                 `${import.meta.env.VITE_API_URL}/auth/refresh-token`,
-                { refreshToken }
+                {},
+                { withCredentials: true }
             )
 
-            const unwrapped = raw?.data ?? raw
-
-            localStorage.setItem('AUTH_TOKEN', unwrapped.accessToken)
-            processQueue(null, unwrapped.accessToken)
-            originalRequest.headers.Authorization = `Bearer ${unwrapped.accessToken}`
+            processQueue(null)
             return api(originalRequest)
         } catch (refreshError) {
-            processQueue(refreshError, null)
-            localStorage.removeItem('AUTH_TOKEN')
-            localStorage.removeItem('REFRESH_TOKEN')
+            processQueue(refreshError)
+            localStorage.removeItem('USER_PROFILE')
             window.location.href = '/auth/login?session=expired'
             return Promise.reject(refreshError)
         } finally {

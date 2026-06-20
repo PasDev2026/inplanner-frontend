@@ -1,18 +1,12 @@
-import { isAxiosError } from "axios";
 import api from "@/features/shared/lib/axios";
+import { handleApiError } from "@/features/shared/lib/handle-api-error";
 import { Empresa } from "@/features/shared/lib/types/empresa";
 
 export async function getSedes() {
   try {
-    const token = localStorage.getItem('AUTH_TOKEN');
-    const { data } = await api.get<Empresa[]>('/empresas', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const { data } = await api.get<Empresa[]>('/empresas');
     return data;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.error || 'Error al obtener las sedes');
-    }
-    throw new Error('Error al obtener las sedes');
+    handleApiError(error, 'Error al obtener las sedes');
   }
 }

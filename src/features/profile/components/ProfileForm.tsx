@@ -1,6 +1,9 @@
 import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { profileFormSchema } from "@/features/auth/schemas/auth.schema"
 import type { UserProfileForm } from "@/features/auth/schemas/auth.schema"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { USER_KEY } from "@/features/auth/lib/auth-keys"
 import { updateProfile } from "@/features/shared/actions/profile.api"
 import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
@@ -16,7 +19,7 @@ export default function ProfileForm({ data }: ProfileFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<UserProfileForm>({ defaultValues: { name: data.name, email: data.email } })
+  } = useForm<UserProfileForm>({ defaultValues: { name: data.name, email: data.email }, resolver: zodResolver(profileFormSchema) })
 
   const queryClient = useQueryClient()
 
@@ -27,7 +30,7 @@ export default function ProfileForm({ data }: ProfileFormProps) {
     },
     onSuccess: (res) => {
       toast.success(res.message)
-      queryClient.invalidateQueries({ queryKey: ['user'] })
+      queryClient.invalidateQueries({ queryKey: USER_KEY })
     },
   })
 
@@ -38,8 +41,8 @@ export default function ProfileForm({ data }: ProfileFormProps) {
   return (
     <>
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-2xl font-semibold text-gray-900">Mi Perfil</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-2xl font-semibold text-foreground">Mi Perfil</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           Actualiza tu información personal
         </p>
 
@@ -56,11 +59,9 @@ export default function ProfileForm({ data }: ProfileFormProps) {
               id="name"
               type="text"
               className="mt-1"
-              {...register("name", {
-                required: "Nombre de usuario es obligatorio",
-              })}
+              {...register("name")}
             />
-            {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
+            {errors.name && <p className="text-xs text-destructive mt-1">{errors.name.message}</p>}
           </div>
 
           <div>
@@ -83,15 +84,9 @@ export default function ProfileForm({ data }: ProfileFormProps) {
               id="email"
               type="email"
               className="mt-1"
-              {...register("email", {
-                required: "EL e-mail es obligatorio",
-                pattern: {
-                  value: /\S+@\S+\.\S+/,
-                  message: "E-mail no válido",
-                },
-              })}
+              {...register("email")}
             />
-            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
+            {errors.email && <p className="text-xs text-destructive mt-1">{errors.email.message}</p>}
           </div>
 
           <Button type="submit" className="w-full">

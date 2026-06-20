@@ -1,5 +1,5 @@
-import { isAxiosError } from "axios";
 import api from "@/features/shared/lib/axios";
+import { handleApiError } from "@/features/shared/lib/handle-api-error";
 import { BackendPaginatedResponse, BackendProject } from "@/features/shared/lib/types";
 
 export type ProjectFilters = {
@@ -30,10 +30,7 @@ export async function createProject(formData: {
     const { data } = await api.post<BackendProject>('/projects', formData);
     return data;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message ?? 'Error al crear proyecto');
-    }
-    throw new Error('Error al crear proyecto');
+    handleApiError(error, 'Error al crear proyecto');
   }
 }
 
@@ -55,10 +52,7 @@ export async function getProjects(filters?: ProjectFilters) {
     const { data } = await api.get<BackendPaginatedResponse<BackendProject>>('/projects', { params });
     return data;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      throw new Error('Error al cargar proyectos');
-    }
-    throw new Error('Error al cargar proyectos');
+    handleApiError(error, 'Error al cargar proyectos');
   }
 }
 
@@ -67,10 +61,7 @@ export async function getProjectById(id: number) {
     const { data } = await api.get<BackendProject>(`/projects/${id}`);
     return data;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      throw new Error('Error al obtener proyecto');
-    }
-    throw new Error('Error al obtener proyecto');
+    handleApiError(error, 'Error al obtener proyecto');
   }
 }
 
@@ -79,10 +70,7 @@ export async function updateProjectField(id: number, fields: Partial<BackendProj
     const { data } = await api.patch<BackendProject>(`/projects/${id}`, fields);
     return data;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message ?? 'Error al actualizar proyecto');
-    }
-    throw new Error('Error al actualizar proyecto');
+    handleApiError(error, 'Error al actualizar proyecto');
   }
 }
 
@@ -91,10 +79,7 @@ export async function deleteProject(id: number) {
     const { data } = await api.delete<string>(`/projects/${id}`);
     return data;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      throw new Error('Ocurrió un error al eliminar el proyecto');
-    }
-    throw new Error('Ocurrió un error al eliminar el proyecto');
+    handleApiError(error, 'Ocurrió un error al eliminar el proyecto');
   }
 }
 
@@ -103,10 +88,7 @@ export async function getProjectTasks(projectId: number, page = 1, limit = 0) {
     const { data } = await api.get(`/tasks`, { params: { project_id: projectId, page, limit } });
     return data;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      throw new Error('Error al cargar tareas');
-    }
-    throw new Error('Error al cargar tareas');
+    handleApiError(error, 'Error al cargar tareas');
   }
 }
 
@@ -115,10 +97,7 @@ export async function createResponsible(projectId: number, userId: number) {
     const { data } = await api.post(`/projects/${projectId}/responsibles`, { user_id: userId });
     return data;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message ?? 'Error al asignar responsable');
-    }
-    throw new Error('Error al asignar responsable');
+    handleApiError(error, 'Error al asignar responsable');
   }
 }
 
@@ -127,10 +106,7 @@ export async function getResponsibles(projectId: number) {
     const { data } = await api.get(`/projects/${projectId}/responsibles`);
     return data;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      throw new Error('Error al obtener responsables');
-    }
-    throw new Error('Error al obtener responsables');
+    handleApiError(error, 'Error al obtener responsables');
   }
 }
 
@@ -139,9 +115,6 @@ export async function removeResponsible(projectId: number, userId: number) {
     const { data } = await api.delete(`/projects/${projectId}/responsibles/${userId}`);
     return data;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message ?? 'Error al quitar responsable');
-    }
-    throw new Error('Error al quitar responsable');
+    handleApiError(error, 'Error al quitar responsable');
   }
 }

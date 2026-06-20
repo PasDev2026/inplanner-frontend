@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormGetValues, Control, Controller } from "react-hook-form"
 import { useQuery } from "@tanstack/react-query"
+import { SEDES_KEY } from "@/features/shared/lib/shared-keys"
 import { getSedes } from "@/features/shared/actions/centralizado.api"
 import { useEffect } from "react"
 import { format } from "date-fns"
@@ -9,13 +10,8 @@ import { Select } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 
-export type ProjectFormValues = {
-  name_project: string;
-  description_project: string;
-  sede_id: string;
-  start_date: string | null;
-  due_date: string | null;
-};
+import type { ProjectFormValues } from "@/features/projects/schemas/project.schema"
+export type { ProjectFormValues }
 
 type Form = {
   register: UseFormRegister<ProjectFormValues>;
@@ -28,7 +24,7 @@ type Form = {
 
 export default function ProjectForm({ errors, register, setValue, getValues, control, hideEmpresa }: Form) {
   const { data: sedes } = useQuery({
-    queryKey: ["sedes"],
+    queryKey: SEDES_KEY,
     queryFn: getSedes,
   });
 
@@ -51,42 +47,38 @@ export default function ProjectForm({ errors, register, setValue, getValues, con
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="name_project" className="text-sm font-medium text-gray-700">
+        <label htmlFor="name_project" className="text-sm font-medium text-foreground">
           Nombre del Proyecto
         </label>
         <Input
           id="name_project"
           type="text"
           placeholder="Nombre del Proyecto"
-          {...register("name_project", {
-            required: "El Titulo del Proyecto es obligatorio",
-          })}
+          {...register("name_project")}
         />
         {errors.name_project && (
-          <p className="text-sm text-red-600">{errors.name_project.message}</p>
+          <p className="text-sm text-destructive">{errors.name_project.message}</p>
         )}
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="description_project" className="text-sm font-medium text-gray-700">
+        <label htmlFor="description_project" className="text-sm font-medium text-foreground">
           Descripción
         </label>
         <Textarea
           id="description_project"
           placeholder="Descripción del Proyecto"
           rows={3}
-          {...register("description_project", {
-            required: "Una descripción del proyecto es obligatoria",
-          })}
+          {...register("description_project")}
         />
         {errors.description_project && (
-          <p className="text-sm text-red-600">{errors.description_project.message}</p>
+          <p className="text-sm text-destructive">{errors.description_project.message}</p>
         )}
       </div>
 
       {!hideEmpresa && sedes && sedes.length > 1 && (
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="sede_id" className="text-sm font-medium text-gray-700">
+          <label htmlFor="sede_id" className="text-sm font-medium text-foreground">
             Sede
           </label>
           <Controller
@@ -112,14 +104,14 @@ export default function ProjectForm({ errors, register, setValue, getValues, con
             )}
           />
           {errors.sede_id && (
-            <p className="text-sm text-red-600">{errors.sede_id.message}</p>
+            <p className="text-sm text-destructive">{errors.sede_id.message}</p>
           )}
         </div>
       )}
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="start_date" className="text-sm font-medium text-gray-700">
+          <label htmlFor="start_date" className="text-sm font-medium text-foreground">
             Fecha Inicio
           </label>
           <DatePicker
@@ -132,7 +124,7 @@ export default function ProjectForm({ errors, register, setValue, getValues, con
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="due_date" className="text-sm font-medium text-gray-700">
+          <label htmlFor="due_date" className="text-sm font-medium text-foreground">
             Fecha Límite
           </label>
           <DatePicker

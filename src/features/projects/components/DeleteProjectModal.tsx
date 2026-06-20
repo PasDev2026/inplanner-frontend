@@ -1,7 +1,10 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { CheckPasswordForm } from "@/features/auth/schemas/auth.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { checkPasswordSchema } from "@/features/auth/schemas/auth.schema";
+import type { CheckPasswordForm } from "@/features/auth/schemas/auth.schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { PROJECTS_KEY } from "@/features/projects/lib/project-keys";
 import { checkPasswordApi } from "@/features/shared/actions/auth.api";
 import { toast } from "sonner";
 import { deleteProject } from "@/features/shared/actions/project.api";
@@ -29,7 +32,7 @@ export default function DeleteProjectModal() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues: initialValues });
+  } = useForm<CheckPasswordForm>({ defaultValues: initialValues, resolver: zodResolver(checkPasswordSchema) });
 
   const checkUserPasswordMutation = useMutation({
     mutationFn: checkPasswordApi,
@@ -47,7 +50,7 @@ export default function DeleteProjectModal() {
       },
       onSuccess: () => {
         toast.success("Proyecto eliminado")
-        queryClient.invalidateQueries({ queryKey: ["projects"] });
+        queryClient.invalidateQueries({ queryKey: PROJECTS_KEY });
         navigate(location.pathname, { replace: true });
       },
     });
@@ -88,9 +91,7 @@ export default function DeleteProjectModal() {
               id="password"
               type="password"
               placeholder="Password Inicio de Sesión"
-              {...register("password", {
-                required: "El password es obligatorio",
-              })}
+              {...register("password")}
             />
             {errors.password && <p>{errors.password.message}</p>}
           </div>

@@ -15,17 +15,17 @@ export const priorityTranslation: Record<string, string> = {
 };
 
 export const priorityStyles: Record<string, string> = {
-    low: "bg-green-100 text-green-700 border-green-300",
-    medium: "bg-amber-100 text-amber-700 border-amber-300",
-    high: "bg-red-100 text-red-700 border-red-300",
+    low: "bg-success/15 text-success border-success/25",
+    medium: "bg-warning/15 text-warning border-warning/25",
+    high: "bg-destructive/15 text-destructive border-destructive/25",
 };
 
 export const taskStatusStyles: Record<string, string> = {
-    pending: "bg-slate-100 text-slate-600 border-slate-300",
-    onHold: "bg-red-100 text-red-600 border-red-300",
-    inProgress: "bg-blue-100 text-blue-600 border-blue-300",
-    underReview: "bg-amber-100 text-amber-600 border-amber-300",
-    completed: "bg-emerald-100 text-emerald-600 border-emerald-300",
+    pending: "bg-muted text-muted-foreground border-border",
+    onHold: "bg-destructive/15 text-destructive border-destructive/25",
+    inProgress: "bg-info/15 text-info border-info/25",
+    underReview: "bg-warning/15 text-warning border-warning/25",
+    completed: "bg-success/15 text-success border-success/25",
 };
 
 export type StatusColorSet = {
@@ -37,11 +37,11 @@ export type StatusColorSet = {
 }
 
 export const statusColors: Record<string, StatusColorSet> = {
-  pending:      { dot: "bg-slate-500",     columnBg: "bg-slate-50",   cardBorder: "border-l-slate-500",   cardBg: "bg-slate-100",   overlayBorder: "border-l-slate-500" },
-  onHold:       { dot: "bg-red-500",       columnBg: "bg-red-50",    cardBorder: "border-l-red-500",     cardBg: "bg-red-100",     overlayBorder: "border-l-red-500" },
-  inProgress:   { dot: "bg-blue-500",      columnBg: "bg-blue-50",   cardBorder: "border-l-blue-500",    cardBg: "bg-blue-100",    overlayBorder: "border-l-blue-500" },
-  underReview:  { dot: "bg-amber-500",     columnBg: "bg-amber-50",  cardBorder: "border-l-amber-500",   cardBg: "bg-amber-100",  overlayBorder: "border-l-amber-500" },
-  completed:    { dot: "bg-emerald-500",   columnBg: "bg-emerald-50",cardBorder: "border-l-emerald-500", cardBg: "bg-emerald-100",overlayBorder: "border-l-emerald-500" },
+  pending:      { dot: "bg-muted-foreground",     columnBg: "bg-muted/30",   cardBorder: "border-l-muted-foreground",   cardBg: "bg-muted/50",   overlayBorder: "border-l-muted-foreground" },
+  onHold:       { dot: "bg-destructive",       columnBg: "bg-destructive/10",    cardBorder: "border-l-destructive",     cardBg: "bg-destructive/15",     overlayBorder: "border-l-destructive" },
+  inProgress:   { dot: "bg-info",      columnBg: "bg-info/10",   cardBorder: "border-l-info",    cardBg: "bg-info/15",    overlayBorder: "border-l-info" },
+  underReview:  { dot: "bg-warning",     columnBg: "bg-warning/10",  cardBorder: "border-l-warning",   cardBg: "bg-warning/15",  overlayBorder: "border-l-warning" },
+  completed:    { dot: "bg-success",   columnBg: "bg-success/10",cardBorder: "border-l-success", cardBg: "bg-success/15",overlayBorder: "border-l-success" },
 }
 
 export const projectStatusTranslation: Record<string, string> = {
@@ -53,32 +53,32 @@ export const projectStatusTranslation: Record<string, string> = {
 };
 
 export const projectStatusStyles: Record<string, string> = {
-    planning: "bg-purple-100 text-purple-700 border-purple-300",
-    active: "bg-blue-100 text-blue-700 border-blue-300",
-    onHold: "bg-red-100 text-red-700 border-red-300",
-    completed: "bg-emerald-100 text-emerald-700 border-emerald-300",
-    cancelled: "bg-gray-100 text-gray-600 border-gray-300",
+    planning: "bg-info/15 text-info border-info/25",
+    active: "bg-info/15 text-info border-info/25",
+    onHold: "bg-destructive/15 text-destructive border-destructive/25",
+    completed: "bg-success/15 text-success border-success/25",
+    cancelled: "bg-muted text-muted-foreground border-border",
 };
 
 export const PROJECT_STATUS_MAP: Record<number, { label: string; dotColor: string; style: string }> = {
-  0: { label: "Planificación", dotColor: "bg-purple-500", style: "bg-purple-100 text-purple-700 border-purple-300" },
-  1: { label: "Activo", dotColor: "bg-blue-500", style: "bg-blue-100 text-blue-700 border-blue-300" },
-  2: { label: "En espera", dotColor: "bg-amber-500", style: "bg-amber-100 text-amber-700 border-amber-300" },
-  3: { label: "Completado", dotColor: "bg-emerald-500", style: "bg-emerald-100 text-emerald-700 border-emerald-300" },
-  4: { label: "Cancelado", dotColor: "bg-gray-500", style: "bg-gray-100 text-gray-600 border-gray-300" },
+  0: { label: "Planificación", dotColor: "bg-info", style: "bg-info/15 text-info border-info/25" },
+  1: { label: "Activo", dotColor: "bg-success", style: "bg-success/15 text-success border-success/25" },
+  2: { label: "En espera", dotColor: "bg-warning", style: "bg-warning/15 text-warning border-warning/25" },
+  3: { label: "Completado", dotColor: "bg-success", style: "bg-success/15 text-success border-success/25" },
+  4: { label: "Cancelado", dotColor: "bg-muted-foreground", style: "bg-muted text-muted-foreground border-border" },
 };
 
 export const TASK_STATUS_MAP: Record<number, { label: string; dotColor: string; style: string }> = {
-  0: { label: "Pendiente", dotColor: "bg-slate-500", style: "bg-slate-100 text-slate-700 border-slate-300" },
-  1: { label: "En espera", dotColor: "bg-red-500", style: "bg-red-100 text-red-700 border-red-300" },
-  2: { label: "En progreso", dotColor: "bg-blue-500", style: "bg-blue-100 text-blue-700 border-blue-300" },
-  3: { label: "En revisión", dotColor: "bg-amber-500", style: "bg-amber-100 text-amber-700 border-amber-300" },
-  4: { label: "Completado", dotColor: "bg-emerald-500", style: "bg-emerald-100 text-emerald-700 border-emerald-300" },
+  0: { label: "Pendiente", dotColor: "bg-muted-foreground", style: "bg-muted text-foreground border-border" },
+  1: { label: "En espera", dotColor: "bg-destructive", style: "bg-destructive/15 text-destructive border-destructive/25" },
+  2: { label: "En progreso", dotColor: "bg-info", style: "bg-info/15 text-info border-info/25" },
+  3: { label: "En revisión", dotColor: "bg-warning", style: "bg-warning/15 text-warning border-warning/25" },
+  4: { label: "Completado", dotColor: "bg-success", style: "bg-success/15 text-success border-success/25" },
 };
 
 export const PRIORITY_MAP: Record<number, { label: string; dotColor: string; style: string }> = {
-  1: { label: "Baja", dotColor: "bg-green-500", style: "bg-green-100 text-green-700 border-green-300" },
-  2: { label: "Media", dotColor: "bg-amber-500", style: "bg-amber-100 text-amber-700 border-amber-300" },
-  3: { label: "Alta", dotColor: "bg-red-500", style: "bg-red-100 text-red-700 border-red-300" },
-  4: { label: "Crítica", dotColor: "bg-purple-500", style: "bg-purple-100 text-purple-700 border-purple-300" },
+  1: { label: "Baja", dotColor: "bg-success", style: "bg-success/15 text-success border-success/25" },
+  2: { label: "Media", dotColor: "bg-warning", style: "bg-warning/15 text-warning border-warning/25" },
+  3: { label: "Alta", dotColor: "bg-destructive", style: "bg-destructive/15 text-destructive border-destructive/25" },
+  4: { label: "Crítica", dotColor: "bg-destructive", style: "bg-destructive/15 text-destructive border-destructive/25" },
 };

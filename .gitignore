@@ -3,6 +3,7 @@
 /.env
 /.env.template
 /.agents
+/docs
 logs
 *.log
 npm-debug.log*

@@ -1,5 +1,6 @@
 import { isAxiosError } from "axios";
 import api from "@/features/shared/lib/axios";
+import { handleApiError, createApiError } from "@/features/shared/lib/handle-api-error";
 import { CheckPasswordForm } from "@/features/auth/schemas/auth.schema";
 
 export interface BackendUserProfile {
@@ -15,19 +16,17 @@ export interface BackendUserProfile {
 export interface LoginResponse {
     user: BackendUserProfile;
     accessToken: string;
-    refreshToken: string;
 }
 
 export async function authenticate(formData: { username: string; password: string }) {
     try {
         const url = '/auth/login'
         const { data } = await api.post<LoginResponse>(url, formData)
-        localStorage.setItem('AUTH_TOKEN', data.accessToken)
-        localStorage.setItem('REFRESH_TOKEN', data.refreshToken)
+        localStorage.setItem('USER_PROFILE', JSON.stringify(data.user))
         return data
     } catch (error) {
         if(isAxiosError(error) && error.response){
-            const err = new Error(error.response.data.error || error.response.data.message);
+            const err = createApiError(error, 'Error de conexión con el servidor');
             (err as any).field = error.response.data.field || 'general';
             throw err;
         }
@@ -40,35 +39,25 @@ export async function getUserApi() {
         const { data } = await api<{ user: BackendUserProfile }>('/auth/me')
         return data.user
     } catch (error) {
-        if(isAxiosError(error) && error.response){
-            throw new Error(error.response.data.message);
-        }
-        throw new Error('Error de conexión con el servidor');
+        handleApiError(error, 'Error de conexión con el servidor')
     }
 }
 
 
 
 export async function checkPasswordApi(formData:CheckPasswordForm) {
-    const token = localStorage.getItem('AUTH_TOKEN')
     try {
         const url = `/auth/check-password`
-        const { data } = await api.post<string>(url, formData,{headers: {Authorization: `Bearer ${token}`}})
+        const { data } = await api.post<string>(url, formData)
         return data
     } catch (error) {
-        if(isAxiosError(error) && error.response){
-            throw new Error(error.response.data.message);
-        }
-        throw new Error('Error de conexión con el servidor');
+        handleApiError(error, 'Error de conexión con el servidor')
     }
 }
 
 export async function logoutApi() {
-    const refreshToken = localStorage.getItem('REFRESH_TOKEN')
-    if (!refreshToken) return
     try {
-        await api.post('/auth/logout', { refreshToken })
+        await api.post('/auth/logout')
     } catch {
-        // Si falla (token ya revocado, red caída), igual procedemos con logout local
     }
 }

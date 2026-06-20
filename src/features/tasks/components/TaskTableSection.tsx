@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { DASHBOARD_TASKS_KEY } from "@/features/tasks/lib/task-keys"
+import { PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { getProjectTasks } from "@/features/shared/actions/project.api"
 import { createTask } from "@/features/shared/actions/task.api"
 import type { BackendTask } from "@/features/shared/lib/types"
@@ -12,7 +14,7 @@ import PriorityPopover from "../../shared/components/PriorityPopover"
 import TaskDateCellPopover from "./TaskDateCellPopover"
 import { ChevronDown, ChevronRight, Plus, Check, X, Trash2 } from "lucide-react"
 import { toast } from "sonner"
-import Spinner from "@/components/ui/Spinner"
+import PageSpinner from "@/components/ui/PageSpinner"
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table"
 import { COL_GROUP } from "@/features/shared/lib/tableColumns"
 
@@ -46,7 +48,7 @@ export default function TaskTableSection({
     const projectIdNum = Number(projectId)
 
     const { data, isLoading, isError } = useQuery({
-        queryKey: ["dashboardProjectTasks", projectIdNum],
+        queryKey: DASHBOARD_TASKS_KEY(projectIdNum),
         queryFn: async () => {
             const result = await getProjectTasks(projectIdNum)
             if (!result) throw new Error("No data")
@@ -63,8 +65,8 @@ export default function TaskTableSection({
         mutationFn: (name: string) =>
             createTask({ task_name: name, project_id: projectIdNum }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["projectTasks", projectIdNum] })
-            queryClient.invalidateQueries({ queryKey: ["dashboardProjectTasks", projectIdNum] })
+            queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectIdNum) })
+            queryClient.invalidateQueries({ queryKey: DASHBOARD_TASKS_KEY(projectIdNum) })
             setNewTaskName("")
             setShowForm(false)
         },
@@ -128,7 +130,7 @@ export default function TaskTableSection({
     if (isLoading) {
         return (
             <div className="px-4 py-10 flex items-center justify-center">
-                <Spinner fullPage={false} size={10} />
+                <PageSpinner fullPage={false} centered={false} size={10} />
             </div>
         )
     }
@@ -136,7 +138,7 @@ export default function TaskTableSection({
     if (isError || !data) {
         return (
             <div className="px-4 py-3">
-                <p className="text-xs text-gray-400">Error al cargar las tareas</p>
+                <p className="text-xs text-muted-foreground">Error al cargar las tareas</p>
             </div>
         )
     }
@@ -189,7 +191,7 @@ export default function TaskTableSection({
                                 if (newTaskName.trim()) createRootTask.mutate(newTaskName.trim())
                             }}
                             disabled={!newTaskName.trim() || createRootTask.isPending}
-                            className="p-1 text-brand-primary hover:text-brand-dark disabled:text-gray-300"
+                            className="p-1 text-brand-primary hover:text-brand-dark disabled:text-muted-foreground"
                         >
                             <Check className="h-3.5 w-3.5" />
                         </button>
@@ -198,7 +200,7 @@ export default function TaskTableSection({
                                 setShowForm(false)
                                 setNewTaskName("")
                             }}
-                            className="p-1 text-gray-400 hover:text-gray-600"
+                            className="p-1 text-muted-foreground hover:text-foreground"
                         >
                             <X className="h-3.5 w-3.5" />
                         </button>
@@ -228,7 +230,7 @@ export default function TaskTableSection({
                                                 e.stopPropagation()
                                                 toggleExpand(task.id_task)
                                             }}
-                                            className={`p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-200 transition-all flex-shrink-0 ${(task.subtasks_count ?? 0) > 0 || expandedTasks.has(task.id_task) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                                            className={`p-1 text-muted-foreground hover:text-foreground rounded hover:bg-muted transition-all flex-shrink-0 ${(task.subtasks_count ?? 0) > 0 || expandedTasks.has(task.id_task) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                                         >
                                             {expandedTasks.has(task.id_task) ? (
                                                 <ChevronDown className="h-3.5 w-3.5" />
@@ -304,7 +306,7 @@ export default function TaskTableSection({
                                             e.stopPropagation()
                                             handleDelete(task.id_task)
                                         }}
-                                        className="p-1 text-red-400 hover:text-red-600 rounded hover:bg-red-50 transition-colors"
+                                        className="p-1 text-destructive hover:text-destructive/80 rounded hover:bg-destructive/10 transition-colors"
                                         title="Eliminar tarea"
                                     >
                                         <Trash2 className="h-3.5 w-3.5" />
@@ -378,8 +380,8 @@ export default function TaskTableSection({
                         onClick={() => {
                             if (newTaskName.trim()) createRootTask.mutate(newTaskName.trim())
                         }}
-                        disabled={!newTaskName.trim() || createRootTask.isPending}
-                        className="p-1 text-brand-primary hover:text-brand-dark disabled:text-gray-300"
+                            disabled={!newTaskName.trim() || createRootTask.isPending}
+                            className="p-1 text-brand-primary hover:text-brand-dark disabled:text-muted-foreground"
                     >
                         <Check className="h-3.5 w-3.5" />
                     </button>
@@ -388,7 +390,7 @@ export default function TaskTableSection({
                             setShowForm(false)
                             setNewTaskName("")
                         }}
-                        className="p-1 text-gray-400 hover:text-gray-600"
+                        className="p-1 text-muted-foreground hover:text-foreground"
                     >
                         <X className="h-3.5 w-3.5" />
                     </button>
