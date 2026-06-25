@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { ChevronLeft, Check } from "lucide-react"
-import { projectStatusTranslation, statusTranslation } from "@/features/shared/i18n/es"
+import { projectStatusTranslation } from "@/features/shared/constants/project-status.constant"
+import { statusTranslation } from "@/features/shared/constants/task-status.constant"
 import {
   Popover,
   PopoverContent,

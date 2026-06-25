@@ -7,7 +7,7 @@ import type { TaskFormData } from "@/features/tasks/schemas/task.schema"
 import TaskForm from "./TaskForm"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { PROJECT_DETAIL_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
-import { updateTask } from "@/features/shared/actions/task.api"
+import { updateTask } from "@/features/tasks/actions/task.api"
 import { toast } from "sonner"
 import {
   Dialog,

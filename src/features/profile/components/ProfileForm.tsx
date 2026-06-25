@@ -1,13 +1,14 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { profileFormSchema } from "@/features/auth/schemas/auth.schema"
-import type { UserProfileForm } from "@/features/auth/schemas/auth.schema"
+import { profileFormSchema } from "@/features/auth/schemas/profile.schema"
+import type { UserProfileForm } from "@/features/auth/schemas/profile.schema"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { USER_KEY } from "@/features/auth/lib/auth-keys"
-import { updateProfile } from "@/features/shared/actions/profile.api"
+import { updateProfile } from "@/features/profile/actions/profile.api"
 import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { InputForm } from "@/features/shared/components/form/InputForm"
 import { Button } from "@/components/ui/button"
 
 type ProfileFormProps = {
@@ -51,18 +52,13 @@ export default function ProfileForm({ data }: ProfileFormProps) {
           className="mt-10 space-y-6"
           noValidate
         >
-          <div>
-            <Label htmlFor="name">
-              Nombre
-            </Label>
-            <Input
-              id="name"
-              type="text"
-              className="mt-1"
-              {...register("name")}
-            />
-            {errors.name && <p className="text-xs text-destructive mt-1">{errors.name.message}</p>}
-          </div>
+          <InputForm
+            label="Nombre"
+            name="name"
+            register={register}
+            errors={errors}
+            type="text"
+          />
 
           <div>
             <Label>
@@ -76,18 +72,13 @@ export default function ProfileForm({ data }: ProfileFormProps) {
             />
           </div>
 
-          <div>
-            <Label htmlFor="email">
-              Correo electrónico
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              className="mt-1"
-              {...register("email")}
-            />
-            {errors.email && <p className="text-xs text-destructive mt-1">{errors.email.message}</p>}
-          </div>
+          <InputForm
+            label="Correo electrónico"
+            name="email"
+            register={register}
+            errors={errors}
+            type="email"
+          />
 
           <Button type="submit" className="w-full">
             Guardar Cambios

@@ -1,18 +1,15 @@
 import { Link, Navigate, useParams } from "react-router-dom"
-import { getProjectById, getProjectTasks } from "@/features/shared/actions/project.api"
+import { getProjectById } from "@/features/projects/actions/project.api"
 import { useQuery } from "@tanstack/react-query"
-import { PROJECT_DETAIL_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
+import { PROJECT_DETAIL_KEY } from "@/features/projects/lib/project-keys"
 import { Plus, Users } from "lucide-react"
-import PageSpinner from "../../../components/ui/PageSpinner"
+import PageSpinner from "@/components/ui/PageSpinner"
 import { useAuth } from "@/features/auth/hooks/useAuth"
 import isManager from "@/features/shared/lib/policies"
-import DeadlineBadge from "../../../components/ui/DeadlineBadge"
-import DateBadge from "../../../components/ui/DateBadge"
+import DeadlineBadge from "@/components/ui/DeadlineBadge"
+import DateBadge from "@/components/ui/DateBadge"
 import { Card, CardContent } from "@/components/ui/card"
-import TaskList from "../../tasks/components/TaskList"
-import { CreateTaskModal } from "../../tasks/components/CreateTaskModal"
-import { TaskModalDetails } from "../../tasks/components/TaskModalDetails"
-import type { BackendTask } from "@/features/shared/lib/types"
+import TasksView from "@/features/tasks/tasks-view"
 
 export default function ProjectDetailPage() {
 
@@ -30,19 +27,6 @@ export default function ProjectDetailPage() {
     },
     retry: false,
   })
-
-  const { data: tasksResponse } = useQuery({
-    queryKey: PROJECT_TASKS_KEY(projectId),
-    queryFn: async () => {
-      const result = await getProjectTasks(projectId)
-      if (!result) throw new Error("No data")
-      return result
-    },
-    staleTime: 30_000,
-    enabled: !!projectId,
-  })
-
-  const tasks = (tasksResponse as { data: BackendTask[] } | undefined)?.data ?? []
 
   if(isLoading && authLoading) return <PageSpinner />
   if(isError) return <Navigate to='/404'/>
@@ -80,9 +64,7 @@ export default function ProjectDetailPage() {
         </CardContent>
       </Card>
 
-      <TaskList tasks={tasks} canEdit={!!user && isManager(data.manager_id, user.idUser)} />
-      <CreateTaskModal />
-      <TaskModalDetails />
+      <TasksView projectId={projectId} canEdit={!!user && isManager(data.manager_id, user.idUser)} />
     </div>
   );
 

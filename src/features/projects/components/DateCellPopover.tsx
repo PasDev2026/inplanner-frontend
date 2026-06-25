@@ -1,5 +1,5 @@
 import { useUpdateProject } from "../hooks/useUpdateProject"
-import DateRangePopover from "../../shared/components/DateRangePopover"
+import DateRangePopover from "@/features/shared/components/DateRangePopover"
 
 type DateCellPopoverProps = {
     projectId: number

@@ -1,34 +1,23 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema } from "@/features/auth/schemas/auth.schema";
-import type { UserLoginForm } from "@/features/auth/schemas/auth.schema";
+import { loginSchema } from "@/features/auth/schemas/login.schema";
+import type { UserLoginForm } from "@/features/auth/schemas/login.schema";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuthContext } from "@/features/auth/hooks/useAuthContext";
 import { Eye, EyeOff } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import InputField from "@/components/ui/InputField";
+import { UserIcon, LockIcon } from "@/features/auth/components/login-icons";
+import { LoginButton } from "@/features/auth/components/LoginButton";
+import type { BackendUserProfile } from "@/features/auth/actions/auth.api";
 
 interface ApiErrors {
   username?: string;
   password?: string;
   general?: string;
 }
-
-const UserIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="8" r="4" />
-    <path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" />
-  </svg>
-)
-
-const LockIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="5" y="11" width="14" height="10" rx="2" />
-    <path d="M8 11V7a4 4 0 1 1 8 0v4" />
-  </svg>
-)
 
 export default function Login() {
 
@@ -68,6 +57,13 @@ export default function Login() {
       setApiErrors({});
     },
     onSuccess: () => {
+      const raw = localStorage.getItem('USER_PROFILE')
+      if (raw) {
+        const user = JSON.parse(raw) as BackendUserProfile
+        toast.success(`Bienvenido ${user.fullName}`, {
+          description: 'Sesión iniciada correctamente',
+        })
+      }
       navigate('/dashboard')
     },
   })
@@ -125,13 +121,9 @@ export default function Login() {
           })}
         />
 
-        <button
-          type="submit"
-          className="w-full py-3 px-4 rounded-xl text-white font-semibold text-sm transition-all duration-200 hover:brightness-90 active:scale-[0.98]"
-          style={{ backgroundColor: 'var(--brand-primary)' }}
-        >
+        <LoginButton type="submit">
           Iniciar Sesión
-        </button>
+        </LoginButton>
       </form>
     </>
   )

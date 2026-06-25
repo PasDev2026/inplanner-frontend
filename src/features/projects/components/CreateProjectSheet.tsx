@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import ProjectForm from "./ProjectForm"
 import { projectFormSchema } from "@/features/projects/schemas/project.schema"
 import type { ProjectFormValues } from "@/features/projects/schemas/project.schema"
-import { createProject } from "@/features/shared/actions/project.api"
+import { createProject } from "@/features/projects/actions/project.api"
 import { useAuth } from "@/features/auth/hooks/useAuth"
 import { PROJECTS_KEY } from "@/features/projects/lib/project-keys"
 

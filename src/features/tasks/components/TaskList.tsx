@@ -4,7 +4,7 @@ import type { BackendTask } from "@/features/shared/lib/types"
 import TaskColumn from "./TaskColumn"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { PROJECT_DETAIL_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
-import { updateTaskStatus } from "@/features/shared/actions/task.api"
+import { updateTaskStatus } from "@/features/tasks/actions/task.api"
 import { toast } from "sonner"
 import { useParams } from "react-router-dom"
 

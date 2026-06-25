@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-interface FilterState {
+type FilterState = {
   search: string
   sede_id: string
   dateFrom: string

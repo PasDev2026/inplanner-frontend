@@ -3,6 +3,7 @@ import { Controller } from "react-hook-form"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select } from "@/components/ui/select"
+import { InputForm } from "@/features/shared/components/form/InputForm"
 import TagInput from "@/components/ui/TagInput"
 import type { UserFormData, Role, Area } from "@/features/admin/schemas/user.schema"
 
@@ -53,23 +54,29 @@ export default function UserFormFields({
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor={`${mode}-name`}>Nombre</Label>
-            <Input id={`${mode}-name`} {...register("name")} />
-            {errors.name && <p className="text-xs text-destructive font-medium">{errors.name.message}</p>}
-          </div>
+          <InputForm
+            label="Nombre"
+            name="name"
+            register={register}
+            errors={errors}
+            labelClassName="text-xs font-medium"
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor={`${mode}-apellido_paterno`}>Apellido paterno</Label>
-            <Input id={`${mode}-apellido_paterno`} {...register("apellido_paterno")} />
-            {errors.apellido_paterno && <p className="text-xs text-destructive font-medium">{errors.apellido_paterno.message}</p>}
-          </div>
+          <InputForm
+            label="Apellido paterno"
+            name="apellido_paterno"
+            register={register}
+            errors={errors}
+            labelClassName="text-xs font-medium"
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor={`${mode}-apellido_materno`}>Apellido materno</Label>
-            <Input id={`${mode}-apellido_materno`} {...register("apellido_materno")} />
-            {errors.apellido_materno && <p className="text-xs text-destructive font-medium">{errors.apellido_materno.message}</p>}
-          </div>
+          <InputForm
+            label="Apellido materno"
+            name="apellido_materno"
+            register={register}
+            errors={errors}
+            labelClassName="text-xs font-medium"
+          />
 
           <div className="space-y-2">
             <Label htmlFor={`${mode}-telefono`}>Teléfono</Label>
@@ -100,21 +107,23 @@ export default function UserFormFields({
             {dniError && <p className="text-xs text-destructive font-medium">{dniError}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor={`${mode}-email`}>Email</Label>
-            <Input id={`${mode}-email`} type="email" {...register("email")} />
-            {errors.email && <p className="text-xs text-destructive font-medium">{errors.email.message}</p>}
-          </div>
+          <InputForm
+            label="Email"
+            name="email"
+            register={register}
+            errors={errors}
+            type="email"
+            labelClassName="text-xs font-medium"
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor={`${mode}-username`}>Username</Label>
-            <Input
-              id={`${mode}-username`}
-              disabled={isEdit}
-              {...register("username")}
-            />
-            {errors.username && <p className="text-xs text-destructive font-medium">{errors.username.message}</p>}
-          </div>
+          <InputForm
+            label="Username"
+            name="username"
+            register={register}
+            errors={errors}
+            disabled={isEdit}
+            labelClassName="text-xs font-medium"
+          />
 
           {!isEdit && (
             <div className="space-y-2">

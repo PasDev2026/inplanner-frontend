@@ -1,4 +1,5 @@
-import { useLocation, useNavigate, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
+import { useModalParams } from "@/features/shared/hooks/useModalParams"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { taskFormSchema } from "@/features/tasks/schemas/task.schema"
@@ -6,7 +7,7 @@ import type { TaskFormData } from "@/features/tasks/schemas/task.schema"
 import TaskForm from "./TaskForm"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { PROJECT_DETAIL_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
-import { createTask } from "@/features/shared/actions/task.api"
+import { createTask } from "@/features/tasks/actions/task.api"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,13 +18,7 @@ import {
 } from "@/components/ui/dialog"
 
 export function CreateTaskModal() {
-  const navigate = useNavigate()
-
-  const location = useLocation()
-  const queryParams = new URLSearchParams(location.search)
-  const modalTask = queryParams.get("newTask")
-  const show = modalTask ? true : false
-
+  const { show, close } = useModalParams("newTask")
   const params = useParams()
   const projectId = Number(params.projectId!)
 
@@ -57,7 +52,7 @@ export function CreateTaskModal() {
       queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectId) })
       toast.success('Tarea creada')
       reset()
-      navigate(location.pathname, { replace: true })
+      close()
     },
   })
 
@@ -66,7 +61,7 @@ export function CreateTaskModal() {
   }
 
   return (
-    <Dialog open={show} onOpenChange={() => navigate(location.pathname, { replace: true })}>
+      <Dialog open={show} onOpenChange={() => close()}>
       <DialogContent className="max-w-4xl p-16">
         <DialogHeader>
           <DialogTitle className="font-black text-4xl my-5">

@@ -1,5 +1,5 @@
-import { Suspense } from "react"
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Suspense, useEffect } from "react"
+import { Outlet, useNavigate } from "react-router-dom";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
@@ -11,16 +11,25 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default function AppLayout() {
 
+  const navigate = useNavigate()
   const { user, isLoading, isAuthenticated } = useAuthContext()
-  const location = useLocation()
 
-  if (!isLoading && !isAuthenticated) {
+  useEffect(() => {
+    if (isLoading || isAuthenticated) return
+
     const hasSession = localStorage.getItem('USER_PROFILE')
-    const hasSessionParam = new URLSearchParams(location.search).has('session')
-    if (hasSession) return <Navigate to='/auth/login'/>
-    if (hasSessionParam) return null
-    return <Navigate to='/auth/login?session=expired'/>
-  }
+
+    if (hasSession) {
+      navigate('/auth/login', { replace: true })
+      return
+    }
+
+    if (!window.location.pathname.startsWith('/auth/login')) {
+      navigate('/auth/login?session=expired', { replace: true })
+    }
+  }, [isLoading, isAuthenticated, navigate])
+
+  if (isLoading || !isAuthenticated) return null
 
   return (
     <TooltipProvider>
@@ -30,18 +39,14 @@ export default function AppLayout() {
       >
         Saltar al contenido
       </a>
-      <div className="flex min-h-svh w-full">
-        <div className="w-64 flex-shrink-0">
-          <SidebarProvider>
-            <SocketManager />
-            <Sidebar
-              name={user?.name ?? ""}
-              apellido_paterno={user?.apellido_paterno ?? ""}
-              email={user?.email ?? ""}
-              isAdmin={user?.roles?.includes('ROLE_Super_Administrador') ?? false}
-            />
-          </SidebarProvider>
-        </div>
+      <SidebarProvider>
+        <SocketManager />
+        <Sidebar
+          name={user?.name ?? ""}
+          apellido_paterno={user?.apellido_paterno ?? ""}
+          email={user?.email ?? ""}
+          isAdmin={user?.roles?.includes('ROLE_Super_Administrador') ?? false}
+        />
         <div className="bg-background flex flex-col flex-1 min-w-0">
             <Header />
             <section id="main-content" className="w-full p-5">
@@ -51,7 +56,7 @@ export default function AppLayout() {
             </section>
             <Footer/>
         </div>
-      </div>
+      </SidebarProvider>
     </TooltipProvider>
   );
 }

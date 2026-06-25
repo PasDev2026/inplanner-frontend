@@ -23,6 +23,12 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
+      'no-restricted-imports': ['error', {
+        patterns: [{
+          group: ['../../*'],
+          message: 'Usa el alias @/ en vez de imports relativos profundos',
+        }],
+      }],
     },
   },
 )

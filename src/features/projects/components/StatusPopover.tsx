@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { PROJECT_STATUS_MAP } from "@/features/shared/i18n/es"
+import { PROJECT_STATUS_MAP } from "@/features/shared/constants/project-status.constant"
 import {
   Popover,
   PopoverContent,

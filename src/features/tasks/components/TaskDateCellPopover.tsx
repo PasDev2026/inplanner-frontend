@@ -3,7 +3,7 @@ import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { useUpdateTaskDates } from "../hooks/useUpdateTask"
 import { toDate } from "@/features/shared/lib/format-date"
-import DateRangePopover from "../../shared/components/DateRangePopover"
+import DateRangePopover from "@/features/shared/components/DateRangePopover"
 
 type TaskDateCellPopoverProps = {
     projectId: string

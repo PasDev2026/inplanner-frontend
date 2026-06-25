@@ -4,10 +4,10 @@ import { MoreVertical } from "lucide-react"
 import { useNavigate, useParams, useLocation } from "react-router-dom"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { PROJECT_DETAIL_KEY } from "@/features/projects/lib/project-keys"
-import { deleteTask } from "@/features/shared/actions/task.api"
+import { deleteTask } from "@/features/tasks/actions/task.api"
 import { toast } from "sonner"
 import { useDraggable } from '@dnd-kit/core'
-import PriorityBadge from "../../shared/components/PriorityBadge"
+import PriorityBadge from "@/features/shared/components/PriorityBadge"
 import { useUpdateTaskName } from "../hooks/useUpdateTask"
 import {
   DropdownMenu,

@@ -4,6 +4,7 @@ import AppLayout from "@/features/shared/layouts/AppLayout"
 import AuthLayout from "@/features/shared/layouts/AuthLayout"
 import ProfileLayout from "@/features/shared/layouts/ProfileLayout"
 import NotFoundPage from "@/features/shared/pages/NotFoundPage"
+import { AuthProvider } from "@/features/auth/providers/AuthProvider"
 
 const ProjectListPage = lazy(() => import("@/features/projects/pages/ProjectListPage"))
 const UserListPage = lazy(() => import("@/features/admin/pages/UserListPage"))
@@ -20,6 +21,7 @@ export default function Router() {
     
     return(
         <BrowserRouter>
+            <AuthProvider>
             <Routes>
                 <Route path="/" element={<Navigate to="/auth/login" replace />} />
                 <Route element={<AppLayout/>}>
@@ -46,6 +48,7 @@ export default function Router() {
                 <Route path="*" element={<Navigate to="/404" replace />} />
 
             </Routes>
+            </AuthProvider>
         </BrowserRouter>
     )
 }

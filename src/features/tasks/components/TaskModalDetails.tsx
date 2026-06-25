@@ -1,23 +1,19 @@
 import { useEffect } from "react"
-import {
-  Navigate,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom"
-import { getTaskById, updateTaskStatus } from "@/features/shared/actions/task.api"
+import { Navigate, useParams } from "react-router-dom"
+import { useModalParams } from "@/features/shared/hooks/useModalParams"
+import { getTaskById, updateTaskStatus } from "@/features/tasks/actions/task.api"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { TASK_KEY } from "@/features/tasks/lib/task-keys"
 import { PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { formatDate } from "@/features/shared/lib/format-date"
-import { TASK_STATUS_MAP } from "@/features/shared/i18n/es"
+import { TASK_STATUS_MAP } from "@/features/shared/constants/task-status.constant"
 import {
   Dialog,
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog"
-import PriorityBadge from "../../shared/components/PriorityBadge"
+import PriorityBadge from "@/features/shared/components/PriorityBadge"
 import { NotesPanel } from "./notes/NotesPanel"
 import { SubtaskChecklist } from "./SubtaskChecklist"
 import { Select } from "@/components/ui/select"
@@ -27,29 +23,24 @@ export function TaskModalDetails() {
   const projectId = params.projectId!
   const queryClient = useQueryClient()
 
-  const navigate = useNavigate()
-  const location = useLocation()
-  const queryParams = new URLSearchParams(location.search)
-  const taskId = queryParams.get("viewTask")!
-
-  const show = taskId ? true : false
+  const { show, paramValue: taskId, close } = useModalParams("viewTask")
 
   const { data, isError, error } = useQuery({
-    queryKey: TASK_KEY(taskId),
-    queryFn: () => getTaskById(Number(taskId)),
+    queryKey: TASK_KEY(taskId!),
+    queryFn: () => getTaskById(Number(taskId!)),
     enabled: !!taskId,
     retry: false,
   })
 
   const { mutate } = useMutation({
     mutationFn: async (status: number) => {
-      return updateTaskStatus(Number(taskId), { status })
+      return updateTaskStatus(Number(taskId!), { status })
     },
     onError: (error) => {
       toast.error(error.message ?? "Error")
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: TASK_KEY(taskId) })
+      queryClient.invalidateQueries({ queryKey: TASK_KEY(taskId!) })
       queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectId) })
     },
   })
@@ -66,7 +57,7 @@ export function TaskModalDetails() {
 
   if (data)
     return (
-      <Dialog open={show} onOpenChange={() => navigate(location.pathname, { replace: true })}>
+      <Dialog open={show} onOpenChange={() => close()}>
         <DialogContent className="max-w-4xl h-[85vh] max-h-[85vh] flex flex-col p-8 gap-0">
           <div className="flex-shrink-0">
             <p className="text-sm text-muted-foreground">
@@ -88,7 +79,7 @@ export function TaskModalDetails() {
 
               <SubtaskChecklist
                 projectId={Number(projectId)}
-                taskId={Number(taskId)}
+                taskId={Number(taskId!)}
               />
             </div>
 

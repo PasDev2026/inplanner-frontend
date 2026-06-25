@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { USERS_KEY, USERS_PAGINATED_KEY } from "@/features/admin/lib/admin-keys";
 import { ROLES_KEY, SEDES_KEY } from "@/features/shared/lib/shared-keys";
 import { Key, Pencil } from "lucide-react"
-import { getAllUsers, updateUserStatus } from "@/features/shared/actions/admin.api";
+import { getAllUsers, updateUserStatus } from "@/features/admin/actions/admin.api";
 import { getRoles, getSedes } from "@/features/shared/actions/centralizado.api";
 import PageSpinner from "@/components/ui/PageSpinner";
 import UserStatusModal from "@/features/admin/components/UserStatusModal";

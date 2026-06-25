@@ -1,6 +1,6 @@
 import { ChevronUp, ChevronDown } from "lucide-react"
 import { TableHeader, TableRow, TableHead } from "@/components/ui/table"
-import StatusColumnFilter from "../../shared/components/StatusColumnFilter"
+import StatusColumnFilter from "@/features/shared/components/StatusColumnFilter"
 
 type ProjectTableHeaderProps = {
   sortBy?: string

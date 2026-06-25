@@ -28,7 +28,6 @@ export default function SocketManager() {
 
         const handleForceLogout = (payload: { message: string }) => {
             if (fallbackTimer) clearTimeout(fallbackTimer)
-            clearUserProfile()
             queryClient.removeQueries({ queryKey: USER_KEY })
             disconnectSocket()
             const reason = payload.message.includes('desactivada') ? 'disabled'

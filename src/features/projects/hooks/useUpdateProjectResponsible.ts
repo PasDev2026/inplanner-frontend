@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { PROJECTS_KEY, PROJECT_DETAIL_KEY, PROJECT_SEDE_USERS_KEY } from "@/features/projects/lib/project-keys"
-import { createResponsible, removeResponsible, getResponsibles } from "@/features/shared/actions/project.api"
+import { createResponsible, removeResponsible, getResponsibles } from "@/features/projects/actions/project.api"
 
 type UseUpdateProjectResponsibleParams = {
     projectId: number

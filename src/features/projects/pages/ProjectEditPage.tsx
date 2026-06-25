@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { PROJECT_DETAIL_KEY } from "@/features/projects/lib/project-keys"
 import { Navigate, useParams } from "react-router-dom"
-import { getProjectById } from "@/features/shared/actions/project.api"
+import { getProjectById } from "@/features/projects/actions/project.api"
 import EditProjectForm from "../components/EditProjectForm"
-import PageSpinner from "../../../components/ui/PageSpinner"
+import PageSpinner from "@/components/ui/PageSpinner"
 
 export default function ProjectEditPage() {
   const params = useParams()

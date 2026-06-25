@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { TASK_CHILDREN_KEY } from "@/features/tasks/lib/task-keys"
-import { getTaskChildren } from "@/features/shared/actions/task.api"
-import PageSpinner from "../../../components/ui/PageSpinner"
+import { getTaskChildren } from "@/features/tasks/actions/task.api"
+import PageSpinner from "@/components/ui/PageSpinner"
 
 type SubtaskChecklistProps = {
     projectId: number

@@ -2,11 +2,11 @@ import { useState } from "react"
 import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormGetValues } from "react-hook-form"
 import { format } from "date-fns"
 import type { TaskFormData } from "@/features/tasks/schemas/task.schema"
-import { priorityTranslation, PRIORITY_VALUES } from "@/features/shared/i18n/es"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { DatePicker } from "../../shared/components/DatePicker"
+import { priorityTranslation, PRIORITY_VALUES } from "@/features/shared/constants/priority.constant"
+import { DatePicker } from "@/features/shared/components/DatePicker"
 import { Select } from "@/components/ui/select"
+import { InputForm } from "@/features/shared/components/form/InputForm"
+import { TextAreaForm } from "@/features/shared/components/form/TextAreaForm"
 
 type TaskFormProps = {
     errors: FieldErrors<TaskFormData>
@@ -29,36 +29,23 @@ export default function TaskForm({errors, register, setValue, getValues, showDat
 
     return (
         <>
-            <div className="flex flex-col gap-5">
-                <label
-                    className="font-normal text-2xl"
-                    htmlFor="name"
-                >Nombre de la tarea</label>
-                <Input
-                    id="name"
-                    type="text"
-                    placeholder="Nombre de la tarea"
-                    {...register("name")}
-                />
-                {errors.name && (
-                    <p>{errors.name.message}</p>
-                )}
-            </div>
+            <InputForm
+                label="Nombre de la tarea"
+                name="name"
+                register={register}
+                errors={errors}
+                placeholder="Nombre de la tarea"
+                labelClassName="font-normal text-2xl"
+            />
 
-            <div className="flex flex-col gap-5">
-                <label
-                    className="font-normal text-2xl"
-                    htmlFor="description"
-                >Descripción de la tarea</label>
-                <Textarea
-                    id="description"
-                    placeholder="Descripción de la tarea"
-                    {...register("description")}
-                />
-                {errors.description && (
-                    <p>{errors.description.message}</p>
-                )}  
-            </div>
+            <TextAreaForm
+                label="Descripción de la tarea"
+                name="description"
+                register={register}
+                errors={errors}
+                placeholder="Descripción de la tarea"
+                labelClassName="font-normal text-2xl"
+            />
 
             <div className="flex flex-col gap-5">
                 <label

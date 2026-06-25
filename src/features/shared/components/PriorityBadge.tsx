@@ -1,4 +1,4 @@
-import { PRIORITY_MAP } from "@/features/shared/i18n/es"
+import { PRIORITY_MAP } from "@/features/shared/constants/priority.constant"
 
 type PriorityBadgeProps = {
   priority: number | null

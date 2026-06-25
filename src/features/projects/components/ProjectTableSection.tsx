@@ -6,7 +6,7 @@ import ProjectTableRow from "@/features/projects/components/ProjectTableRow"
 import { LoadMoreButton } from "@/components/ui/pagination"
 import type { BackendProject } from "@/features/shared/lib/types"
 import type { CentralizadoItem } from "@/features/shared/actions/centralizado.api"
-import type { BackendUserProfile } from "@/features/shared/actions/auth.api"
+import type { BackendUserProfile } from "@/features/auth/actions/auth.api"
 
 interface ProjectTableSectionProps {
   projects: BackendProject[]

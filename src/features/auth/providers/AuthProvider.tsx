@@ -1,11 +1,12 @@
 import { createContext, useState, useEffect, useCallback, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import {
   authenticate as authenticateApi,
   logoutApi,
   getUserApi,
-} from '@/features/shared/actions/auth.api'
-import type { BackendUserProfile } from '@/features/shared/actions/auth.api'
+} from '@/features/auth/actions/auth.api'
+import type { BackendUserProfile } from '@/features/auth/actions/auth.api'
 import { fetchCsrfToken, clearUserProfile } from '@/features/shared/lib/token'
 import { USER_KEY } from '@/features/auth/lib/auth-keys'
 
@@ -23,6 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<BackendUserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchCsrfToken()
@@ -65,9 +67,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     await logoutApi()
     queryClient.removeQueries({ queryKey: USER_KEY })
-    setUser(null)
     clearUserProfile()
-  }, [queryClient])
+    setUser(null)
+    navigate('/auth/login?session=closed', { replace: true })
+  }, [queryClient, navigate])
 
   const value = useMemo(() => ({
     user,

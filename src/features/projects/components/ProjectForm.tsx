@@ -1,14 +1,14 @@
 import { useState } from "react"
-import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormGetValues, Control, Controller } from "react-hook-form"
+import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormGetValues, Control } from "react-hook-form"
 import { useQuery } from "@tanstack/react-query"
 import { SEDES_KEY } from "@/features/shared/lib/shared-keys"
 import { getSedes } from "@/features/shared/actions/centralizado.api"
 import { useEffect } from "react"
 import { format } from "date-fns"
-import { DatePicker } from "../../shared/components/DatePicker"
-import { Select } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { DatePicker } from "@/features/shared/components/DatePicker"
+import { InputForm } from "@/features/shared/components/form/InputForm"
+import { TextAreaForm } from "@/features/shared/components/form/TextAreaForm"
+import { SelectForm } from "@/features/shared/components/form/SelectForm"
 
 import type { ProjectFormValues } from "@/features/projects/schemas/project.schema"
 export type { ProjectFormValues }
@@ -46,67 +46,32 @@ export default function ProjectForm({ errors, register, setValue, getValues, con
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="name_project" className="text-sm font-medium text-foreground">
-          Nombre del Proyecto
-        </label>
-        <Input
-          id="name_project"
-          type="text"
-          placeholder="Nombre del Proyecto"
-          {...register("name_project")}
-        />
-        {errors.name_project && (
-          <p className="text-sm text-destructive">{errors.name_project.message}</p>
-        )}
-      </div>
+      <InputForm
+        label="Nombre del Proyecto"
+        name="name_project"
+        register={register}
+        errors={errors}
+        placeholder="Nombre del Proyecto"
+      />
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="description_project" className="text-sm font-medium text-foreground">
-          Descripción
-        </label>
-        <Textarea
-          id="description_project"
-          placeholder="Descripción del Proyecto"
-          rows={3}
-          {...register("description_project")}
-        />
-        {errors.description_project && (
-          <p className="text-sm text-destructive">{errors.description_project.message}</p>
-        )}
-      </div>
+      <TextAreaForm
+        label="Descripción"
+        name="description_project"
+        register={register}
+        errors={errors}
+        placeholder="Descripción del Proyecto"
+        rows={3}
+      />
 
-      {!hideEmpresa && sedes && sedes.length > 1 && (
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="sede_id" className="text-sm font-medium text-foreground">
-            Sede
-          </label>
-          <Controller
-            name="sede_id"
-            control={control}
-            render={({ field }) => (
-                  <Select value={field.value ?? ""} onValueChange={field.onChange}>
-                <Select.Trigger id="sede_id">
-                  <Select.Value placeholder="Seleccionar sede">
-                    {field.value ? sedes.find(s => String(s.id) === field.value)?.nombre : ""}
-                  </Select.Value>
-                </Select.Trigger>
-                <Select.Popup>
-                  <Select.List>
-                    {sedes.map(sede => (
-                      <Select.Item key={sede.id} value={String(sede.id)}>
-                        {sede.nombre}
-                      </Select.Item>
-                    ))}
-                  </Select.List>
-                </Select.Popup>
-              </Select>
-            )}
-          />
-          {errors.sede_id && (
-            <p className="text-sm text-destructive">{errors.sede_id.message}</p>
-          )}
-        </div>
+      {!hideEmpresa && sedes && sedes.length > 1 && control && (
+        <SelectForm
+          label="Sede"
+          name="sede_id"
+          control={control}
+          errors={errors}
+          options={sedes.map(s => ({ value: String(s.id), label: s.nombre }))}
+          placeholder="Seleccionar sede"
+        />
       )}
 
       <div className="grid grid-cols-2 gap-4">

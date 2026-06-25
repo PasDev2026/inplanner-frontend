@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PROJECT_TEAM_KEY } from "@/features/projects/lib/project-keys";
 import { UserAdmin } from "@/features/admin/schemas/user.schema";
-import { createResponsible } from "@/features/shared/actions/project.api";
+import { createResponsible } from "@/features/projects/actions/project.api";
 import { toast } from "sonner";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";

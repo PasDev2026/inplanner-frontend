@@ -5,13 +5,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { InputForm } from "@/features/shared/components/form/InputForm"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { resetPasswordSchema } from "@/features/auth/schemas/auth.schema"
-import type { ResetPasswordForm } from "@/features/auth/schemas/auth.schema"
-import { resetUserPassword } from "@/features/shared/actions/admin.api"
+import { resetPasswordSchema } from "@/features/auth/schemas/reset-password.schema"
+import type { ResetPasswordForm } from "@/features/auth/schemas/reset-password.schema"
+import { resetUserPassword } from "@/features/admin/actions/admin.api"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { USERS_KEY } from "@/features/admin/lib/admin-keys"
 import { toast } from "sonner"
@@ -52,29 +51,21 @@ export default function ResetPasswordModal({ userId, userName, onClose }: ResetP
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="reset-password">Nueva contraseña</Label>
-            <Input
-              id="reset-password"
-              type="password"
-              {...register("password")}
-            />
-            {errors.password && (
-              <p className="text-xs text-destructive font-medium">{errors.password.message}</p>
-            )}
-          </div>
+          <InputForm
+            label="Nueva contraseña"
+            name="password"
+            register={register}
+            errors={errors}
+            type="password"
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="reset-password-confirm">Confirmar contraseña</Label>
-            <Input
-              id="reset-password-confirm"
-              type="password"
-              {...register("password_confirmation")}
-            />
-            {errors.password_confirmation && (
-              <p className="text-xs text-destructive font-medium">{errors.password_confirmation.message}</p>
-            )}
-          </div>
+          <InputForm
+            label="Confirmar contraseña"
+            name="password_confirmation"
+            register={register}
+            errors={errors}
+            type="password"
+          />
 
           <div className="flex gap-3 pt-2">
             <Button

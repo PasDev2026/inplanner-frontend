@@ -12,8 +12,19 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
+  SidebarRail,
 } from "@/components/ui/sidebar";
-import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 type SidebarProps = {
   name: string;
@@ -35,7 +46,6 @@ export default function Sidebar({
   const handleLogout = async () => {
     await logout();
     disconnectSocket();
-    navigate("/auth/login?session=closed");
   };
 
   const navLinks = [
@@ -48,33 +58,11 @@ export default function Sidebar({
 
   return (
     <SidebarBase collapsible="icon">
+      <SidebarRail />
       <SidebarHeader>
-        <a href="/dashboard" className="flex items-center gap-3 px-2 pt-4 pb-2">
-          <img src="/in planner.png" className="h-7 w-auto" alt="InPlanner" />
-        </a>
-        <div className="mx-2 mb-2 rounded-lg bg-sidebar-accent/30 p-3">
-          <div className="flex items-center gap-3">
-            <HoverCard>
-              <HoverCardTrigger>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-primary text-sm font-bold text-white cursor-pointer">
-                  {name.charAt(0).toUpperCase()}
-                </div>
-              </HoverCardTrigger>
-              <HoverCardContent side="right" sideOffset={12}>
-                <p className="text-sm font-semibold">{name} {apellido_paterno}</p>
-                {email && <p className="text-xs text-muted-foreground">{email}</p>}
-                <p className="text-xs text-muted-foreground mt-1">{isAdmin ? "Administrador" : "Usuario"}</p>
-              </HoverCardContent>
-            </HoverCard>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-sidebar-foreground">
-                {name} {apellido_paterno}
-              </p>
-              <p className="truncate text-xs text-sidebar-foreground/70 min-h-[1em]">
-                {email || "\u00A0"}
-              </p>
-            </div>
-          </div>
+        <div className="flex items-center gap-2 px-2 pt-4 pb-2 group-data-[collapsible=icon]:justify-center">
+          <SidebarTrigger />
+          <img src="/in planner.png" className="h-7 w-auto group-data-[collapsible=icon]:hidden" alt="InPlanner" />
         </div>
       </SidebarHeader>
 
@@ -103,10 +91,53 @@ export default function Sidebar({
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleLogout} tooltip="Cerrar Sesión">
-              <LogOut className="text-destructive" />
-              <span>Cerrar Sesión</span>
-            </SidebarMenuButton>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
+                <Avatar className="h-8 w-8 rounded-full">
+                  <AvatarFallback className="rounded-full bg-primary text-primary-foreground text-xs font-semibold">
+                    {name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                  <span className="truncate font-semibold">{name} {apellido_paterno}</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {isAdmin ? "Administrador" : "Usuario"}
+                  </span>
+                </div>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="end" side="top" sideOffset={4} className="min-w-56 rounded-lg">
+                <DropdownMenuGroup>
+                <DropdownMenuLabel className="p-0 font-normal">
+                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                    <Avatar className="h-8 w-8 rounded-full">
+                      <AvatarFallback className="rounded-full bg-primary text-primary-foreground text-xs font-semibold">
+                        {name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">{name} {apellido_paterno}</span>
+                      <span className="truncate text-xs text-muted-foreground">{email}</span>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                </DropdownMenuGroup>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                  <User className="mr-2 h-4 w-4" />
+                  Mi perfil
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Cerrar sesión
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

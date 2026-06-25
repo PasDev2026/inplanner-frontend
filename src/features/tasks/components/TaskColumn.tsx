@@ -1,6 +1,6 @@
 import { memo } from "react"
 import { useDroppable } from "@dnd-kit/core"
-import { TASK_STATUS_MAP } from "@/features/shared/i18n/es"
+import { TASK_STATUS_MAP } from "@/features/shared/constants/task-status.constant"
 import type { BackendTask } from "@/features/shared/lib/types"
 import TaskCard from "./TaskCard"
 

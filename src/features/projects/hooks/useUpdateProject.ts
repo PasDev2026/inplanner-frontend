@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { PROJECTS_KEY, PROJECT_DETAIL_KEY } from "@/features/projects/lib/project-keys"
-import { updateProjectField } from "@/features/shared/actions/project.api"
+import { updateProjectField } from "@/features/projects/actions/project.api"
 
 export const useUpdateProject = () => {
     const queryClient = useQueryClient()

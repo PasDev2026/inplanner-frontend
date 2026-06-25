@@ -5,7 +5,7 @@ import { BackendProject } from "@/features/shared/lib/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { projectFormSchema } from "@/features/projects/schemas/project.schema";
-import { updateProjectField } from "@/features/shared/actions/project.api";
+import { updateProjectField } from "@/features/projects/actions/project.api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import type { ProjectFormValues } from "./ProjectForm";

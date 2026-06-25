@@ -1,7 +1,7 @@
 import { isAxiosError } from "axios";
 import api from "@/features/shared/lib/axios";
 import { handleApiError, createApiError } from "@/features/shared/lib/handle-api-error";
-import { CheckPasswordForm } from "@/features/auth/schemas/auth.schema";
+import { CheckPasswordForm } from "@/features/auth/schemas/reset-password.schema";
 
 export interface BackendUserProfile {
     idUser: number;

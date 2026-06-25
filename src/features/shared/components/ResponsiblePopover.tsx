@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { ALL_USERS_KEY } from "@/features/shared/lib/shared-keys"
 import { PROJECT_SEDE_USERS_KEY } from "@/features/projects/lib/project-keys"
-import { getAllUsers } from "@/features/shared/actions/admin.api"
+import { getAllUsers } from "@/features/admin/actions/admin.api"
 import { User, Check } from "lucide-react"
 import type { UserAdmin } from "@/features/admin/schemas/user.schema"
 import {

@@ -3,11 +3,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { addMemberSchema } from "@/features/projects/schemas/project.schema";
 import type { TeamMemberFormulario } from "@/features/projects/schemas/project.schema";
 import { useMutation } from "@tanstack/react-query";
-import { getAllUsers } from "@/features/shared/actions/admin.api";
+import { getAllUsers } from "@/features/admin/actions/admin.api";
 import SearchResult from "./SearchResult";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { InputForm } from "@/features/shared/components/form/InputForm";
 
 export default function AddMemberForm() {
   const initialValues: TeamMemberFormulario = {
@@ -45,18 +44,14 @@ export default function AddMemberForm() {
         onSubmit={handleSubmit(handleSearchUser)}
         noValidate
       >
-        <div className="flex flex-col gap-3">
-          <Label htmlFor="email" className="font-normal text-2xl">
-            E-mail de Usuario
-          </Label>
-          <Input
-            id="email"
-            type="text"
-            placeholder="E-mail del usuario a agregar"
-            {...register("email")}
-          />
-          {errors.email && <p className="text-xs text-destructive mt-1">{errors.email.message}</p>}
-        </div>
+        <InputForm
+          label="E-mail de Usuario"
+          name="email"
+          register={register}
+          errors={errors}
+          placeholder="E-mail del usuario a agregar"
+          labelClassName="font-normal text-2xl"
+        />
 
         <Button type="submit" className="w-full">
           Buscar Usuario

@@ -61,7 +61,7 @@ api.interceptors.response.use(
 
         try {
             await axios.post(
-                `${import.meta.env.VITE_API_URL}/auth/refresh-token`,
+                `${import.meta.env.VITE_API_URL}auth/refresh-token`,
                 {},
                 { withCredentials: true }
             )
@@ -71,7 +71,6 @@ api.interceptors.response.use(
         } catch (refreshError) {
             processQueue(refreshError)
             localStorage.removeItem('USER_PROFILE')
-            window.location.href = '/auth/login?session=expired'
             return Promise.reject(refreshError)
         } finally {
             isRefreshing = false

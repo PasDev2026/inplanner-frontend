@@ -1,8 +1,8 @@
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
-import AddMemberModal from "../../components/team/AddMemberModal";
+import AddMemberModal from "@/features/projects/components/team/AddMemberModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PROJECT_TEAM_KEY } from "@/features/projects/lib/project-keys";
-import { getResponsibles, removeResponsible } from "@/features/shared/actions/project.api";
+import { getResponsibles, removeResponsible } from "@/features/projects/actions/project.api";
 import { MoreVertical } from "lucide-react";
 import { toast } from "sonner";
 import {

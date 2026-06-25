@@ -2,7 +2,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "sonner"
 import { ThemeProvider } from "./ThemeProvider"
-import { AuthProvider } from "@/features/auth/providers/AuthProvider"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,12 +17,10 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthProvider>
-          <TooltipProvider>
-            {children}
-            <Toaster richColors position="top-center" />
-          </TooltipProvider>
-        </AuthProvider>
+        <TooltipProvider>
+          {children}
+          <Toaster richColors position="top-center" />
+        </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
   )
