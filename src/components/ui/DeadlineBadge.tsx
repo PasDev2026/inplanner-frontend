@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge"
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card"
 
 type DeadlineBadgeProps = {
@@ -26,16 +27,16 @@ export default function DeadlineBadge({
 
     const isNearDue = !isOverdue && daysUntilDue >= 0 && daysUntilDue <= 3
 
-    const baseClasses = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border"
-    
-    let colorClasses = "bg-muted text-muted-foreground border-border"
+    let badgeVariant: "default" | "secondary" | "destructive" | "outline" = "secondary"
+    let badgeClass = ""
     let text = `Vence: ${formattedDate}`
 
     if (isOverdue) {
-        colorClasses = "bg-destructive/15 text-destructive border-destructive/25"
+        badgeVariant = "destructive"
         text = `Vencido: ${formattedDate}`
     } else if (isNearDue) {
-        colorClasses = "bg-warning/15 text-warning border-warning/25"
+        badgeVariant = "secondary"
+        badgeClass = "bg-warning/15 text-warning border-warning/25 hover:bg-warning/25"
         text = daysUntilDue === 0 ? "Vence hoy" : `Vence en ${daysUntilDue} días`
     }
 
@@ -43,9 +44,9 @@ export default function DeadlineBadge({
         return (
             <HoverCard>
                 <HoverCardTrigger>
-                    <span className={`${baseClasses} ${colorClasses}`}>
+                    <Badge variant={badgeVariant} className={badgeClass}>
                         {formattedDate}
-                    </span>
+                    </Badge>
                 </HoverCardTrigger>
                 <HoverCardContent>
                     <p className="text-xs whitespace-nowrap">{text}</p>
@@ -55,8 +56,8 @@ export default function DeadlineBadge({
     }
 
     return (
-        <span className={`${baseClasses} ${colorClasses}`}>
+        <Badge variant={badgeVariant} className={badgeClass}>
             {text}
-        </span>
+        </Badge>
     )
 }

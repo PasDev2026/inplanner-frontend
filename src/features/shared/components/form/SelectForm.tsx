@@ -44,7 +44,11 @@ export function SelectForm<T extends FieldValues>({
           <Select value={field.value ?? ""} onValueChange={field.onChange} disabled={disabled}>
             <Select.Trigger id={name} className={className}>
               <Select.Value placeholder={placeholder}>
-                {renderValue ? renderValue(field, options) : undefined}
+                {(val: string | null) =>
+                  renderValue
+                    ? renderValue(field, options)
+                    : options.find(o => o.value === val)?.label ?? val ?? ""
+                }
               </Select.Value>
             </Select.Trigger>
             <Select.Popup>

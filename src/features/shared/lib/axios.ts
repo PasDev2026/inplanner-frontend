@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { getCsrfToken } from './token'
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
@@ -19,16 +18,6 @@ const processQueue = (error: unknown) => {
     })
     pendingQueue = []
 }
-
-api.interceptors.request.use(
-    config => {
-        const csrfToken = getCsrfToken()
-        if (csrfToken && config.method && !['get', 'head', 'options'].includes(config.method)) {
-            config.headers['X-CSRF-Token'] = csrfToken
-        }
-        return config
-    }
-)
 
 api.interceptors.response.use(
     response => {

@@ -25,6 +25,7 @@ export async function createProject(formData: {
   due_date?: string | null;
   status?: number;
   priority?: number;
+  privacy_level?: number;
 }) {
   try {
     const { data } = await api.post<BackendProject>('/projects', formData);

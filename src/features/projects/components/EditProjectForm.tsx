@@ -26,6 +26,7 @@ export default function EditProjectForm({
     register,
     handleSubmit,
     getValues,
+    control,
     formState: { errors },
   } = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
@@ -35,6 +36,7 @@ export default function EditProjectForm({
       sede_id: data.sede_id != null ? String(data.sede_id) : "",
       start_date: data.start_date ? data.start_date.split('T')[0] : null,
       due_date: data.due_date ? data.due_date.split('T')[0] : null,
+      privacy_level: String(data.privacy_level ?? 0),
     }
   });
 
@@ -48,6 +50,7 @@ export default function EditProjectForm({
         sede_id: formData.sede_id ? Number(formData.sede_id) : undefined,
         start_date: formData.start_date,
         due_date: formData.due_date,
+        privacy_level: Number(formData.privacy_level),
       }),
     onError: (error) => {
       toast.error((error as Error).message)
@@ -61,6 +64,10 @@ export default function EditProjectForm({
   });
 
   const handleForm = (formData: ProjectFormValues) => {
+    if (formData.start_date && formData.due_date && formData.start_date > formData.due_date) {
+      toast.error("La fecha límite debe ser posterior a la fecha de inicio")
+      return
+    }
     mutate(formData);
   };
 
@@ -75,7 +82,7 @@ export default function EditProjectForm({
         onSubmit={handleSubmit(handleForm)}
         noValidate
       >
-        <ProjectForm register={register} errors={errors} setValue={undefined} getValues={getValues} hideEmpresa />
+        <ProjectForm register={register} errors={errors} setValue={undefined} getValues={getValues} control={control} hideEmpresa />
 
         <Button type="submit" className="w-full">
           Guardar cambios

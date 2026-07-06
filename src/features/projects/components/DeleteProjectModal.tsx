@@ -37,7 +37,6 @@ export default function DeleteProjectModal() {
   })
   const queryClient = useQueryClient();
 
-
   const deleteProjectMutation = useMutation({
       mutationFn: deleteProject,
       onError: (error) => {
@@ -50,6 +49,8 @@ export default function DeleteProjectModal() {
       },
     });
 
+  const isPending = checkUserPasswordMutation.isPending || deleteProjectMutation.isPending
+
   const handleForm = async (formData: CheckPasswordForm) =>{
     await checkUserPasswordMutation.mutateAsync(formData)
 
@@ -59,24 +60,22 @@ export default function DeleteProjectModal() {
 
   return (
     <Dialog open={show} onOpenChange={() => close()}>
-      <DialogContent className="max-w-4xl p-16">
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-black text-4xl my-5">
-            Eliminar Proyecto
-          </DialogTitle>
+          <DialogTitle>Eliminar Proyecto</DialogTitle>
         </DialogHeader>
 
-        <p className="text-xl font-bold">
-          Confirma la eliminación del proyecto {""}
-          <span className="text-fuchsia-600">
+        <p className="text-sm text-muted-foreground -mt-2">
+          Confirma la eliminación del proyecto{" "}
+          <span className="font-semibold text-foreground">
             colocando tu password
           </span>
         </p>
 
         <form
-          className="mt-10 space-y-5"
           onSubmit={handleSubmit(handleForm)}
           noValidate
+          className="space-y-4"
         >
           <InputForm
             label="Password"
@@ -85,12 +84,27 @@ export default function DeleteProjectModal() {
             errors={errors}
             type="password"
             placeholder="Password Inicio de Sesión"
-            labelClassName="font-normal text-2xl"
           />
 
-          <Button type="submit" className="w-full" variant="destructive">
-            Eliminar Proyecto
-          </Button>
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={close}
+              disabled={isPending}
+              className="flex-1"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              variant="destructive"
+              disabled={isPending}
+              className="flex-1"
+            >
+              {isPending ? "Eliminando..." : "Eliminar Proyecto"}
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

@@ -27,6 +27,7 @@ const emptyValues: ProjectFormValues = {
   sede_id: "",
   start_date: null,
   due_date: null,
+  privacy_level: "0",
 }
 
 export default function CreateProjectSheet({ open, onOpenChange }: CreateProjectSheetProps) {
@@ -50,16 +51,20 @@ export default function CreateProjectSheet({ open, onOpenChange }: CreateProject
     mutationFn: createProject,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PROJECTS_KEY })
-      toast.success("Proyecto creado correctamente")
+      toast.success("Proyecto creado correctamente", { position: "top-right" })
       reset()
       onOpenChange(false)
     },
     onError: (error: Error) => {
-      toast.error(error.message)
+      toast.error(error.message, { position: "top-right" })
     },
   })
 
   const onSubmit = (formData: ProjectFormValues) => {
+    if (formData.start_date && formData.due_date && formData.start_date > formData.due_date) {
+      toast.error("La fecha límite debe ser posterior a la fecha de inicio")
+      return
+    }
     mutate({
       name_project: formData.name_project,
       description_project: formData.description_project,
@@ -67,6 +72,7 @@ export default function CreateProjectSheet({ open, onOpenChange }: CreateProject
       sede_id: formData.sede_id ? Number(formData.sede_id) : undefined,
       start_date: formData.start_date,
       due_date: formData.due_date,
+      privacy_level: Number(formData.privacy_level),
     })
   }
 

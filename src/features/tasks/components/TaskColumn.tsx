@@ -1,6 +1,6 @@
 import { memo } from "react"
 import { useDroppable } from "@dnd-kit/core"
-import { TASK_STATUS_MAP } from "@/features/shared/constants/task-status.constant"
+import { TASK_STATUS_MAP, statusColors } from "@/features/shared/constants/task-status.constant"
 import type { BackendTask } from "@/features/shared/lib/types"
 import TaskCard from "./TaskCard"
 
@@ -10,45 +10,33 @@ type TaskColumnProps = {
   canEdit: boolean
 }
 
-const COLUMN_STYLES: Record<number, { columnBg: string }> = {
-  0: { columnBg: "bg-muted" },
-  1: { columnBg: "bg-warning/10" },
-  2: { columnBg: "bg-info/10" },
-  3: { columnBg: "bg-warning/10" },
-  4: { columnBg: "bg-success/10" },
-}
-
-const DOT_COLORS: Record<number, string> = {
-  0: "bg-muted-foreground",
-  1: "bg-warning",
-  2: "bg-info",
-  3: "bg-warning",
-  4: "bg-success",
-}
+const STATUS_NAMES = ["pending", "onHold", "inProgress", "underReview", "completed"] as const
 
 const TaskColumn = memo(function TaskColumn({ status, tasks, canEdit }: TaskColumnProps) {
   const { isOver, setNodeRef } = useDroppable({ id: status.toString() })
   const info = TASK_STATUS_MAP[status]
-  const colors = COLUMN_STYLES[status] ?? { columnBg: "bg-muted" }
-  const dotColor = DOT_COLORS[status] ?? "bg-muted-foreground"
+  const colors = statusColors[STATUS_NAMES[status]] ?? statusColors.pending
 
   return (
     <div
       ref={setNodeRef}
-       className={`flex-1 rounded-lg transition-all ${colors.columnBg} ${isOver ? "ring-2 ring-brand-primary/30" : ""}`}
+      className={`rounded-xl bg-card shadow-sm transition-all ${colors.columnBg} ${isOver ? "ring-2 ring-brand-primary/30" : ""}`}
     >
-      <div className="flex items-center gap-2 px-3 py-3">
-        <span className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
-        <h3 className="font-semibold text-sm text-foreground uppercase tracking-wide">
+      <div className="flex items-center gap-2 px-3 pt-3 pb-2">
+        <span className={`w-2 h-2 rounded-full ${colors.dot}`} />
+        <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
           {info?.label ?? "Desconocido"}
         </h3>
-        <span className="ml-auto text-xs text-muted-foreground">{tasks.length}</span>
+        <span className="ml-auto bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">{tasks.length}</span>
       </div>
 
-      <div className="space-y-3 px-1 pb-3">
+      <div className="space-y-2 p-2">
         {tasks.map((task) => (
           <TaskCard key={task.id_task} task={task} canEdit={canEdit} />
         ))}
+        {tasks.length === 0 && (
+          <p className="text-xs text-muted-foreground text-center py-8 italic">Arrastra tareas aquí</p>
+        )}
       </div>
     </div>
   )

@@ -1,3 +1,5 @@
+import { Badge } from "@/components/ui/badge"
+
 type DateBadgeProps = {
     date: string | null | undefined
 }
@@ -12,8 +14,8 @@ export default function DateBadge({ date }: DateBadgeProps) {
     })
 
     return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-brand-primary/10 text-brand-primary border-brand-primary/20">
+        <Badge variant="outline" className="border-brand-primary/30 text-brand-primary">
             {formattedDate}
-        </span>
+        </Badge>
     )
 }

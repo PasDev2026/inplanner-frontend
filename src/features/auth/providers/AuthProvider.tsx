@@ -7,8 +7,6 @@ import {
   getUserApi,
 } from '@/features/auth/actions/auth.api'
 import type { BackendUserProfile } from '@/features/auth/actions/auth.api'
-import { fetchCsrfToken, clearUserProfile } from '@/features/shared/lib/token'
-import { USER_KEY } from '@/features/auth/lib/auth-keys'
 
 interface AuthContextType {
   user: BackendUserProfile | null
@@ -27,8 +25,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
 
   useEffect(() => {
-    fetchCsrfToken()
-
     const profile = localStorage.getItem('USER_PROFILE')
     if (!profile) {
       setIsLoading(false)
@@ -66,8 +62,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     await logoutApi()
-    queryClient.removeQueries({ queryKey: USER_KEY })
-    clearUserProfile()
+    queryClient.clear()
+    localStorage.removeItem('USER_PROFILE')
     setUser(null)
     navigate('/auth/login?session=closed', { replace: true })
   }, [queryClient, navigate])

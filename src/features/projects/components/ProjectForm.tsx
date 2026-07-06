@@ -11,6 +11,7 @@ import { TextAreaForm } from "@/features/shared/components/form/TextAreaForm"
 import { SelectForm } from "@/features/shared/components/form/SelectForm"
 
 import type { ProjectFormValues } from "@/features/projects/schemas/project.schema"
+import { PRIVACY_LEVEL_OPTIONS } from "@/features/shared/constants/privacy-level.constant"
 export type { ProjectFormValues }
 
 type Form = {
@@ -102,6 +103,17 @@ export default function ProjectForm({ errors, register, setValue, getValues, con
           />
         </div>
       </div>
+
+      {control && (
+        <SelectForm
+          control={control}
+          name="privacy_level"
+          label="Visibilidad"
+          placeholder="Selecciona visibilidad"
+          options={PRIVACY_LEVEL_OPTIONS}
+          errors={errors}
+        />
+      )}
     </div>
   );
 }

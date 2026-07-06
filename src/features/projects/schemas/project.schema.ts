@@ -6,6 +6,7 @@ export const projectFormSchema = z.object({
   sede_id: z.string().optional(),
   start_date: z.string().nullable().optional(),
   due_date: z.string().nullable().optional(),
+  privacy_level: z.string().optional(),
 })
 export type ProjectFormValues = z.infer<typeof projectFormSchema>
 

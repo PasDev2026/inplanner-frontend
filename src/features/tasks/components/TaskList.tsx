@@ -7,6 +7,10 @@ import { PROJECT_DETAIL_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/p
 import { updateTaskStatus } from "@/features/tasks/actions/task.api"
 import { toast } from "sonner"
 import { useParams } from "react-router-dom"
+import { LayoutGrid } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import PriorityBadge from "@/features/shared/components/PriorityBadge"
+import { statusColors } from "@/features/shared/constants/task-status.constant"
 
 type TaskListProps = {
   tasks: BackendTask[]
@@ -18,6 +22,7 @@ type GroupedTask = {
 }
 
 const STATUS_KEYS = ["0", "1", "2", "3", "4"]
+const STATUS_NAMES = ["pending", "onHold", "inProgress", "underReview", "completed"] as const
 
 export default function TaskList({ tasks, canEdit }: TaskListProps) {
   const params = useParams()
@@ -69,19 +74,36 @@ export default function TaskList({ tasks, canEdit }: TaskListProps) {
 
   return (
     <div>
-      <h2 className="text-5xl font-black my-10">Tareas</h2>
+      <div className="flex items-start gap-3 mb-8">
+        <div className="rounded-xl bg-teal-500/10 p-2.5 text-teal-600">
+          <LayoutGrid className="h-6 w-6" />
+        </div>
+        <div>
+          <h2 className="font-bold text-xl text-foreground">Tablero de Tareas</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">Gestiona y organiza las tareas del proyecto</p>
+        </div>
+      </div>
 
-      <div className="flex gap-4 pb-32">
+      <div className="rounded-2xl border bg-card shadow-sm p-6">
         <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          {STATUS_KEYS.map((statusKey) => (
-            <TaskColumn key={statusKey} status={Number(statusKey)} tasks={groupedTasks[statusKey] ?? []} canEdit={canEdit} />
-          ))}
+          <div className="grid grid-cols-5 gap-6">
+            {STATUS_KEYS.map((statusKey) => (
+              <TaskColumn key={statusKey} status={Number(statusKey)} tasks={groupedTasks[statusKey] ?? []} canEdit={canEdit} />
+            ))}
+          </div>
           <DragOverlay>
             {activeTask ? (
-              <div className="p-4 bg-card rounded-lg shadow-lg w-[300px] border-l-4 border-l-muted-foreground">
-                <p className="font-bold text-foreground">{activeTask.task_name}</p>
-                <p className="text-muted-foreground text-sm mt-1">{activeTask.task_description}</p>
-              </div>
+              <Card className={`w-[300px] border-l-[3px] shadow-xl ${statusColors[STATUS_NAMES[activeTask.status]]?.overlayBorder ?? "border-l-muted-foreground"}`}>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-end mb-2">
+                    <PriorityBadge priority={activeTask.priority} />
+                  </div>
+                  <p className="font-semibold text-sm text-foreground">{activeTask.task_name}</p>
+                  {activeTask.task_description && (
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{activeTask.task_description}</p>
+                  )}
+                </CardContent>
+              </Card>
             ) : null}
           </DragOverlay>
         </DndContext>

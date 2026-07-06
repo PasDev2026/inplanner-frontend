@@ -8,6 +8,7 @@ export interface BackendProject {
   due_date: string | null;
   status: number;
   priority: number;
+  privacy_level?: number;
   created_at: string;
   updated_at: string;
   responsibles?: { user_id: number }[];

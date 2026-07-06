@@ -1,9 +1,8 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { USER_KEY } from '@/features/auth/lib/auth-keys'
+
 import { connectSocket, disconnectSocket } from '@/features/shared/lib/socket'
-import { clearUserProfile } from '@/features/shared/lib/token'
 import { useActivityTracking } from '@/features/shared/hooks/useActivityTracking'
 
 const FALLBACK_IDLE_MS = 16 * 60 * 1000
@@ -19,8 +18,8 @@ export default function SocketManager() {
 
         const startFallbackTimer = () => {
             fallbackTimer = setTimeout(() => {
-                clearUserProfile()
-                queryClient.removeQueries({ queryKey: USER_KEY })
+                localStorage.removeItem('USER_PROFILE')
+                queryClient.clear()
                 disconnectSocket()
                 navigate('/auth/login?session=expired')
             }, FALLBACK_IDLE_MS)
@@ -28,7 +27,7 @@ export default function SocketManager() {
 
         const handleForceLogout = (payload: { message: string }) => {
             if (fallbackTimer) clearTimeout(fallbackTimer)
-            queryClient.removeQueries({ queryKey: USER_KEY })
+            queryClient.clear()
             disconnectSocket()
             const reason = payload.message.includes('desactivada') ? 'disabled'
                          : payload.message.includes('inactividad') ? 'expired'
