@@ -9,7 +9,7 @@ export default function EditTaskData() {
   const { paramValue: taskId } = useModalParams("editTaskId")
 
   const { data, isError } = useQuery({
-    queryKey: TASK_KEY(taskId),
+    queryKey: TASK_KEY(taskId ?? ''),
     queryFn: () => getTaskById(Number(taskId)),
     enabled: !!taskId,
   })

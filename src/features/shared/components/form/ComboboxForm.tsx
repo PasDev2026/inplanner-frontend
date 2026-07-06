@@ -49,6 +49,7 @@ export function ComboboxForm<T extends FieldValues>({
         render={({ field }) => (
           <Combobox value={field.value ?? ""} onValueChange={field.onChange} disabled={disabled}>
             <InputGroup className={className}>
+              {/* @ts-expect-error render prop exists in @base-ui/react runtime */}
               <ComboboxValue render={<InputGroupInput placeholder={placeholder} />} />
               <InputGroupAddon align="inline-end">
                 <ComboboxTrigger />
