@@ -60,7 +60,7 @@ api.interceptors.response.use(
         } catch (refreshError) {
             processQueue(refreshError)
             localStorage.removeItem('USER_PROFILE')
-            return Promise.reject(refreshError)
+            return Promise.reject(error)
         } finally {
             isRefreshing = false
         }

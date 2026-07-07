@@ -14,6 +14,10 @@ const TeamPage = lazy(() => import("@/features/projects/pages/team/TeamPage"))
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"))
 const ProfilePage = lazy(() => import("@/features/profile/pages/ProfilePage"))
 const ChangePasswordProfile = lazy(() => import("@/features/profile/components/ChangePasswordProfile"))
+const DashboardPage = lazy(() => import("@/features/dashboard/pages/DashboardPage"))
+const MyTasksPage = lazy(() => import("@/features/my-tasks/pages/MyTasksPage"))
+const CalendarPage = lazy(() => import("@/features/calendar/pages/CalendarPage"))
+const ReportsPage = lazy(() => import("@/features/reports/pages/ReportsPage"))
 
 
 
@@ -25,8 +29,12 @@ export default function Router() {
             <Routes>
                 <Route path="/" element={<Navigate to="/auth/login" replace />} />
                 <Route element={<AppLayout/>}>
-<Route path="/dashboard" element={<ProjectListPage/>} index/>
-<Route path="/admin/users" element={<UserListPage/>}/>
+                    <Route path="/dashboard" element={<DashboardPage />}/>
+                    <Route path="/projects" element={<ProjectListPage/>}/>
+                    <Route path="/mis-tareas" element={<MyTasksPage />}/>
+                    <Route path="/calendario" element={<CalendarPage />}/>
+                    <Route path="/reportes" element={<ReportsPage />}/>
+                    <Route path="/admin/users" element={<UserListPage/>}/>
                     <Route path="/projects/:projectId/details-projects" element={<ProjectDetailPage />}/>
                     <Route path="/projects/:projectId/edit" element={<ProjectEditPage/>}/>
                     <Route path="/projects/:projectId/details-projects/team" element={<TeamPage />}/>

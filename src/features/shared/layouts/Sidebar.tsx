@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { User, Folder, Users, LogOut } from "lucide-react";
+import { User, Folder, Users, LogOut, LayoutDashboard, ListChecks, CalendarDays, BarChart3 } from "lucide-react";
 import { useAuthContext } from "@/features/auth/hooks/useAuthContext";
 import { disconnectSocket } from "@/features/shared/lib/socket";
 import {
@@ -50,7 +50,11 @@ export default function Sidebar({
 
   const navLinks = [
     { to: "/profile", label: "Mi perfil", icon: User, matchPaths: ["/profile"] },
-    { to: "/dashboard", label: "Mis proyectos", icon: Folder, matchPaths: ["/dashboard", "/projects"] },
+/*     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, matchPaths: ["/dashboard"] },
+ */    { to: "/projects", label: "Mis proyectos", icon: Folder, matchPaths: ["/projects"] },
+    /* { to: "/mis-tareas", label: "Mis tareas", icon: ListChecks, matchPaths: ["/mis-tareas"] },
+    { to: "/calendario", label: "Calendario", icon: CalendarDays, matchPaths: ["/calendario"] },
+    { to: "/reportes", label: "Reportes", icon: BarChart3, matchPaths: ["/reportes"] }, */
     ...(isAdmin
       ? [{ to: "/admin/users", label: "Usuarios", icon: Users, matchPaths: ["/admin/users"] }]
       : []),

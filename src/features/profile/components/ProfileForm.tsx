@@ -12,7 +12,7 @@ import { InputForm } from "@/features/shared/components/form/InputForm"
 import { Button } from "@/components/ui/button"
 
 type ProfileFormProps = {
-  data: { name: string; email: string }
+  data: { name: string; email: string; dni: string }
 }
 
 export default function ProfileForm({ data }: ProfileFormProps) {
@@ -66,7 +66,7 @@ export default function ProfileForm({ data }: ProfileFormProps) {
             </Label>
             <Input
               type="text"
-              value={"dni" in data ? (data as { dni: string }).dni : 'No registrado'}
+              value={data.dni}
               className="mt-1"
               disabled
             />

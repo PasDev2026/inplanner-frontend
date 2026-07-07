@@ -9,6 +9,7 @@ export interface BackendUserProfile {
     email: string;
     name: string;
     apellido_paterno: string;
+    dni: string;
     fullName: string;
     roles: string[];
 }

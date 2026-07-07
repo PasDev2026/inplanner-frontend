@@ -64,7 +64,7 @@ export default function Login() {
           description: 'Sesión iniciada correctamente',
         })
       }
-      navigate('/dashboard')
+      navigate('/projects')
     },
   })
 
