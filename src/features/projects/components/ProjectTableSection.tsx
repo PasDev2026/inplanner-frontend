@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { Table, TableBody } from "@/components/ui/table"
+import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table"
 import { COL_GROUP } from "@/features/shared/lib/tableColumns"
 import ProjectTableHeader from "@/features/projects/components/ProjectTableHeader"
 import ProjectTableRow from "@/features/projects/components/ProjectTableRow"
@@ -17,6 +17,8 @@ interface ProjectTableSectionProps {
   onFilterChange: (type: 'project' | 'task' | null, status: string | null) => void
   responsibleId: number | null
   onResponsibleFilter: (userId: number | null) => void
+  priorityId: number | null
+  onPriorityFilter: (value: number | null) => void
   onLoadMore: () => void
   hasMore: boolean
   isLoadingMore: boolean
@@ -32,6 +34,7 @@ export function ProjectTableSection({
   projects, sort, onSort,
   filterType, filterStatus, onFilterChange,
   responsibleId, onResponsibleFilter,
+  priorityId, onPriorityFilter,
   onLoadMore, hasMore, isLoadingMore,
   hasActiveFilters, searchTerm, dateFrom, dateTo,
   user, sedes,
@@ -39,11 +42,38 @@ export function ProjectTableSection({
   if (!projects.length) {
     if (hasActiveFilters) {
       return (
-        <p className="text-xl font-light text-muted-foreground mt-10 text-center">
-          No se encontraron resultados
-          {searchTerm && <> para <span className="font-medium">&quot;{searchTerm}&quot;</span></>}
-          {(dateFrom || dateTo) && <> en el rango de fechas seleccionado</>}
-        </p>
+        <Card>
+          <CardContent className="p-0">
+            <Table className="table-fixed">
+              <colgroup>
+                {COL_GROUP.map((c, i) => (
+                  <col key={i} style={{ width: c.width }} />
+                ))}
+              </colgroup>
+              <ProjectTableHeader
+                sortBy={sort?.field}
+                sortOrder={sort?.order}
+                onSort={onSort}
+                filterType={filterType as 'project' | 'task' | null}
+                filterStatus={filterStatus}
+                onFilterChange={onFilterChange}
+                responsibleId={responsibleId}
+                onResponsibleFilter={onResponsibleFilter}
+                priorityId={priorityId}
+                onPriorityFilter={onPriorityFilter}
+              />
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center text-xl font-light text-muted-foreground py-10">
+                    No se encontraron resultados
+                    {searchTerm && <> para <span className="font-medium">&quot;{searchTerm}&quot;</span></>}
+                    {(dateFrom || dateTo) && <> en el rango de fechas seleccionado</>}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       )
     }
     return (
@@ -71,6 +101,8 @@ export function ProjectTableSection({
             onFilterChange={onFilterChange}
             responsibleId={responsibleId}
             onResponsibleFilter={onResponsibleFilter}
+            priorityId={priorityId}
+            onPriorityFilter={onPriorityFilter}
           />
           <TableBody>
             {projects.map((project) => (

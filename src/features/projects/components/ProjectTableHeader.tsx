@@ -2,6 +2,7 @@ import { ChevronUp, ChevronDown } from "lucide-react"
 import { TableHeader, TableRow, TableHead } from "@/components/ui/table"
 import StatusColumnFilter from "@/features/shared/components/StatusColumnFilter"
 import ResponsibleColumnFilter from "@/features/shared/components/ResponsibleColumnFilter"
+import PriorityColumnFilter from "@/features/shared/components/PriorityColumnFilter"
 
 type ProjectTableHeaderProps = {
   sortBy?: string
@@ -12,9 +13,11 @@ type ProjectTableHeaderProps = {
   onFilterChange: (type: 'project' | 'task' | null, status: string | null) => void
   responsibleId: number | null
   onResponsibleFilter: (userId: number | null) => void
+  priorityId: number | null
+  onPriorityFilter: (value: number | null) => void
 }
 
-export default function ProjectTableHeader({ sortBy, sortOrder, onSort, filterType, filterStatus, onFilterChange, responsibleId, onResponsibleFilter }: ProjectTableHeaderProps) {
+export default function ProjectTableHeader({ sortBy, sortOrder, onSort, filterType, filterStatus, onFilterChange, responsibleId, onResponsibleFilter, priorityId, onPriorityFilter }: ProjectTableHeaderProps) {
   const sortIcon = (field: string) => {
     const isActive = sortBy === field
     return (
@@ -55,7 +58,12 @@ export default function ProjectTableHeader({ sortBy, sortOrder, onSort, filterTy
             {sortIcon('responsible_name')}
           </div>
         </TableHead>
-        <TableHead>Prioridad</TableHead>
+        <TableHead>
+          <PriorityColumnFilter
+            priorityId={priorityId}
+            onChange={onPriorityFilter}
+          />
+        </TableHead>
         <TableHead>Fecha</TableHead>
         <TableHead>Progreso</TableHead>
         <TableHead />

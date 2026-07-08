@@ -38,6 +38,7 @@ export default function ProjectsView() {
           ? (filters.debouncedFilters.filterStatus ? Number(filters.debouncedFilters.filterStatus) : undefined)
           : undefined,
         responsible_id: filters.debouncedFilters.responsible_id ? Number(filters.debouncedFilters.responsible_id) : undefined,
+        priority: filters.debouncedFilters.priority ? Number(filters.debouncedFilters.priority) : undefined,
         dateFrom: filters.debouncedFilters.dateFrom || undefined,
         dateTo: filters.debouncedFilters.dateTo || undefined,
         sortBy: filters.sort?.field,
@@ -106,6 +107,8 @@ export default function ProjectsView() {
         onFilterChange={filters.handleFilterChange}
         responsibleId={filters.debouncedFilters.responsible_id ? Number(filters.debouncedFilters.responsible_id) : null}
         onResponsibleFilter={(id) => filters.setResponsibleInput(id ? String(id) : "")}
+        priorityId={filters.debouncedFilters.priority ? Number(filters.debouncedFilters.priority) : null}
+        onPriorityFilter={(value) => filters.setPriorityInput(value ? String(value) : "")}
         onLoadMore={fetchNextPage}
         hasMore={!!hasNextPage}
         isLoadingMore={isFetchingNextPage}
