@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { ALL_USERS_KEY } from "@/features/shared/lib/shared-keys"
+import { AVAILABLE_USERS_KEY } from "@/features/shared/lib/shared-keys"
 import { PROJECT_SEDE_USERS_KEY } from "@/features/projects/lib/project-keys"
-import { getAllUsers } from "@/features/admin/actions/admin.api"
+import { getAvailableUsers } from "@/features/shared/actions/users.api"
+import type { AvailableUser } from "@/features/shared/actions/users.api"
 import { User, Check } from "lucide-react"
-import type { UserAdmin } from "@/features/admin/schemas/user.schema"
 import {
   Popover,
   PopoverContent,
@@ -25,17 +25,20 @@ function getInitial(name: string): string {
 
 export default function ResponsiblePopover({ projectId, assignedTo, onAssign, isPending = false }: ResponsiblePopoverProps) {
   const [open, setOpen] = useState(false)
-  const [page] = useState(1)
+  const [search, setSearch] = useState("")
   const queryClient = useQueryClient()
 
   const { data: users = [] } = useQuery({
-    queryKey: ALL_USERS_KEY(page),
-    queryFn: async () => {
-      const result = await getAllUsers(page, 50)
-      return (result.users as UserAdmin[]) ?? []
-    },
+    queryKey: AVAILABLE_USERS_KEY,
+    queryFn: getAvailableUsers,
     staleTime: 5 * 60 * 1000,
   })
+
+  const filtered = search
+    ? users.filter((u) =>
+        `${u.name} ${u.apellido_paterno ?? ""}`.toLowerCase().includes(search.toLowerCase()),
+      )
+    : users
 
   const selectedIds = new Set(assignedTo.map((u) => u.user_id))
 
@@ -56,7 +59,7 @@ export default function ResponsiblePopover({ projectId, assignedTo, onAssign, is
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={(next) => { setOpen(next); if (!next) setSearch("") }}>
       <PopoverTrigger
         disabled={isPending}
         render={
@@ -79,8 +82,17 @@ export default function ResponsiblePopover({ projectId, assignedTo, onAssign, is
             Responsable
           </div>
 
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar usuario..."
+            className="w-full rounded-md border border-border bg-card text-foreground px-2.5 py-1.5 text-xs outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+            autoFocus
+          />
+
           <div className="max-h-56 overflow-y-auto space-y-0.5">
-            {users.map((user) => {
+            {filtered.map((user) => {
               const isSelected = selectedIds.has(user.id_user)
               const initial = getInitial(user.apellido_paterno ?? "")
               return (
@@ -104,7 +116,7 @@ export default function ResponsiblePopover({ projectId, assignedTo, onAssign, is
                 </div>
               )
             })}
-            {users.length === 0 && (
+            {filtered.length === 0 && (
               <p className="text-xs text-muted-foreground text-center py-6">No se encontraron usuarios</p>
             )}
           </div>

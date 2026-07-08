@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { ALL_USERS_KEY } from "@/features/shared/lib/shared-keys"
-import { getAllUsers } from "@/features/admin/actions/admin.api"
+import { AVAILABLE_USERS_KEY } from "@/features/shared/lib/shared-keys"
+import { getAvailableUsers } from "@/features/shared/actions/users.api"
 import { X } from "lucide-react"
 import {
   Popover,
@@ -19,11 +19,8 @@ export default function ResponsibleColumnFilter({ responsibleId, onChange }: Res
   const [search, setSearch] = useState("")
 
   const { data: users = [] } = useQuery({
-    queryKey: ALL_USERS_KEY(1),
-    queryFn: async () => {
-      const result = await getAllUsers(1, 200)
-      return result.users ?? []
-    },
+    queryKey: AVAILABLE_USERS_KEY,
+    queryFn: getAvailableUsers,
     staleTime: 5 * 60 * 1000,
   })
 
