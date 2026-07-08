@@ -16,9 +16,9 @@ const badgeVariants = cva(
         outline:
           "text-foreground border-border",
         brand:
-          "bg-brand-primary/10 text-brand-primary border-brand-primary/20",
+          "bg-muted text-muted-foreground border-border",
         "brand-light":
-          "bg-brand-light/10 text-brand-light border-border",
+          "bg-muted text-brand-dark border-border",
         slate:
           "bg-muted text-muted-foreground border-border",
       },

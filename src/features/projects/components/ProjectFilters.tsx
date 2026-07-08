@@ -56,7 +56,7 @@ export function ProjectFilters({
         value={sede}
         onValueChange={(v) => onSedeChange(v ?? "")}
       >
-        <Select.Trigger className="shrink-0 px-3 py-2.5 h-auto text-sm border-border shadow-sm">
+        <Select.Trigger className="shrink-0 px-3 py-2.5 h-auto text-sm border-border shadow-sm bg-card">
           <Select.Value placeholder="Todas las sedes">
             {sede ? sedes?.find((s) => String(s.id) === sede)?.nombre : "Todas las sedes"}
           </Select.Value>

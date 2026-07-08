@@ -6,7 +6,7 @@ import { taskFormSchema } from "@/features/tasks/schemas/task.schema"
 import type { TaskFormData } from "@/features/tasks/schemas/task.schema"
 import TaskForm from "./TaskForm"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { PROJECT_DETAIL_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
+import { PROJECTS_KEY, PROJECT_DETAIL_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { updateTask } from "@/features/tasks/actions/task.api"
 import { toast } from "sonner"
 import {
@@ -80,6 +80,7 @@ export default function EditTaskModal({ data, taskId }: EditTaskModalProps) {
       toast.error(error.message)
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PROJECTS_KEY })
       queryClient.invalidateQueries({ queryKey: PROJECT_DETAIL_KEY(projectId) })
       queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectId) })
       toast.success("Tarea actualizada correctamente")

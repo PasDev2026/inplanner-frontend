@@ -11,6 +11,7 @@ export interface BackendProject {
   privacy_level?: number;
   created_at: string;
   updated_at: string;
+  progress: number;
   responsibles?: { user_id: number }[];
 }
 

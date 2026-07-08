@@ -10,6 +10,7 @@ export type ProjectFilters = {
   status?: number;
   priority?: number;
   manager_id?: number;
+  responsible_id?: number;
   page?: number;
   limit?: number;
   sortBy?: string;
@@ -45,6 +46,7 @@ export async function getProjects(filters?: ProjectFilters) {
     if (filters?.status !== undefined) params.status = filters.status;
     if (filters?.priority !== undefined) params.priority = filters.priority;
     if (filters?.manager_id !== undefined) params.manager_id = filters.manager_id;
+    if (filters?.responsible_id !== undefined) params.responsible_id = filters.responsible_id;
     if (filters?.page !== undefined) params.page = filters.page;
     if (filters?.limit !== undefined) params.limit = filters.limit;
     if (filters?.sortBy) params.sortBy = filters.sortBy;

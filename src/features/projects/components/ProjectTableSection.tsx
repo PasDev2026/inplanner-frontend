@@ -15,6 +15,8 @@ interface ProjectTableSectionProps {
   filterType: string | null
   filterStatus: string | null
   onFilterChange: (type: 'project' | 'task' | null, status: string | null) => void
+  responsibleId: number | null
+  onResponsibleFilter: (userId: number | null) => void
   onLoadMore: () => void
   hasMore: boolean
   isLoadingMore: boolean
@@ -29,6 +31,7 @@ interface ProjectTableSectionProps {
 export function ProjectTableSection({
   projects, sort, onSort,
   filterType, filterStatus, onFilterChange,
+  responsibleId, onResponsibleFilter,
   onLoadMore, hasMore, isLoadingMore,
   hasActiveFilters, searchTerm, dateFrom, dateTo,
   user, sedes,
@@ -66,6 +69,8 @@ export function ProjectTableSection({
             filterType={filterType as 'project' | 'task' | null}
             filterStatus={filterStatus}
             onFilterChange={onFilterChange}
+            responsibleId={responsibleId}
+            onResponsibleFilter={onResponsibleFilter}
           />
           <TableBody>
             {projects.map((project) => (

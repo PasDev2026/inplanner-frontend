@@ -9,7 +9,7 @@ export const projectStatusTranslation: Record<string, string> = {
 export const projectStatusStyles: Record<string, string> = {
     planning: "bg-info/15 text-info border-info/25",
     active: "bg-info/15 text-info border-info/25",
-    onHold: "bg-destructive/15 text-destructive border-destructive/25",
+    onHold: "bg-warning/15 text-warning border-warning/25",
     completed: "bg-success/15 text-success border-success/25",
     cancelled: "bg-muted text-muted-foreground border-border",
 };

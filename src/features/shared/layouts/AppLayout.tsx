@@ -2,7 +2,7 @@ import { Suspense, useEffect } from "react"
 import { Outlet, useNavigate } from "react-router-dom";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
-import Footer from "./Footer";
+//import Footer from "./Footer";
 import { useAuthContext } from "@/features/auth/hooks/useAuthContext";
 import PageSpinner from "@/components/ui/PageSpinner";
 import SocketManager from "@/components/SocketManager";
@@ -54,7 +54,7 @@ export default function AppLayout() {
                 <Outlet />
               </Suspense>
             </section>
-            <Footer/>
+            {/* <Footer/> */}
         </div>
       </SidebarProvider>
     </TooltipProvider>

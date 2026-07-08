@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { DASHBOARD_TASKS_KEY } from "@/features/tasks/lib/task-keys"
-import { PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
+import { DASHBOARD_TASKS_KEY, TASK_CHILDREN_KEY } from "@/features/tasks/lib/task-keys"
+import { PROJECTS_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { getProjectTasks } from "@/features/projects/actions/project.api"
 import { createTask } from "@/features/tasks/actions/task.api"
 import type { BackendTask } from "@/features/shared/lib/types"
@@ -65,6 +65,7 @@ export default function TaskTableSection({
         mutationFn: (name: string) =>
             createTask({ task_name: name, project_id: projectIdNum }),
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: PROJECTS_KEY })
             queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectIdNum) })
             queryClient.invalidateQueries({ queryKey: DASHBOARD_TASKS_KEY(projectIdNum) })
             setNewTaskName("")
@@ -249,7 +250,7 @@ export default function TaskTableSection({
                                                     setEditValue("")
                                                 }}
                                                 autoFocus
-                                                className="flex-1 text-sm font-medium text-foreground border border-brand-primary rounded px-2 py-0.5 focus:outline-none min-w-0"
+                                                className="flex-1 text-sm font-medium text-foreground bg-[var(--input-bg)] border border-brand-primary rounded px-2 py-0.5 focus:outline-none min-w-0"
                                             />
                                         ) : (
                                             <span
@@ -266,7 +267,12 @@ export default function TaskTableSection({
                                 <TableCell>
                                     <TaskStatusPopover
                                         status={task.status}
-                                        onSelect={(s) => statusMutation.mutate({ taskId: task.id_task, status: s })}
+                                        onSelect={(s) => statusMutation.mutate(
+                                            { taskId: task.id_task, status: s },
+                                            { onSuccess: () => {
+                                                queryClient.invalidateQueries({ queryKey: TASK_CHILDREN_KEY(task.id_task) })
+                                            }}
+                                        )}
                                         isPending={statusMutation.isPending}
                                     />
                                 </TableCell>

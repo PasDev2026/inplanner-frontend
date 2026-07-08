@@ -8,6 +8,7 @@ type FilterState = {
   dateTo: string
   filterType: string
   filterStatus: string
+  responsible_id: string
 }
 
 export function useProjectListFilters() {
@@ -19,6 +20,7 @@ export function useProjectListFilters() {
   const [dateToInput, setDateToInput] = useState(() => searchParams.get("dateTo") || "")
   const [filterTypeInput, setFilterTypeInput] = useState(() => searchParams.get("filterType") || "")
   const [filterStatusInput, setFilterStatusInput] = useState(() => searchParams.get("filterStatus") || "")
+  const [responsibleInput, setResponsibleInput] = useState(() => searchParams.get("responsible_id") || "")
 
   const [sort, setSort] = useState<{ field: string; order: string } | null>(null)
 
@@ -29,6 +31,7 @@ export function useProjectListFilters() {
     dateTo: dateToInput,
     filterType: filterTypeInput,
     filterStatus: filterStatusInput,
+    responsible_id: responsibleInput,
   })
 
   useEffect(() => {
@@ -37,10 +40,11 @@ export function useProjectListFilters() {
         search: searchInput, sede_id: sedeInput,
         dateFrom: dateFromInput, dateTo: dateToInput,
         filterType: filterTypeInput, filterStatus: filterStatusInput,
+        responsible_id: responsibleInput,
       })
     }, 350)
     return () => clearTimeout(timer)
-  }, [searchInput, sedeInput, dateFromInput, dateToInput, filterTypeInput, filterStatusInput])
+  }, [searchInput, sedeInput, dateFromInput, dateToInput, filterTypeInput, filterStatusInput, responsibleInput])
 
   useEffect(() => {
     const next = new URLSearchParams(searchParams)
@@ -49,6 +53,7 @@ export function useProjectListFilters() {
     setOrDel("sede_id", debouncedFilters.sede_id)
     setOrDel("dateFrom", debouncedFilters.dateFrom)
     setOrDel("dateTo", debouncedFilters.dateTo)
+    setOrDel("responsible_id", debouncedFilters.responsible_id)
     if (debouncedFilters.filterType && debouncedFilters.filterStatus) {
       next.set("filterType", debouncedFilters.filterType)
       next.set("filterStatus", debouncedFilters.filterStatus)
@@ -66,8 +71,9 @@ export function useProjectListFilters() {
     || dateToInput !== debouncedFilters.dateTo
     || filterTypeInput !== debouncedFilters.filterType
     || filterStatusInput !== debouncedFilters.filterStatus
+    || responsibleInput !== debouncedFilters.responsible_id
 
-  const hasActiveFilters = !!(debouncedFilters.search || debouncedFilters.sede_id || debouncedFilters.dateFrom || debouncedFilters.dateTo || debouncedFilters.filterType)
+  const hasActiveFilters = !!(debouncedFilters.search || debouncedFilters.sede_id || debouncedFilters.dateFrom || debouncedFilters.dateTo || debouncedFilters.filterType || debouncedFilters.responsible_id)
 
   const handleSort = useCallback((field: string) => {
     setSort(prev => {
@@ -91,6 +97,7 @@ export function useProjectListFilters() {
     setDateToInput("")
     setFilterTypeInput("")
     setFilterStatusInput("")
+    setResponsibleInput("")
   }, [])
 
   return {
@@ -99,6 +106,7 @@ export function useProjectListFilters() {
     dateFromInput, setDateFromInput,
     dateToInput, setDateToInput,
     filterTypeInput, filterStatusInput,
+    responsibleInput, setResponsibleInput,
     sort, handleSort,
     handleFilterChange,
     clearAllFilters,

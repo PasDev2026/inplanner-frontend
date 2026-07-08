@@ -62,7 +62,7 @@ export default function ResponsiblePopover({ projectId, assignedTo, onAssign, is
         render={
           <button className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border transition-colors
             ${assignedTo.length > 0
-              ? "bg-brand-primary/10 text-brand-primary border-border"
+              ? "bg-muted text-brand-dark border-border"
               : "bg-muted text-muted-foreground border-border"
             }
             ${isPending ? "opacity-50 pointer-events-none" : ""}
@@ -91,15 +91,15 @@ export default function ResponsiblePopover({ projectId, assignedTo, onAssign, is
                     queryClient.invalidateQueries({ queryKey: PROJECT_SEDE_USERS_KEY(projectId) })
                   }}
                   className={`flex items-center gap-2.5 px-2 py-2 rounded-md cursor-pointer transition-colors 
-                    ${isSelected ? "bg-brand-primary/5" : "hover:bg-brand-primary/5"}`}
+                    ${isSelected ? "bg-accent" : "hover:bg-accent"}`}
                 >
                   <div className="flex-1 min-w-0 flex items-center gap-1.5">
-                    <span className={`text-xs font-medium truncate ${isSelected ? "text-brand-primary" : "text-foreground"}`}>
+                    <span className={`text-xs font-medium truncate ${isSelected ? "text-brand-dark" : "text-foreground"}`}>
                       {user.name}{initial ? ` ${initial}.` : ""}
                     </span>
                   </div>
                   {isSelected && (
-                    <Check className="h-4 w-4 text-brand-primary shrink-0" />
+                    <Check className="h-4 w-4 text-brand-dark shrink-0" />
                   )}
                 </div>
               )

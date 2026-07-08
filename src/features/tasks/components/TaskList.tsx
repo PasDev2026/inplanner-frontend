@@ -3,7 +3,7 @@ import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/
 import type { BackendTask } from "@/features/shared/lib/types"
 import TaskColumn from "./TaskColumn"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { PROJECT_DETAIL_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
+import { PROJECTS_KEY, PROJECT_DETAIL_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { updateTaskStatus } from "@/features/tasks/actions/task.api"
 import { toast } from "sonner"
 import { useParams } from "react-router-dom"
@@ -48,6 +48,7 @@ export default function TaskList({ tasks, canEdit }: TaskListProps) {
       toast.error(error.message)
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PROJECTS_KEY })
       queryClient.invalidateQueries({ queryKey: PROJECT_DETAIL_KEY(projectId) })
       queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectId) })
     },
@@ -84,7 +85,7 @@ export default function TaskList({ tasks, canEdit }: TaskListProps) {
         </div>
       </div>
 
-      <div className="rounded-2xl border bg-card shadow-sm p-6">
+      <div className="rounded-2xl border border-border bg-card shadow-sm p-6">
         <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-5 gap-6">
             {STATUS_KEYS.map((statusKey) => (

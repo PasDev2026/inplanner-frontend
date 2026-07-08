@@ -108,7 +108,7 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
                                 onKeyDown={handleEditKeyDown}
                                 onBlur={() => setIsEditing(false)}
                                 autoFocus
-                                className="flex-1 text-sm font-medium text-brand-dark border border-brand-primary rounded px-2 py-0.5 focus:outline-none min-w-0"
+                                className="flex-1 text-sm font-medium text-foreground bg-[var(--input-bg)] border border-brand-primary rounded px-2 py-0.5 focus:outline-none min-w-0"
                             />
                         ) : (
                             <span
@@ -153,7 +153,7 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
                     />
                 </TableCell>
                 <TableCell>
-                    <CircularProgress percentage={0} size="sm" />
+                    <CircularProgress percentage={project.progress} size="sm" />
                 </TableCell>
                 <TableCell>
                     <DropdownMenu>

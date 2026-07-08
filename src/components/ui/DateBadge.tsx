@@ -14,7 +14,7 @@ export default function DateBadge({ date }: DateBadgeProps) {
     })
 
     return (
-        <Badge variant="outline" className="border-brand-primary/30 text-brand-primary">
+        <Badge variant="outline">
             {formattedDate}
         </Badge>
     )

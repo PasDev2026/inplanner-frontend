@@ -45,7 +45,7 @@ export default function CircularProgress({ percentage, size = 'md' }: CircularPr
         />
       </svg>
       <span className={`absolute font-semibold text-foreground ${cfg.fontSize}`}>
-        {percentage}%
+        {Math.round(percentage)}%
       </span>
     </div>
   )

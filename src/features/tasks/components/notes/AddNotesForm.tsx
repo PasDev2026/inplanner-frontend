@@ -36,12 +36,12 @@ export default function AddNotesForm({ taskId }: AddNotesFormProps) {
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Escribe una nota..."
                 rows={3}
-                className="w-full rounded-lg border border-border p-3 text-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none resize-none"
+                className="w-full rounded-lg border border-border bg-card text-foreground p-3 text-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none resize-none"
             />
             <button
                 type="submit"
                 disabled={isPending || !content.trim()}
-                className="w-full px-4 py-2 bg-brand-primary text-white text-sm font-semibold rounded-lg hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full px-4 py-2 bg-foreground text-background text-sm font-semibold rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
                 {isPending ? "Agregando..." : "Agregar nota"}
             </button>

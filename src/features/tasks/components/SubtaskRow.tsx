@@ -132,7 +132,7 @@ export default function SubtaskRow({
                                     setEditValue("")
                                 }}
                                 autoFocus
-                                className="flex-1 text-sm text-foreground border border-brand-primary rounded px-2 py-0.5 focus:outline-none min-w-0"
+                                className="flex-1 text-sm text-foreground bg-[var(--input-bg)] border border-brand-primary rounded px-2 py-0.5 focus:outline-none min-w-0"
                             />
                         ) : (
                             <span
@@ -148,7 +148,14 @@ export default function SubtaskRow({
                 <TableCell>
                     <TaskStatusPopover
                         status={subtask.status}
-                        onSelect={(s) => statusMutation.mutate({ taskId: subtask.id_task, status: s })}
+                        onSelect={(s) => statusMutation.mutate(
+                            { taskId: subtask.id_task, status: s },
+                            { onSuccess: () => {
+                                if (subtask.parent_task_id) {
+                                    queryClient.invalidateQueries({ queryKey: TASK_CHILDREN_KEY(subtask.parent_task_id) })
+                                }
+                            }}
+                        )}
                         isPending={statusMutation.isPending}
                     />
                 </TableCell>

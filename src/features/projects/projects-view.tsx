@@ -37,8 +37,11 @@ export default function ProjectsView() {
         status: filters.debouncedFilters.filterType === 'project'
           ? (filters.debouncedFilters.filterStatus ? Number(filters.debouncedFilters.filterStatus) : undefined)
           : undefined,
+        responsible_id: filters.debouncedFilters.responsible_id ? Number(filters.debouncedFilters.responsible_id) : undefined,
         dateFrom: filters.debouncedFilters.dateFrom || undefined,
         dateTo: filters.debouncedFilters.dateTo || undefined,
+        sortBy: filters.sort?.field,
+        sortOrder: filters.sort?.order,
         page: pageParam as number,
         limit: 10,
       })
@@ -59,16 +62,9 @@ export default function ProjectsView() {
 
   const projects = data?.pages.flatMap(page => page.data) ?? []
 
-  const sortedProjects = filters.sort
-    ? [...projects].sort((a, b) => {
-        const cmp = a.name_project.localeCompare(b.name_project, 'es', { sensitivity: 'base' })
-        return filters.sort!.order === 'desc' ? -cmp : cmp
-      })
-    : projects
-
   const filteredProjects = filters.debouncedFilters.filterType === 'project' && filters.debouncedFilters.filterStatus
-    ? sortedProjects.filter(p => p.status === Number(filters.debouncedFilters.filterStatus))
-    : sortedProjects
+    ? projects.filter(p => p.status === Number(filters.debouncedFilters.filterStatus))
+    : projects
 
   return (
     <div className="flex flex-col gap-4 md:gap-4 md:py-2">
@@ -108,6 +104,8 @@ export default function ProjectsView() {
         filterType={filters.filterTypeInput || null}
         filterStatus={filters.filterStatusInput || null}
         onFilterChange={filters.handleFilterChange}
+        responsibleId={filters.debouncedFilters.responsible_id ? Number(filters.debouncedFilters.responsible_id) : null}
+        onResponsibleFilter={(id) => filters.setResponsibleInput(id ? String(id) : "")}
         onLoadMore={fetchNextPage}
         hasMore={!!hasNextPage}
         isLoadingMore={isFetchingNextPage}

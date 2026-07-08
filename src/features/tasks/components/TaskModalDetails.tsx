@@ -1,18 +1,20 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Navigate, useParams } from "react-router-dom"
 import { useModalParams } from "@/features/shared/hooks/useModalParams"
-import { getTaskById, updateTaskStatus } from "@/features/tasks/actions/task.api"
+import { getTaskById, updateTask, updateTaskStatus } from "@/features/tasks/actions/task.api"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { TASK_KEY } from "@/features/tasks/lib/task-keys"
-import { PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
+import { PROJECTS_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { formatDate } from "@/features/shared/lib/format-date"
 import { TASK_STATUS_MAP } from "@/features/shared/constants/task-status.constant"
+import { Pencil } from "lucide-react"
 import {
   Dialog,
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
 import PriorityBadge from "@/features/shared/components/PriorityBadge"
 import { NotesPanel } from "./notes/NotesPanel"
 import { SubtaskChecklist } from "./SubtaskChecklist"
@@ -32,6 +34,17 @@ export function TaskModalDetails() {
     retry: false,
   })
 
+  const [editingDesc, setEditingDesc] = useState(false)
+  const [descValue, setDescValue] = useState("")
+
+  const { mutate: mutateDesc } = useMutation({
+    mutationFn: ({ task_id, task_description }: { task_id: number; task_description: string }) =>
+      updateTask(task_id, { task_description }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TASK_KEY(taskId!) })
+    },
+  })
+
   const { mutate } = useMutation({
     mutationFn: async (status: number) => {
       return updateTaskStatus(Number(taskId!), { status })
@@ -40,6 +53,7 @@ export function TaskModalDetails() {
       toast.error(error.message ?? "Error")
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PROJECTS_KEY })
       queryClient.invalidateQueries({ queryKey: TASK_KEY(taskId!) })
       queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectId) })
     },
@@ -73,9 +87,49 @@ export function TaskModalDetails() {
 
           <div className="flex flex-1 min-h-0 gap-8 overflow-hidden">
             <div className="flex-1 overflow-y-auto pr-4 space-y-8">
-              <p className="text-lg text-muted-foreground">
-                {data.task_description}
-              </p>
+              {editingDesc ? (
+                <div className="space-y-2">
+                  <Textarea
+                    value={descValue}
+                    onChange={(e) => setDescValue(e.target.value)}
+                    rows={3}
+                    className="bg-card text-foreground text-lg"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault()
+                        if (descValue.trim()) {
+                          mutateDesc({ task_id: Number(taskId!), task_description: descValue.trim() })
+                        }
+                        setEditingDesc(false)
+                      }
+                      if (e.key === "Escape") {
+                        setEditingDesc(false)
+                      }
+                    }}
+                  />
+                  <div className="flex gap-2 text-sm">
+                    <button
+                      onClick={() => { setEditingDesc(false); setDescValue(data.task_description ?? "") }}
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="group flex items-start gap-2">
+                  <p className="text-lg text-muted-foreground flex-1">
+                    {data.task_description || <span className="italic">Sin descripción</span>}
+                  </p>
+                  <button
+                    onClick={() => { setDescValue(data.task_description ?? ""); setEditingDesc(true) }}
+                    className="shrink-0 p-1 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
 
               <SubtaskChecklist
                 projectId={Number(projectId)}

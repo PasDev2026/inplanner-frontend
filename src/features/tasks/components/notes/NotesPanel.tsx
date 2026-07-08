@@ -19,7 +19,7 @@ export function NotesPanel({ notes, taskId }: NotesPanelProps) {
                 </label>
                 <button
                     onClick={() => setShowForm(!showForm)}
-                    className="text-xs font-semibold text-brand-primary hover:text-brand-hover transition-colors"
+                    className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
                 >
                     {showForm ? "Cancelar" : "+ Agregar"}
                 </button>
