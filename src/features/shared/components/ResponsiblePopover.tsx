@@ -3,7 +3,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { AVAILABLE_USERS_KEY } from "@/features/shared/lib/shared-keys"
 import { PROJECT_SEDE_USERS_KEY } from "@/features/projects/lib/project-keys"
 import { getAvailableUsers } from "@/features/shared/actions/users.api"
-import type { AvailableUser } from "@/features/shared/actions/users.api"
 import { User, Check } from "lucide-react"
 import {
   Popover,
