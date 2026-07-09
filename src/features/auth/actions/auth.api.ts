@@ -12,6 +12,7 @@ export interface BackendUserProfile {
     dni: string;
     fullName: string;
     roles: string[];
+    sedesIds: number[];
 }
 
 export interface LoginResponse {
@@ -27,8 +28,7 @@ export async function authenticate(formData: { username: string; password: strin
         return data
     } catch (error) {
         if(isAxiosError(error) && error.response){
-            const err = createApiError(error, 'Error de conexión con el servidor');
-            (err as any).field = error.response.data.field || 'general';
+            const err = createApiError(error, 'Error de conexión con el servidor', error.response.data.field || 'general');
             throw err;
         }
         throw new Error('Error de conexión con el servidor');
@@ -59,6 +59,7 @@ export async function checkPasswordApi(formData:CheckPasswordForm) {
 export async function logoutApi() {
     try {
         await api.post('/auth/logout')
-    } catch {
+    } catch (err) {
+        console.error('Logout error:', err)
     }
 }

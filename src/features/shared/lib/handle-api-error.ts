@@ -8,10 +8,12 @@ export function handleApiError(error: unknown, fallback: string): never {
   throw new Error('Error de conexión con el servidor')
 }
 
-export function createApiError(error: unknown, fallback: string): Error {
+export function createApiError(error: unknown, fallback: string, field?: string): Error & { field?: string } {
   if (isAxiosError(error) && error.response) {
     const message = error.response.data?.message ?? error.response.data?.error ?? fallback
-    return new Error(message)
+    const err = new Error(message) as Error & { field?: string }
+    if (field) err.field = field
+    return err
   }
   return new Error('Error de conexión con el servidor')
 }

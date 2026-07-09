@@ -1,9 +1,9 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormGetValues, Control } from "react-hook-form"
 import { useQuery } from "@tanstack/react-query"
 import { SEDES_KEY } from "@/features/shared/lib/shared-keys"
 import { getSedes } from "@/features/shared/actions/centralizado.api"
-import { useEffect } from "react"
+import { useAuth } from "@/features/auth/hooks/useAuth"
 import { format } from "date-fns"
 import { DatePicker } from "@/features/shared/components/DatePicker"
 import { InputForm } from "@/features/shared/components/form/InputForm"
@@ -24,10 +24,18 @@ type Form = {
 };
 
 export default function ProjectForm({ errors, register, setValue, getValues, control, hideEmpresa }: Form) {
+  const { data: user } = useAuth();
+
   const { data: sedes } = useQuery({
     queryKey: SEDES_KEY,
     queryFn: getSedes,
   });
+
+  const isSuperAdmin = user?.roles?.includes('ROLE_Super_Administrador') ?? false;
+  const userSedeIds = user?.sedesIds?.map(Number) ?? [];
+  const userSedes = isSuperAdmin
+    ? (sedes ?? [])
+    : (sedes ?? []).filter(s => userSedeIds.includes(s.id));
 
   const [startDate, setStartDate] = useState<Date | undefined>(() => {
     const val = getValues?.("start_date")
@@ -40,10 +48,10 @@ export default function ProjectForm({ errors, register, setValue, getValues, con
   })
 
   useEffect(() => {
-    if (!hideEmpresa && sedes?.length === 1 && setValue) {
-      setValue("sede_id", String(sedes[0].id));
+    if (!hideEmpresa && userSedes?.length === 1 && setValue) {
+      setValue("sede_id", String(userSedes[0].id));
     }
-  }, [hideEmpresa, sedes, setValue]);
+  }, [hideEmpresa, userSedes, setValue]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -64,13 +72,13 @@ export default function ProjectForm({ errors, register, setValue, getValues, con
         rows={3}
       />
 
-      {!hideEmpresa && sedes && sedes.length > 1 && control && (
+      {!hideEmpresa && userSedes && userSedes.length > 1 && control && (
         <SelectForm
           label="Sede"
           name="sede_id"
           control={control}
           errors={errors}
-          options={sedes.map(s => ({ value: String(s.id), label: s.nombre }))}
+          options={userSedes.map(s => ({ value: String(s.id), label: s.nombre }))}
           placeholder="Seleccionar sede"
         />
       )}

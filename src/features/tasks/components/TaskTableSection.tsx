@@ -145,7 +145,7 @@ export default function TaskTableSection({
     }
 
     const rootTasks = tasks.filter((t) => t.parent_task_id === null)
-    const displayLimit = 10
+    const displayLimit = 30
     const visibleTasks = rootTasks.slice(0, displayLimit)
     const displayedTasks = filterType === 'task' && filterStatus
         ? visibleTasks.filter((t) => String(t.status) === filterStatus)

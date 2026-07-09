@@ -93,7 +93,7 @@ export default function EditUserModal({ isOpen, onClose, userId }: EditUserModal
     }
   }, [user, isOpen, reset])
 
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: ({ uid, data }: { uid: number; data: UpdateUserProfilePayload }) =>
       updateUserProfileApi(uid, data as Record<string, unknown>),
     onSuccess: () => {
@@ -112,7 +112,7 @@ export default function EditUserModal({ isOpen, onClose, userId }: EditUserModal
     },
   })
 
-  const onSubmit = (formData: UserFormData) => {
+  const onSubmit = async (formData: UserFormData) => {
     if (!user) return
     const { dni, area_id, ...rest } = formData
     const payload: UpdateUserProfilePayload = { ...rest }
@@ -120,7 +120,7 @@ export default function EditUserModal({ isOpen, onClose, userId }: EditUserModal
     if (area_id) payload.area_id = parseInt(area_id, 10)
     payload.sede_ids = selectedSedeIds.map(Number)
     payload.rol_ids = selectedRoleIds.map(Number)
-    mutate({ uid: user.id_user, data: payload })
+    await mutateAsync({ uid: user.id_user, data: payload })
   }
 
   return (

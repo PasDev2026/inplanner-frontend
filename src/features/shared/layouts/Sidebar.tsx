@@ -50,7 +50,7 @@ export default function Sidebar({
 
   const navLinks = [
     { to: "/profile", label: "Mi perfil", icon: User, matchPaths: ["/profile"] },
-    /* { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, matchPaths: ["/dashboard"] }, */
+   /*  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, matchPaths: ["/dashboard"] }, */
     { to: "/projects", label: "Mis proyectos", icon: Folder, matchPaths: ["/projects"] },
     /* { to: "/mis-tareas", label: "Mis tareas", icon: ListChecks, matchPaths: ["/mis-tareas"] },
     { to: "/calendario", label: "Calendario", icon: CalendarDays, matchPaths: ["/calendario"] },
