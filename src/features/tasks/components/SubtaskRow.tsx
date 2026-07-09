@@ -165,7 +165,16 @@ export default function SubtaskRow({
                         assignedTo={subtask.assignments?.map((a) => ({ user_id: a.user_id })) ?? []}
                                 onAssign={(userIds) => {
                                     const currentIds = subtask.assignments?.map((a) => a.user_id) ?? []
-                                    assignmentMutation.mutate({ taskId: subtask.id_task, userIds, currentIds })
+                                    assignmentMutation.mutate(
+                                        { taskId: subtask.id_task, userIds, currentIds },
+                                        {
+                                            onSuccess: () => {
+                                                if (subtask.parent_task_id) {
+                                                    queryClient.invalidateQueries({ queryKey: TASK_CHILDREN_KEY(subtask.parent_task_id) })
+                                                }
+                                            }
+                                        }
+                                    )
                                 }}
                         isPending={assignmentMutation.isPending}
                     />

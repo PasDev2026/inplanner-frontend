@@ -1,9 +1,22 @@
 import api from "@/features/shared/lib/axios";
 import type { UserAdmin } from "@/features/admin/schemas/user.schema";
 
-export async function getAllUsers(page: number, limit: number, search?: string) {
-  const params = search ? `?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}` : `?page=${page}&limit=${limit}`
-  const { data } = await api<{ data: UserAdmin[]; meta: { page: number; limit: number; total: number; totalPages: number } }>(`/users${params}`)
+export type UserFilters = {
+  search?: string
+  estado?: string
+  area_id?: number
+  rol_id?: number
+  sede_id?: number
+}
+
+export async function getAllUsers(page: number, limit: number, filters?: UserFilters) {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) })
+  if (filters?.search) params.set('search', filters.search)
+  if (filters?.estado) params.set('estado', filters.estado)
+  if (filters?.area_id) params.set('area_id', String(filters.area_id))
+  if (filters?.rol_id) params.set('rol_id', String(filters.rol_id))
+  if (filters?.sede_id) params.set('sede_id', String(filters.sede_id))
+  const { data } = await api<{ data: UserAdmin[]; meta: { page: number; limit: number; total: number; totalPages: number } }>(`/users?${params}`)
   return { users: data.data, total: data.meta.total }
 }
 

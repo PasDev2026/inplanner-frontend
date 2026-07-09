@@ -24,7 +24,7 @@ export default function AddMemberForm() {
   });
 
   const mutation = useMutation({
-    mutationFn: (email: string) => getAllUsers(1, 5, email),
+    mutationFn: (email: string) => getAllUsers(1, 5, { search: email }),
   });
 
   const handleSearchUser = async (formData: TeamMemberFormulario) => {

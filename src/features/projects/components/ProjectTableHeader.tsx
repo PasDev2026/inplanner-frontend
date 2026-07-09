@@ -29,7 +29,7 @@ export default function ProjectTableHeader({ sortBy, sortOrder, onSort, filterTy
   }
 
   return (
-    <TableHeader>
+<TableHeader>
       <TableRow className="hover:bg-transparent border-b border-border">
         <TableHead />
         <TableHead

@@ -1,10 +1,10 @@
-import { useState, useMemo, memo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect, useMemo, memo } from "react";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { USERS_KEY, USERS_PAGINATED_KEY } from "@/features/admin/lib/admin-keys";
-import { ROLES_KEY, SEDES_KEY } from "@/features/shared/lib/shared-keys";
+import { ROLES_KEY, SEDES_KEY, AREAS_KEY } from "@/features/shared/lib/shared-keys";
 import { Key, Pencil } from "lucide-react"
 import { getAllUsers, updateUserStatus } from "@/features/admin/actions/admin.api";
-import { getRoles, getSedes } from "@/features/shared/actions/centralizado.api";
+import { getRoles, getSedes, getAreas } from "@/features/shared/actions/centralizado.api";
 import PageSpinner from "@/components/ui/PageSpinner";
 import UserStatusModal from "@/features/admin/components/UserStatusModal";
 import CreateUserModal from "@/features/admin/components/CreateUserModal";
@@ -12,6 +12,9 @@ import EditUserModal from "@/features/admin/components/EditUserModal";
 import ResetPasswordModal from "@/features/admin/components/ResetPasswordModal";
 import { Pagination } from "@/components/ui/pagination";
 import { UserAdmin } from "@/features/admin/schemas/user.schema";
+import { Card, CardContent } from "@/components/ui/card";
+import { UserFilters } from "@/features/admin/components/UserFilters";
+import { useUserListFilters } from "@/features/admin/hooks/useUserListFilters";
 import {
   Table,
   TableHeader,
@@ -159,12 +162,27 @@ const UserList = memo(function UserList() {
   const [page, setPage] = useState(1)
   const PAGE_SIZE = 10
 
+  const {
+    filters,
+    onFiltersChange,
+    clearAllFilters,
+  } = useUserListFilters()
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: USERS_PAGINATED_KEY(page, PAGE_SIZE),
-    queryFn: () => getAllUsers(page, PAGE_SIZE),
+    queryKey: USERS_PAGINATED_KEY(page, PAGE_SIZE, filters),
+    queryFn: () => getAllUsers(page, PAGE_SIZE, {
+      search: filters.search || undefined,
+      estado: filters.estado || undefined,
+      area_id: filters.area_id ? Number(filters.area_id) : undefined,
+      rol_id: filters.rol_id ? Number(filters.rol_id) : undefined,
+      sede_id: filters.sede_id ? Number(filters.sede_id) : undefined,
+    }),
+    placeholderData: keepPreviousData,
     retry: false,
     staleTime: 5 * 60 * 1000,
   });
+
+  useEffect(() => { setPage(1) }, [filters])
 
   const { data: roles } = useQuery({
     queryKey: ROLES_KEY,
@@ -178,6 +196,12 @@ const UserList = memo(function UserList() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const { data: areas } = useQuery({
+    queryKey: AREAS_KEY,
+    queryFn: getAreas,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const roleMap = useMemo(() => {
     if (!roles) return new Map<number, string>()
     return new Map(roles.map(r => [Number(r.id), r.nombre]))
@@ -187,6 +211,11 @@ const UserList = memo(function UserList() {
     if (!sedes) return new Map<number, string>()
     return new Map(sedes.map(s => [Number(s.id), s.nombre]))
   }, [sedes])
+
+  const areasForFilter = useMemo(() => {
+    if (!areas) return []
+    return areas.map(a => ({ id: a.id_area, nombre: a.nombre_area }))
+  }, [areas])
 
   const { mutate } = useMutation({
     mutationFn: ({ userId, estado }: { userId: number; estado: boolean }) =>
@@ -199,7 +228,7 @@ const UserList = memo(function UserList() {
     },
   });
 
-  if (isLoading) return <PageSpinner />;
+  if (isLoading && !data) return <PageSpinner />;
 
   if (isError) {
     return (
@@ -214,23 +243,38 @@ const UserList = memo(function UserList() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-2">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Gestión de usuarios</h1>
-          <p className="text-sm font-medium text-muted-foreground mt-1">
-            Administra los roles, áreas y accesos de los usuarios del sistema
-          </p>
-        </div>
-        <button
-          onClick={() => setIsCreateModalOpen(true)}
-          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-sm font-bold rounded-lg shadow-sm shadow-brand-primary/10 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer shrink-0"
-        >
-          <svg className="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Crear Usuario
-        </button>
-      </div>
+      <Card>
+        <CardContent className="flex items-center justify-between p-6">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Gestión de usuarios</h1>
+            <p className="text-sm font-medium text-muted-foreground mt-1">
+              Administra los roles, áreas y accesos de los usuarios del sistema
+            </p>
+          </div>
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-sm font-bold rounded-lg shadow-sm shadow-brand-primary/10 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer shrink-0"
+          >
+            <svg className="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Crear Usuario
+          </button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-6">
+          <UserFilters
+            filters={filters}
+            onFiltersChange={onFiltersChange}
+            areas={areasForFilter}
+            roles={roles ?? []}
+            sedes={sedes ?? []}
+            onClearAll={clearAllFilters}
+          />
+        </CardContent>
+      </Card>
 
       {data && data.users.length ? (
         <div className="bg-card border border-border rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
@@ -253,7 +297,7 @@ const UserList = memo(function UserList() {
       ) : (
         <div className="bg-card border border-border rounded-xl p-12 text-center shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
           <p className="text-lg font-semibold text-muted-foreground">
-            No hay usuarios registrados aún
+            No hay coincidencias con los filtros aplicados
           </p>
           <p className="text-sm text-muted-foreground mt-1 mb-6">
             Comienza creando el primer usuario del sistema.

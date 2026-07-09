@@ -87,7 +87,7 @@ export default function ResponsiblePopover({ projectId, assignedTo, onAssign, is
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar usuario..."
             className="w-full rounded-md border border-border bg-card text-foreground px-2.5 py-1.5 text-xs outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
-            autoFocus
+            ref={(el) => el?.focus({ preventScroll: true })}
           />
 
           <div className="max-h-56 overflow-y-auto space-y-0.5">
