@@ -12,6 +12,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# trigger deploy
 .agentes
 node_modules
 docs
