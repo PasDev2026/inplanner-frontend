@@ -95,11 +95,6 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
                 </TableCell>
                 <TableCell>
                     <div className="flex items-center gap-3 min-w-0">
-                        {isManager(project.manager_id, user.idUser) ? (
-                            <Badge variant="brand-light">Manager</Badge>
-                        ) : (
-                            <Badge variant="brand">Colaborador</Badge>
-                        )}
                         {isEditing ? (
                             <input
                                 type="text"
@@ -118,6 +113,11 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
                             >
                                 {project.name_project}
                             </span>
+                        )}
+                        {isManager(project.manager_id, user.idUser) ? (
+                            <Badge variant="brand-light">Manager</Badge>
+                        ) : (
+                            <Badge variant="brand">Colaborador</Badge>
                         )}
                     </div>
                 </TableCell>

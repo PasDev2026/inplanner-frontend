@@ -1,6 +1,18 @@
-import { Search, X } from "lucide-react"
+import { useState } from "react"
+import { Search, FilterX, ChevronDown } from "lucide-react"
 import { DateRangePicker } from "@/features/shared/components/DateRangePicker"
-import { Select } from "@/components/ui/select"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
+  Command,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command"
 import type { CentralizadoItem } from "@/features/shared/actions/centralizado.api"
 
 function toUTCDateString(date: Date | undefined) {
@@ -31,6 +43,14 @@ export function ProjectFilters({
   isSearching, sedes,
   onClearAll,
 }: ProjectFiltersProps) {
+  const [open, setOpen] = useState(false)
+
+  const selectedSedes = sede ? sede.split(",").filter(Boolean).map(Number) : []
+  const selectedLabels = selectedSedes
+    .map(id => sedes?.find(s => s.id === id)?.nombre)
+    .filter(Boolean)
+  const triggerLabel = selectedLabels.length ? selectedLabels.join(", ") : "Todas las sedes"
+
   return (
     <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3">
       <div className="relative">
@@ -47,29 +67,55 @@ export function ProjectFilters({
             onClick={() => onSearchChange("")}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
-            <X className="h-5 w-5" />
+            <FilterX className="h-5 w-5" />
           </button>
         )}
       </div>
 
-      <Select
-        value={sede}
-        onValueChange={(v) => onSedeChange(v ?? "")}
-      >
-        <Select.Trigger className="shrink-0 px-3 py-2.5 h-auto text-sm border-border shadow-sm bg-card">
-          <Select.Value placeholder="Todas las sedes">
-            {sede ? sedes?.find((s) => String(s.id) === sede)?.nombre : "Todas las sedes"}
-          </Select.Value>
-        </Select.Trigger>
-        <Select.Popup>
-          <Select.List>
-            <Select.Item value="">Todas las sedes</Select.Item>
-            {sedes?.map((s) => (
-              <Select.Item key={s.id} value={String(s.id)}>{s.nombre}</Select.Item>
-            ))}
-          </Select.List>
-        </Select.Popup>
-      </Select>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger
+          render={
+            <button className="shrink-0 px-3 py-2.5 h-auto text-sm border-border shadow-sm bg-card rounded-lg border inline-flex items-center gap-1 min-w-[150px] max-w-[220px]">
+              <span className="truncate">{triggerLabel}</span>
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+            </button>
+          }
+        />
+        <PopoverContent align="start" className="w-56 p-0">
+          <Command>
+            <CommandList>
+              <CommandEmpty>Sin resultados</CommandEmpty>
+              <CommandGroup>
+                <CommandItem
+                  value=""
+                  onSelect={() => { onSedeChange(""); setOpen(false) }}
+                  className={!selectedSedes.length ? "bg-accent" : undefined}
+                >
+                  Todas las sedes
+                </CommandItem>
+                {sedes?.map((s) => {
+                  const isSelected = selectedSedes.includes(s.id)
+                  return (
+                    <CommandItem
+                      key={s.id}
+                      value={String(s.id)}
+                      onSelect={() => {
+                        const next = isSelected
+                          ? selectedSedes.filter(id => id !== s.id)
+                          : [...selectedSedes, s.id]
+                        onSedeChange(next.join(","))
+                      }}
+                      className={isSelected ? "bg-accent" : undefined}
+                    >
+                      {s.nombre}
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
       <DateRangePicker
         dateRange={
@@ -93,15 +139,12 @@ export function ProjectFilters({
         }}
       />
 
-      {(search || sede || dateFrom || dateTo) && (
-        <button
-          onClick={onClearAll}
-          className="flex items-center gap-1.5 px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
-        >
-          <X className="h-4 w-4" />
-          Limpiar filtros
-        </button>
-      )}
+      <button
+        onClick={onClearAll}
+        className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+      >
+        <FilterX className="h-5 w-5" />
+      </button>
     </div>
   )
 }

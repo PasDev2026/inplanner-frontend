@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { connectSocket, disconnectSocket } from '@/features/shared/lib/socket'
 import { useActivityTracking } from '@/features/shared/hooks/useActivityTracking'
 
-const FALLBACK_IDLE_MS = 4 * 60 * 60 * 1000
+const FALLBACK_IDLE_MS = 8 * 60 * 60 * 1000
 
 export default function SocketManager() {
     const navigate = useNavigate()

@@ -4,9 +4,9 @@ import type { UserAdmin } from "@/features/admin/schemas/user.schema";
 export type UserFilters = {
   search?: string
   estado?: string
-  area_id?: number
-  rol_id?: number
-  sede_id?: number
+  area_id?: string
+  rol_id?: string
+  sede_id?: string
 }
 
 export async function getAllUsers(page: number, limit: number, filters?: UserFilters) {

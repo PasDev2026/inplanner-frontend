@@ -6,8 +6,7 @@ type FilterState = {
   sede_id: string
   dateFrom: string
   dateTo: string
-  filterType: string
-  filterStatus: string
+  status: string
   responsible_id: string
   priority: string
 }
@@ -19,8 +18,7 @@ export function useProjectListFilters() {
   const [sedeInput, setSedeInput] = useState(() => searchParams.get("sede_id") || "")
   const [dateFromInput, setDateFromInput] = useState(() => searchParams.get("dateFrom") || "")
   const [dateToInput, setDateToInput] = useState(() => searchParams.get("dateTo") || "")
-  const [filterTypeInput, setFilterTypeInput] = useState(() => searchParams.get("filterType") || "")
-  const [filterStatusInput, setFilterStatusInput] = useState(() => searchParams.get("filterStatus") || "")
+  const [statusInput, setStatusInput] = useState(() => searchParams.get("status") || "")
   const [responsibleInput, setResponsibleInput] = useState(() => searchParams.get("responsible_id") || "")
   const [priorityInput, setPriorityInput] = useState(() => searchParams.get("priority") || "")
 
@@ -31,8 +29,7 @@ export function useProjectListFilters() {
     sede_id: sedeInput,
     dateFrom: dateFromInput,
     dateTo: dateToInput,
-    filterType: filterTypeInput,
-    filterStatus: filterStatusInput,
+    status: statusInput,
     responsible_id: responsibleInput,
     priority: priorityInput,
   })
@@ -42,13 +39,13 @@ export function useProjectListFilters() {
       setDebouncedFilters({
         search: searchInput, sede_id: sedeInput,
         dateFrom: dateFromInput, dateTo: dateToInput,
-        filterType: filterTypeInput, filterStatus: filterStatusInput,
+        status: statusInput,
         responsible_id: responsibleInput,
         priority: priorityInput,
       })
     }, 350)
     return () => clearTimeout(timer)
-  }, [searchInput, sedeInput, dateFromInput, dateToInput, filterTypeInput, filterStatusInput, responsibleInput, priorityInput])
+  }, [searchInput, sedeInput, dateFromInput, dateToInput, statusInput, responsibleInput, priorityInput])
 
   useEffect(() => {
     const next = new URLSearchParams(searchParams)
@@ -57,15 +54,9 @@ export function useProjectListFilters() {
     setOrDel("sede_id", debouncedFilters.sede_id)
     setOrDel("dateFrom", debouncedFilters.dateFrom)
     setOrDel("dateTo", debouncedFilters.dateTo)
+    setOrDel("status", debouncedFilters.status)
     setOrDel("responsible_id", debouncedFilters.responsible_id)
     setOrDel("priority", debouncedFilters.priority)
-    if (debouncedFilters.filterType && debouncedFilters.filterStatus) {
-      next.set("filterType", debouncedFilters.filterType)
-      next.set("filterStatus", debouncedFilters.filterStatus)
-    } else {
-      next.delete("filterType")
-      next.delete("filterStatus")
-    }
     setSearchParams(next, { replace: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedFilters])
@@ -74,12 +65,11 @@ export function useProjectListFilters() {
     || sedeInput !== debouncedFilters.sede_id
     || dateFromInput !== debouncedFilters.dateFrom
     || dateToInput !== debouncedFilters.dateTo
-    || filterTypeInput !== debouncedFilters.filterType
-    || filterStatusInput !== debouncedFilters.filterStatus
+    || statusInput !== debouncedFilters.status
     || responsibleInput !== debouncedFilters.responsible_id
     || priorityInput !== debouncedFilters.priority
 
-  const hasActiveFilters = !!(debouncedFilters.search || debouncedFilters.sede_id || debouncedFilters.dateFrom || debouncedFilters.dateTo || debouncedFilters.filterType || debouncedFilters.responsible_id || debouncedFilters.priority)
+  const hasActiveFilters = !!(debouncedFilters.search || debouncedFilters.sede_id || debouncedFilters.dateFrom || debouncedFilters.dateTo || debouncedFilters.status || debouncedFilters.responsible_id || debouncedFilters.priority)
 
   const handleSort = useCallback((field: string) => {
     setSort(prev => {
@@ -91,18 +81,12 @@ export function useProjectListFilters() {
     })
   }, [])
 
-  const handleFilterChange = useCallback((type: 'project' | 'task' | null, status: string | null) => {
-    setFilterTypeInput(type || "")
-    setFilterStatusInput(status || "")
-  }, [])
-
   const clearAllFilters = useCallback(() => {
     setSearchInput("")
     setSedeInput("")
     setDateFromInput("")
     setDateToInput("")
-    setFilterTypeInput("")
-    setFilterStatusInput("")
+    setStatusInput("")
     setResponsibleInput("")
     setPriorityInput("")
   }, [])
@@ -112,11 +96,10 @@ export function useProjectListFilters() {
     sedeInput, setSedeInput,
     dateFromInput, setDateFromInput,
     dateToInput, setDateToInput,
-    filterTypeInput, filterStatusInput,
+    statusInput, setStatusInput,
     responsibleInput, setResponsibleInput,
     priorityInput, setPriorityInput,
     sort, handleSort,
-    handleFilterChange,
     clearAllFilters,
     debouncedFilters,
     isSearching,

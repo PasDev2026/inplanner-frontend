@@ -6,11 +6,11 @@ export type ProjectFilters = {
   search?: string;
   dateFrom?: string;
   dateTo?: string;
-  sede_id?: number;
-  status?: number;
-  priority?: number;
+  sede_id?: string;
+  status?: string;
+  priority?: string;
   manager_id?: number;
-  responsible_id?: number;
+  responsible_id?: string;
   page?: number;
   limit?: number;
   sortBy?: string;

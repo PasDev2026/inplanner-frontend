@@ -7,9 +7,8 @@ import {
 } from "@/components/ui/popover"
 
 type StatusColumnFilterProps = {
-    filterType: 'project' | 'task' | null
-    filterStatus: string | null
-    onChange: (type: 'project' | 'task' | null, status: string | null) => void
+    selected: string[]
+    onChange: (values: string[]) => void
 }
 
 type StatusOption = {
@@ -28,17 +27,11 @@ const PROJECT_OPTIONS: StatusOption[] = [
     { value: "4", label: "Cancelado", dotColor: "bg-muted-foreground", hoverBg: "hover:bg-muted", textColor: "text-muted-foreground" },
 ]
 
-function getDotColor(value: string): string {
-    const found = PROJECT_OPTIONS.find(o => o.value === value)
-    return found?.dotColor || "bg-muted-foreground"
-}
-
-export default function StatusColumnFilter({ filterType, filterStatus, onChange }: StatusColumnFilterProps) {
+export default function StatusColumnFilter({ selected, onChange }: StatusColumnFilterProps) {
     const [open, setOpen] = useState(false)
-    const hasFilter = filterType !== null && filterStatus !== null
 
-    const triggerLabel = hasFilter
-        ? PROJECT_OPTIONS.find(o => o.value === filterStatus)?.label ?? "Estado"
+    const triggerLabel = selected.length
+        ? selected.map(v => PROJECT_OPTIONS.find(o => o.value === v)?.label ?? v).join(", ")
         : "Estado"
 
     return (
@@ -46,29 +39,24 @@ export default function StatusColumnFilter({ filterType, filterStatus, onChange 
             <PopoverTrigger
                 render={
                     <button className={`flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider cursor-pointer select-none hover:text-foreground transition-colors group ${
-                        hasFilter ? 'text-brand-primary' : 'text-muted-foreground'
+                        selected.length ? 'text-brand-primary' : 'text-muted-foreground'
                     }`}>
-                        <span>{triggerLabel}</span>
-                        {hasFilter && (
-                            <span className={`w-2 h-2 rounded-full ${getDotColor(filterStatus!)}`} />
-                        )}
+                        <span className="max-w-[120px] truncate">{triggerLabel}</span>
                     </button>
                 }
             />
             <PopoverContent sideOffset={6} align="start" className="w-48 p-1.5">
                 <div className="space-y-0.5">
                     {PROJECT_OPTIONS.map((opt) => {
-                        const isSelected = filterType === 'project' && filterStatus === opt.value
+                        const isSelected = selected.includes(opt.value)
                         return (
                             <button
                                 key={opt.value}
                                 onClick={() => {
-                                    if (isSelected) {
-                                        onChange(null, null)
-                                    } else {
-                                        onChange('project', opt.value)
-                                    }
-                                    setOpen(false)
+                                    onChange(isSelected
+                                        ? selected.filter(v => v !== opt.value)
+                                        : [...selected, opt.value]
+                                    )
                                 }}
                                 className={`flex items-center gap-2 w-full px-2 py-1.5 text-xs font-medium rounded-md transition-colors ${opt.textColor} ${opt.hoverBg}`}
                             >

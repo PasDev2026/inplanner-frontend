@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Check } from "lucide-react"
 import { PRIORITY_MAP } from "@/features/shared/constants/priority.constant"
 import {
   Popover,
@@ -16,14 +17,16 @@ const PRIORITY_SELECTED_BG: Record<number, string> = {
 }
 
 type PriorityColumnFilterProps = {
-  priorityId: number | null
-  onChange: (value: number | null) => void
+  selected: number[]
+  onChange: (values: number[]) => void
 }
 
-export default function PriorityColumnFilter({ priorityId, onChange }: PriorityColumnFilterProps) {
+export default function PriorityColumnFilter({ selected, onChange }: PriorityColumnFilterProps) {
   const [open, setOpen] = useState(false)
 
-  const current = priorityId != null ? PRIORITY_MAP[priorityId] : undefined
+  const triggerLabel = selected.length
+    ? selected.map(k => PRIORITY_MAP[k]?.label ?? k).join(", ")
+    : "Prioridad"
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -31,10 +34,10 @@ export default function PriorityColumnFilter({ priorityId, onChange }: PriorityC
         render={
           <button
             className={`flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider cursor-pointer select-none hover:text-foreground transition-colors group ${
-              priorityId ? "text-brand-primary" : "text-muted-foreground"
+              selected.length ? "text-brand-primary" : "text-muted-foreground"
             }`}
           >
-            <span>{current ? current.label : "Prioridad"}</span>
+            <span className="max-w-[120px] truncate">{triggerLabel}</span>
           </button>
         }
       />
@@ -42,13 +45,15 @@ export default function PriorityColumnFilter({ priorityId, onChange }: PriorityC
         <div className="space-y-0.5">
           {PRIORITY_KEYS.map((key) => {
             const opt = PRIORITY_MAP[key]
-            const isSelected = priorityId === key
+            const isSelected = selected.includes(key)
             return (
               <button
                 key={key}
                 onClick={() => {
-                  onChange(isSelected ? null : key)
-                  setOpen(false)
+                  onChange(isSelected
+                    ? selected.filter(v => v !== key)
+                    : [...selected, key]
+                  )
                 }}
                 className={`flex items-center gap-2 w-full px-2 py-1.5 text-xs font-medium rounded-md transition-colors text-foreground ${
                   isSelected ? PRIORITY_SELECTED_BG[key] : "hover:bg-muted"
@@ -56,6 +61,9 @@ export default function PriorityColumnFilter({ priorityId, onChange }: PriorityC
               >
                 <span className={`w-2 h-2 rounded-full ${opt.dotColor}`} />
                 {opt.label}
+                {isSelected && (
+                  <Check className="ml-auto h-3 w-3" />
+                )}
               </button>
             )
           })}

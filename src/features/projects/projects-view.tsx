@@ -33,12 +33,10 @@ export default function ProjectsView() {
     queryFn: async ({ pageParam }) => {
       const result = await getProjects({
         search: filters.debouncedFilters.search || undefined,
-        sede_id: filters.debouncedFilters.sede_id ? Number(filters.debouncedFilters.sede_id) : undefined,
-        status: filters.debouncedFilters.filterType === 'project'
-          ? (filters.debouncedFilters.filterStatus ? Number(filters.debouncedFilters.filterStatus) : undefined)
-          : undefined,
-        responsible_id: filters.debouncedFilters.responsible_id ? Number(filters.debouncedFilters.responsible_id) : undefined,
-        priority: filters.debouncedFilters.priority ? Number(filters.debouncedFilters.priority) : undefined,
+        sede_id: filters.debouncedFilters.sede_id || undefined,
+        status: filters.debouncedFilters.status || undefined,
+        responsible_id: filters.debouncedFilters.responsible_id || undefined,
+        priority: filters.debouncedFilters.priority || undefined,
         dateFrom: filters.debouncedFilters.dateFrom || undefined,
         dateTo: filters.debouncedFilters.dateTo || undefined,
         sortBy: filters.sort?.field,
@@ -62,10 +60,6 @@ export default function ProjectsView() {
   if (isLoading || authLoading) return <PageSpinner />
 
   const projects = data?.pages.flatMap(page => page.data) ?? []
-
-  const filteredProjects = filters.debouncedFilters.filterType === 'project' && filters.debouncedFilters.filterStatus
-    ? projects.filter(p => p.status === Number(filters.debouncedFilters.filterStatus))
-    : projects
 
   return (
     <div className="flex flex-col gap-4 md:gap-4 md:py-2">
@@ -99,16 +93,15 @@ export default function ProjectsView() {
       </Card>
 
       <ProjectTableSection
-        projects={filteredProjects}
+        projects={projects}
         sort={filters.sort}
         onSort={filters.handleSort}
-        filterType={filters.filterTypeInput || null}
-        filterStatus={filters.filterStatusInput || null}
-        onFilterChange={filters.handleFilterChange}
-        responsibleId={filters.debouncedFilters.responsible_id ? Number(filters.debouncedFilters.responsible_id) : null}
-        onResponsibleFilter={(id) => filters.setResponsibleInput(id ? String(id) : "")}
-        priorityId={filters.debouncedFilters.priority ? Number(filters.debouncedFilters.priority) : null}
-        onPriorityFilter={(value) => filters.setPriorityInput(value ? String(value) : "")}
+        statusSelected={filters.debouncedFilters.status ? filters.debouncedFilters.status.split(",").filter(Boolean) : []}
+        onStatusFilter={(values) => filters.setStatusInput(values.join(","))}
+        responsibleSelected={filters.debouncedFilters.responsible_id ? filters.debouncedFilters.responsible_id.split(",").map(Number) : []}
+        onResponsibleFilter={(ids) => filters.setResponsibleInput(ids.join(","))}
+        prioritySelected={filters.debouncedFilters.priority ? filters.debouncedFilters.priority.split(",").map(Number) : []}
+        onPriorityFilter={(values) => filters.setPriorityInput(values.join(","))}
         onLoadMore={fetchNextPage}
         hasMore={!!hasNextPage}
         isLoadingMore={isFetchingNextPage}

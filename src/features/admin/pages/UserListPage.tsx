@@ -173,9 +173,9 @@ const UserList = memo(function UserList() {
     queryFn: () => getAllUsers(page, PAGE_SIZE, {
       search: filters.search || undefined,
       estado: filters.estado || undefined,
-      area_id: filters.area_id ? Number(filters.area_id) : undefined,
-      rol_id: filters.rol_id ? Number(filters.rol_id) : undefined,
-      sede_id: filters.sede_id ? Number(filters.sede_id) : undefined,
+      area_id: filters.area_id || undefined,
+      rol_id: filters.rol_id || undefined,
+      sede_id: filters.sede_id || undefined,
     }),
     placeholderData: keepPreviousData,
     retry: false,

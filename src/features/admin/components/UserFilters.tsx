@@ -1,6 +1,18 @@
 import { useState, useEffect, useRef } from "react"
-import { Search, X } from "lucide-react"
-import { Select } from "@/components/ui/select"
+import { Search, X, ChevronDown, FilterX } from "lucide-react"
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
+  Command,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command"
 import type { CentralizadoItem } from "@/features/shared/actions/centralizado.api"
 import type { UserListFilters } from "@/features/admin/hooks/useUserListFilters"
 
@@ -12,6 +24,8 @@ interface UserFiltersProps {
   sedes: CentralizadoItem[]
   onClearAll: () => void
 }
+
+type ChangeKey = keyof Pick<UserListFilters, 'area_id' | 'rol_id' | 'sede_id'>
 
 export function UserFilters({
   filters,
@@ -30,13 +44,68 @@ export function UserFilters({
       }
     }, 350)
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localSearch])
 
   useEffect(() => {
     setLocalSearch(filters.search)
   }, [filters.search])
 
-  const hasFilters = !!(filters.search || filters.area_id || filters.rol_id || filters.estado || filters.sede_id)
+  const [openFilter, setOpenFilter] = useState<ChangeKey | null>(null)
+  const [openEstado, setOpenEstado] = useState(false)
+
+  const multiSelect = (key: ChangeKey, items: CentralizadoItem[], labelAll: string) => {
+    const selected = filters[key] ? filters[key].split(",").filter(Boolean).map(Number) : []
+    const selectedLabels = selected.map(id => items?.find(i => i.id === id)?.nombre).filter(Boolean)
+    const triggerLabel = selectedLabels.length ? selectedLabels.join(", ") : labelAll
+
+    return (
+      <Popover open={openFilter === key} onOpenChange={(open) => setOpenFilter(open ? key : null)}>
+        <PopoverTrigger
+          render={
+            <button className="shrink-0 px-3 py-2.5 h-auto text-sm border-border shadow-sm bg-card rounded-lg border inline-flex items-center gap-1 min-w-[130px] max-w-[200px]">
+              <span className="truncate">{triggerLabel}</span>
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+            </button>
+          }
+        />
+        <PopoverContent align="start" className="w-52 p-0">
+          <Command>
+            <CommandList>
+              <CommandEmpty>Sin resultados</CommandEmpty>
+              <CommandGroup>
+                <CommandItem
+                  value=""
+                  onSelect={() => { onFiltersChange({ ...filters, [key]: "" }); setOpenFilter(null) }}
+                  className={!selected.length ? "bg-accent" : undefined}
+                >
+                  {labelAll}
+                </CommandItem>
+                {items?.map((item) => {
+                  const isSelected = selected.includes(item.id)
+                  return (
+                    <CommandItem
+                      key={item.id}
+                      value={String(item.id)}
+                      onSelect={() => {
+                        const next = isSelected
+                          ? selected.filter(id => id !== item.id)
+                          : [...selected, item.id]
+                        onFiltersChange({ ...filters, [key]: next.join(",") })
+                      }}
+                      className={isSelected ? "bg-accent" : undefined}
+                    >
+                      {item.nombre}
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    )
+  }
 
   return (
     <div className="flex items-center gap-3">
@@ -59,78 +128,58 @@ export function UserFilters({
         )}
       </div>
 
-      <Select value={filters.area_id} onValueChange={(v) => onFiltersChange({ ...filters, area_id: v ?? "" })}>
-        <Select.Trigger className="shrink-0 px-3 py-2.5 h-auto text-sm border-border shadow-sm bg-card">
-          <Select.Value placeholder="Área">
-            {filters.area_id ? areas?.find((a) => String(a.id) === filters.area_id)?.nombre : "Área"}
-          </Select.Value>
-        </Select.Trigger>
-        <Select.Popup>
-          <Select.List>
-            <Select.Item value="">Todas las áreas</Select.Item>
-            {areas?.map((a) => (
-              <Select.Item key={a.id} value={String(a.id)}>{a.nombre}</Select.Item>
-            ))}
-          </Select.List>
-        </Select.Popup>
-      </Select>
+      {multiSelect('area_id', areas, 'Área')}
+      {multiSelect('rol_id', roles, 'Rol')}
+      {multiSelect('sede_id', sedes, 'Sede')}
 
-      <Select value={filters.rol_id} onValueChange={(v) => onFiltersChange({ ...filters, rol_id: v ?? "" })}>
-        <Select.Trigger className="shrink-0 px-3 py-2.5 h-auto text-sm border-border shadow-sm bg-card">
-          <Select.Value placeholder="Rol">
-            {filters.rol_id ? roles?.find((r) => String(r.id) === filters.rol_id)?.nombre : "Rol"}
-          </Select.Value>
-        </Select.Trigger>
-        <Select.Popup>
-          <Select.List>
-            <Select.Item value="">Todos los roles</Select.Item>
-            {roles?.map((r) => (
-              <Select.Item key={r.id} value={String(r.id)}>{r.nombre}</Select.Item>
-            ))}
-          </Select.List>
-        </Select.Popup>
-      </Select>
+      <Popover open={openEstado} onOpenChange={setOpenEstado}>
+        <PopoverTrigger
+          render={
+            <button className="shrink-0 px-3 py-2.5 h-auto text-sm border-border shadow-sm bg-card rounded-lg border inline-flex items-center gap-1 min-w-[100px]">
+              <span className="truncate">
+                {filters.estado === "true" ? "Activo" : filters.estado === "false" ? "Inactivo" : "Estado"}
+              </span>
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+            </button>
+          }
+        />
+        <PopoverContent align="start" className="w-40 p-0">
+          <Command>
+            <CommandList>
+              <CommandEmpty>Sin resultados</CommandEmpty>
+              <CommandGroup>
+                {[
+                  { value: "", label: "Todos" },
+                  { value: "true", label: "Activo" },
+                  { value: "false", label: "Inactivo" },
+                ].map((opt) => {
+                  const isSelected = filters.estado === opt.value || (!filters.estado && !opt.value)
+                  return (
+                    <CommandItem
+                      key={opt.value}
+                      value={opt.value}
+                      onSelect={() => {
+                        onFiltersChange({ ...filters, estado: opt.value })
+                        setOpenEstado(false)
+                      }}
+                      className={isSelected ? "bg-accent" : undefined}
+                    >
+                      {opt.label}
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
-      <Select value={filters.estado} onValueChange={(v) => onFiltersChange({ ...filters, estado: v ?? "" })}>
-        <Select.Trigger className="shrink-0 px-3 py-2.5 h-auto text-sm border-border shadow-sm bg-card">
-          <Select.Value placeholder="Estado">
-            {filters.estado === "true" ? "Activo" : filters.estado === "false" ? "Inactivo" : "Estado"}
-          </Select.Value>
-        </Select.Trigger>
-        <Select.Popup>
-          <Select.List>
-            <Select.Item value="">Todos</Select.Item>
-            <Select.Item value="true">Activo</Select.Item>
-            <Select.Item value="false">Inactivo</Select.Item>
-          </Select.List>
-        </Select.Popup>
-      </Select>
-
-      <Select value={filters.sede_id} onValueChange={(v) => onFiltersChange({ ...filters, sede_id: v ?? "" })}>
-        <Select.Trigger className="shrink-0 px-3 py-2.5 h-auto text-sm border-border shadow-sm bg-card">
-          <Select.Value placeholder="Sede">
-            {filters.sede_id ? sedes?.find((s) => String(s.id) === filters.sede_id)?.nombre : "Sede"}
-          </Select.Value>
-        </Select.Trigger>
-        <Select.Popup>
-          <Select.List>
-            <Select.Item value="">Todas las sedes</Select.Item>
-            {sedes?.map((s) => (
-              <Select.Item key={s.id} value={String(s.id)}>{s.nombre}</Select.Item>
-            ))}
-          </Select.List>
-        </Select.Popup>
-      </Select>
-
-      {hasFilters && (
-        <button
-          onClick={onClearAll}
-          className="flex items-center gap-1.5 px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
-        >
-          <X className="h-4 w-4" />
-          Limpiar
-        </button>
-      )}
+      <button
+        onClick={onClearAll}
+        className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+      >
+        <FilterX className="h-5 w-5" />
+      </button>
     </div>
   )
 }

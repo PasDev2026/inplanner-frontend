@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateCurrentUserPasswordSchema } from "@/features/auth/schemas/reset-password.schema";
@@ -23,6 +24,8 @@ export default function ChangePasswordProfile() {
     formState: { errors },
   } = useForm<UpdateCurrentUserPasswordForm>({ defaultValues: initialValues, resolver: zodResolver(updateCurrentUserPasswordSchema) });
 
+  const navigate = useNavigate();
+
   const { mutate } = useMutation({
     mutationFn: (formData: UpdateCurrentUserPasswordForm) =>
       changePasswordProfile({ current_password: formData.current_password, new_password: formData.password }),
@@ -31,6 +34,7 @@ export default function ChangePasswordProfile() {
     },
     onSuccess: (data) => {
       toast.success(data.message)
+      navigate('/projects')
     },
   });
 

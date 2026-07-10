@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { AVAILABLE_USERS_KEY } from "@/features/shared/lib/shared-keys"
 import { getAvailableUsers } from "@/features/shared/actions/users.api"
-import { X } from "lucide-react"
+import { X, Check } from "lucide-react"
 import {
   Popover,
   PopoverContent,
@@ -10,11 +10,11 @@ import {
 } from "@/components/ui/popover"
 
 type ResponsibleColumnFilterProps = {
-  responsibleId: number | null
-  onChange: (userId: number | null) => void
+  selected: number[]
+  onChange: (ids: number[]) => void
 }
 
-export default function ResponsibleColumnFilter({ responsibleId, onChange }: ResponsibleColumnFilterProps) {
+export default function ResponsibleColumnFilter({ selected, onChange }: ResponsibleColumnFilterProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
 
@@ -30,7 +30,11 @@ export default function ResponsibleColumnFilter({ responsibleId, onChange }: Res
       )
     : users
 
-  const selected = responsibleId ? users.find((u) => u.id_user === responsibleId) : null
+  const selectedUsers = users.filter(u => selected.includes(u.id_user))
+
+  const triggerLabel = selectedUsers.length
+    ? selectedUsers.map(u => `${u.name} ${u.apellido_paterno ?? ""}`.trim()).join(", ")
+    : "Responsable"
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -38,21 +42,21 @@ export default function ResponsibleColumnFilter({ responsibleId, onChange }: Res
         render={
           <button
             className={`flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider cursor-pointer select-none hover:text-foreground transition-colors group ${
-              responsibleId ? "text-brand-primary" : "text-muted-foreground"
+              selected.length ? "text-brand-primary" : "text-muted-foreground"
             }`}
           >
-            <span>{selected ? `${selected.name} ${selected.apellido_paterno ?? ""}`.trim() : "Responsable"}</span>
+            <span className="max-w-[120px] truncate">{triggerLabel}</span>
           </button>
         }
       />
       <PopoverContent sideOffset={6} align="start" className="w-56 p-2">
         <div className="space-y-2">
-          {responsibleId && (
+          {selected.length > 0 && (
             <button
-              onClick={() => { onChange(null); setOpen(false); setSearch("") }}
+              onClick={() => { onChange([]); setSearch("") }}
               className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              <X className="h-3 w-3" /> Todos
+              <X className="h-3 w-3" /> Limpiar
             </button>
           )}
           <input
@@ -65,20 +69,26 @@ export default function ResponsibleColumnFilter({ responsibleId, onChange }: Res
           />
           <div className="max-h-48 overflow-y-auto space-y-0.5">
             {filtered.map((user) => {
-              const isSelected = responsibleId === user.id_user
+              const isSelected = selected.includes(user.id_user)
               return (
                 <div
                   key={user.id_user}
                   onClick={() => {
-                    onChange(isSelected ? null : user.id_user)
-                    setOpen(false)
+                    onChange(
+                      isSelected
+                        ? selected.filter(id => id !== user.id_user)
+                        : [...selected, user.id_user]
+                    )
                     setSearch("")
                   }}
                   className={`flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-xs font-medium transition-colors ${
                     isSelected ? "bg-accent text-brand-dark" : "text-foreground hover:bg-muted"
                   }`}
                 >
-                  {`${user.name} ${user.apellido_paterno ?? ""}`.trim()}
+                  <span className="flex-1">{`${user.name} ${user.apellido_paterno ?? ""}`.trim()}</span>
+                  {isSelected && (
+                    <Check className="h-3 w-3 shrink-0" />
+                  )}
                 </div>
               )
             })}

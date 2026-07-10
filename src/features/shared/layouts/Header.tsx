@@ -12,7 +12,7 @@ export default function Header() {
 
   return (
 <header className="sticky top-0 z-10 border-b border-border bg-background">
-      <nav className="max-w-screen-xl mx-auto p-4">
+      <nav className="p-4">
         <div className="flex justify-end items-center gap-3">
           <button
             type="button"

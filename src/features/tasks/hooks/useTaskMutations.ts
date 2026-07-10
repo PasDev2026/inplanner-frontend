@@ -15,7 +15,10 @@ export function useTaskMutations(projectIdNum: number) {
     const statusMutation = useMutation({
         mutationFn: ({ taskId, status }: { taskId: number; status: number }) =>
             updateTaskStatus(taskId, { status }),
-        onSuccess: invalidateProject,
+        onSuccess: () => {
+            invalidateProject()
+            queryClient.invalidateQueries({ queryKey: ["taskChildren"] })
+        },
         onError: (error) => {
             toast.error((error as Error).message)
         },
