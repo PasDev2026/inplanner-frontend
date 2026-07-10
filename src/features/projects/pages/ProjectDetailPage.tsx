@@ -40,16 +40,6 @@ export default function ProjectDetailPage() {
             <CardDescription>{data.description_project}</CardDescription>
           </div>
 
-          {isManager(data.manager_id, user.idUser) && (
-            <div className="flex items-center gap-2 shrink-0">
-              {/* <Button asChild size="sm">
-                <Link to="?newTask=true"><Plus className="w-4 h-4" /> Nueva tarea</Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link to="team"><Users className="w-4 h-4" /> Colaboradores</Link>
-              </Button> */}
-            </div>
-          )}
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap items-center gap-2">

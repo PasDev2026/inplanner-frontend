@@ -10,7 +10,6 @@ const ProjectListPage = lazy(() => import("@/features/projects/pages/ProjectList
 const UserListPage = lazy(() => import("@/features/admin/pages/UserListPage"))
 const ProjectEditPage = lazy(() => import("@/features/projects/pages/ProjectEditPage"))
 const ProjectDetailPage = lazy(() => import("@/features/projects/pages/ProjectDetailPage"))
-const TeamPage = lazy(() => import("@/features/projects/pages/team/TeamPage"))
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"))
 const ProfilePage = lazy(() => import("@/features/profile/pages/ProfilePage"))
 const ChangePasswordProfile = lazy(() => import("@/features/profile/components/ChangePasswordProfile"))
@@ -37,7 +36,6 @@ export default function Router() {
                     <Route path="/admin/users" element={<UserListPage/>}/>
                     <Route path="/projects/:projectId/details-projects" element={<ProjectDetailPage />}/>
                     <Route path="/projects/:projectId/edit" element={<ProjectEditPage/>}/>
-                    <Route path="/projects/:projectId/details-projects/team" element={<TeamPage />}/>
 
                     <Route element={<ProfileLayout/>}>
                         <Route path="/profile" element={<ProfilePage />}/>

@@ -9,8 +9,3 @@ export const projectFormSchema = z.object({
   privacy_level: z.string().optional(),
 })
 export type ProjectFormValues = z.infer<typeof projectFormSchema>
-
-export const addMemberSchema = z.object({
-  email: z.string().min(1, "El Email es obligatorio").email("E-mail no válido"),
-})
-export type TeamMemberFormulario = z.infer<typeof addMemberSchema>
