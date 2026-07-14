@@ -1,12 +1,13 @@
 import type { BackendTask } from "@/features/shared/lib/types"
 import { memo, useRef, useState } from "react"
-import { MoreVertical, CheckSquare } from "lucide-react"
+import { MoreVertical, CheckSquare, MessageSquare } from "lucide-react"
 import { useNavigate, useParams, useLocation } from "react-router-dom"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { PROJECT_DETAIL_KEY } from "@/features/projects/lib/project-keys"
 import { deleteTask } from "@/features/tasks/actions/task.api"
 import { toast } from "sonner"
-import { useDraggable } from '@dnd-kit/core'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import PriorityBadge from "@/features/shared/components/PriorityBadge"
 import { statusColors } from "@/features/shared/constants/task-status.constant"
 import { useUpdateTaskName } from "../hooks/useUpdateTask"
@@ -24,12 +25,20 @@ const STATUS_NAMES = ["pending", "onHold", "inProgress", "underReview", "complet
 type TaskCardProps = {
   task: BackendTask
   canEdit: boolean
+  offsetY?: number
 }
 
-const TaskCard = memo(function TaskCard({ task, canEdit }: TaskCardProps) {
-  const { attributes, listeners, setNodeRef } = useDraggable({
+const TaskCard = memo(function TaskCard({ task, canEdit, offsetY }: TaskCardProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id_task.toString()
   })
+
+  const style = {
+    transform: [CSS.Transform.toString(transform), offsetY ? `translateY(${offsetY}px)` : '']
+      .filter(Boolean).join(' '),
+    transition: [transition, 'transform 0.2s'].filter(Boolean).join(', '),
+    opacity: isDragging ? 0.4 : 1,
+  }
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -90,21 +99,20 @@ const TaskCard = memo(function TaskCard({ task, canEdit }: TaskCardProps) {
     },
   })
 
-  const assignee = task.assignments?.[0]?.user
-  const initials = assignee
-    ? `${assignee.name[0]}${assignee.apellido_paterno?.[0] ?? assignee.email[0]}`.toUpperCase()
-    : null
+  const assignees = task.assignments ?? []
+  const visibleAssignees = assignees.slice(0, 2)
+  const extraCount = assignees.length - 2
   const subtaskCount = task.subtasks_count ?? task.children?.length ?? 0
   const statusKey = STATUS_NAMES[task.status] ?? "pending"
   const borderColor = statusColors[statusKey]?.cardBorder ?? "border-l-muted-foreground"
 
   return (
-    <Card className={`group border-l-[3px] ${borderColor} relative`}>
-      <CardContent className="p-3">
+    <div ref={setNodeRef} style={style}>
+      <Card className={`group border-l-[3px] ${borderColor} relative`}>
+        <CardContent className="p-3">
         <div
           {...listeners}
           {...attributes}
-          ref={setNodeRef}
           className="min-w-0 pr-6"
         >
           <div className="flex items-center justify-end mb-1.5">
@@ -155,11 +163,29 @@ const TaskCard = memo(function TaskCard({ task, canEdit }: TaskCardProps) {
                 <span className="text-xs">{subtaskCount}</span>
               </div>
             )}
+            {task.notes && task.notes.length > 0 && (
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <MessageSquare className="h-3.5 w-3.5" />
+                <span className="text-xs">{task.notes.length}</span>
+              </div>
+            )}
             <div className="flex-1" />
-            {assignee && (
-              <Avatar size="sm">
-                <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
-              </Avatar>
+            {assignees.length > 0 && (
+              <div className="flex items-center -space-x-2">
+                {visibleAssignees.map((a) => {
+                  const initials = `${a.user?.name?.[0] ?? ''}${a.user?.apellido_paterno?.[0] ?? ''}`.toUpperCase() || '?'
+                  return (
+                    <Avatar key={a.user_id} size="sm" className="ring-2 ring-card">
+                      <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
+                    </Avatar>
+                  )
+                })}
+                {extraCount > 0 && (
+                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-muted-foreground text-[10px] font-medium ring-2 ring-card">
+                    +{extraCount}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -194,6 +220,7 @@ const TaskCard = memo(function TaskCard({ task, canEdit }: TaskCardProps) {
         </div>
       </CardContent>
     </Card>
+    </div>
   )
 })
 

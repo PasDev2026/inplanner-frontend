@@ -1,5 +1,6 @@
-import { memo } from "react"
-import { useDroppable } from "@dnd-kit/core"
+import { memo, useMemo } from "react"
+import { useDroppable, useDndContext } from "@dnd-kit/core"
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { TASK_STATUS_MAP, statusColors } from "@/features/shared/constants/task-status.constant"
 import type { BackendTask } from "@/features/shared/lib/types"
 import TaskCard from "./TaskCard"
@@ -11,16 +12,66 @@ type TaskColumnProps = {
 }
 
 const STATUS_NAMES = ["pending", "onHold", "inProgress", "underReview", "completed"] as const
+const STATUS_SET = new Set(["0", "1", "2", "3", "4"])
 
 const TaskColumn = memo(function TaskColumn({ status, tasks, canEdit }: TaskColumnProps) {
-  const { isOver, setNodeRef } = useDroppable({ id: status.toString() })
+  const { setNodeRef } = useDroppable({ id: status.toString() })
+  const { active, collisions } = useDndContext()
+  const isOver = active
+    ? (collisions?.some(c => String(c.id) === status.toString()) ?? false)
+    : false
   const info = TASK_STATUS_MAP[status]
   const colors = statusColors[STATUS_NAMES[status]] ?? statusColors.pending
+
+  const sortedTasks = useMemo(
+    () => [...tasks].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)),
+    [tasks],
+  )
+  const taskIds = useMemo(
+    () => sortedTasks.map((t) => t.id_task.toString()),
+    [sortedTasks],
+  )
+
+  const taskMap = useMemo(
+    () => new Map(sortedTasks.map(t => [t.id_task.toString(), t])),
+    [sortedTasks]
+  )
+
+  const overTarget = useMemo(() => {
+    if (!active || !collisions?.length) return null
+
+    const dragId = active.id.toString()
+    const taskCollision = collisions.find(c => !STATUS_SET.has(String(c.id)))
+    const colCollision = collisions.find(c => STATUS_SET.has(String(c.id)))
+
+    if (taskCollision) {
+      const overTaskId = Number(taskCollision.id)
+      const overTask = sortedTasks.find(t => t.id_task === overTaskId)
+      if (!overTask) return null
+      if (overTask.status !== status) return null
+
+      const siblings = sortedTasks.filter(t => t.id_task !== Number(dragId))
+      const targetIdx = siblings.findIndex(t => t.id_task === overTaskId)
+      if (targetIdx === -1) return null
+
+      return { col: status, idx: targetIdx }
+    }
+
+    if (colCollision && String(colCollision.id) === status.toString()) {
+      return { col: status, idx: sortedTasks.length }
+    }
+
+    return null
+  }, [active, collisions, sortedTasks, status])
+
+  const isDest = overTarget?.col === status
+    && active != null
+    && !taskMap.has(active.id.toString())
 
   return (
     <div
       ref={setNodeRef}
-      className={`rounded-xl bg-card shadow-sm transition-all ${colors.columnBg} ${isOver ? "ring-2 ring-brand-primary/30" : ""}`}
+      className={`rounded-xl bg-card shadow-sm transition-all flex flex-col max-h-[calc(100vh-220px)] ${colors.columnBg} ${isOver ? "ring-2 ring-brand-primary/30" : ""}`}
     >
       <div className="flex items-center gap-2 px-3 pt-3 pb-2">
         <span className={`w-2 h-2 rounded-full ${colors.dot}`} />
@@ -30,10 +81,16 @@ const TaskColumn = memo(function TaskColumn({ status, tasks, canEdit }: TaskColu
         <span className="ml-auto bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">{tasks.length}</span>
       </div>
 
-      <div className="space-y-2 p-2">
-        {tasks.map((task) => (
-          <TaskCard key={task.id_task} task={task} canEdit={canEdit} />
-        ))}
+      <div className="space-y-2 p-2 overflow-y-auto flex-1">
+        <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
+          {sortedTasks.map((task, index) => (
+            <TaskCard key={task.id_task} task={task} canEdit={canEdit}
+              offsetY={isDest && index >= overTarget!.idx ? 88 : 0} />
+          ))}
+          {isDest && overTarget!.idx === sortedTasks.length && (
+            <div style={{ height: 88 }} />
+          )}
+        </SortableContext>
         {tasks.length === 0 && (
           <p className="text-xs text-muted-foreground text-center py-8 italic">Arrastra tareas aquí</p>
         )}

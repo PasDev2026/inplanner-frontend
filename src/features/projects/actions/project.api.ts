@@ -121,3 +121,23 @@ export async function removeResponsible(projectId: number, userId: number) {
     handleApiError(error, 'Error al quitar responsable');
   }
 }
+
+export async function getKanbanProjects() {
+  try {
+    const { data } = await api.get<BackendProject[]>('/projects/kanban');
+    return data;
+  } catch (error) {
+    handleApiError(error, 'Error al cargar proyectos para Kanban');
+    return [];
+  }
+}
+
+export async function reorderProject(dto: { projectId: number; targetStatus?: number; position: number }) {
+  try {
+    await api.patch('/projects/reorder_project', dto);
+    return true;
+  } catch (error) {
+    handleApiError(error, 'Error al reordenar proyecto');
+    return false;
+  }
+}

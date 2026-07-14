@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { TASK_KEY } from "@/features/tasks/lib/task-keys"
+import { PROJECTS_KEY, PROJECT_TASKS_ALL } from "@/features/projects/lib/project-keys"
 import { createNote } from "@/features/shared/actions/note.api"
 import { toast } from "sonner"
 
@@ -17,6 +18,8 @@ export default function AddNotesForm({ taskId }: AddNotesFormProps) {
         onSuccess: () => {
             setContent("")
             queryClient.invalidateQueries({ queryKey: TASK_KEY(String(taskId)) })
+            queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_ALL })
+            queryClient.invalidateQueries({ queryKey: PROJECTS_KEY })
         },
         onError: (error) => {
             toast.error((error as Error).message)

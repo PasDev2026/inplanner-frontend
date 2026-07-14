@@ -9,10 +9,11 @@ export interface BackendProject {
   status: number;
   priority: number;
   privacy_level?: number;
+  position: number;
   created_at: string;
   updated_at: string;
   progress: number;
-  responsibles?: { user_id: number }[];
+  responsibles?: { user_id: number; name?: string; apellido_paterno?: string }[];
 }
 
 export interface BackendNote {
@@ -51,6 +52,7 @@ export interface BackendTask {
   notes?: BackendNote[];
   children?: BackendTask[];
   subtasks_count?: number;
+  position: number;
 }
 
 export interface BackendPaginatedResponse<T> {
