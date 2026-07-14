@@ -2,6 +2,7 @@ import type { BackendNote } from "@/features/shared/lib/types"
 import { formatDate } from "@/features/shared/lib/format-date"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { TASK_KEY } from "@/features/tasks/lib/task-keys"
+import { PROJECTS_KEY, PROJECT_TASKS_ALL } from "@/features/projects/lib/project-keys"
 import { deleteNote } from "@/features/shared/actions/note.api"
 import { toast } from "sonner"
 
@@ -16,6 +17,8 @@ export default function NoteDetail({ note }: NoteDetailProps) {
         mutationFn: () => deleteNote(note.id_note),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: TASK_KEY(String(note.task_id)) })
+            queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_ALL })
+            queryClient.invalidateQueries({ queryKey: PROJECTS_KEY })
         },
         onError: () => {
             toast.error("Error al eliminar la nota")

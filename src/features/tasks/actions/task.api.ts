@@ -82,3 +82,13 @@ export async function removeAssignment(taskId: number, userId: number) {
     handleApiError(error, 'Error al quitar asignación');
   }
 }
+
+export async function reorderTask(dto: { taskId: number; targetStatus?: number; position: number }) {
+  try {
+    await api.patch('/tasks/reorder', dto);
+    return true;
+  } catch (error) {
+    handleApiError(error, 'Error al reordenar tarea');
+    return false;
+  }
+}

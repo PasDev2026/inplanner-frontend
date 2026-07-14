@@ -9,6 +9,7 @@ import { PROJECTS_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project
 import { formatDate } from "@/features/shared/lib/format-date"
 import { TASK_STATUS_MAP } from "@/features/shared/constants/task-status.constant"
 import { Pencil } from "lucide-react"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   Dialog,
   DialogContent,
@@ -34,6 +35,10 @@ export function TaskModalDetails() {
     retry: false,
   })
 
+  const assignees = data?.assignments?.filter(a => a.name) ?? []
+  const visibleAssignees = assignees.slice(0, 3)
+  const extraCount = assignees.length - 3
+
   const [editingDesc, setEditingDesc] = useState(false)
   const [descValue, setDescValue] = useState("")
 
@@ -42,6 +47,7 @@ export function TaskModalDetails() {
       updateTask(task_id, { task_description }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TASK_KEY(taskId!) })
+      queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectId) })
     },
   })
 
@@ -72,21 +78,37 @@ export function TaskModalDetails() {
   if (data)
     return (
       <Dialog open={show} onOpenChange={() => close()}>
-        <DialogContent className="max-w-4xl h-[85vh] max-h-[85vh] flex flex-col p-8 gap-0">
-          <div className="flex-shrink-0">
-            <p className="text-sm text-muted-foreground">
-              Agregada el: {formatDate(data.created_at)}{" "}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Última actualización: {formatDate(data.updated_at)}{" "}
-            </p>
-            <DialogTitle className="font-black text-4xl text-muted-foreground my-5">
-              {data.task_name}
-            </DialogTitle>
-          </div>
+        <DialogContent className="max-w-4xl h-[85vh] max-h-[85vh] grid grid-rows-[auto_1fr] p-8 gap-0">
+          {assignees.length > 0 && (
+            <div className="flex items-center gap-1.5 mb-3">
+              {visibleAssignees.map((a) => {
+                const initials = `${a.name?.[0] ?? ''}${a.apellido_paterno?.[0] ?? ''}`.toUpperCase() || '?'
+                return (
+                  <Avatar key={a.user_id} size="sm" className="ring-2 ring-card">
+                    <AvatarFallback className="text-[10px] font-medium">{initials}</AvatarFallback>
+                  </Avatar>
+                )
+              })}
+              {extraCount > 0 && (
+                <span className="text-xs font-medium text-muted-foreground ml-1">+{extraCount}</span>
+              )}
+            </div>
+          )}
+          <hr className="border-border/40 mb-6" />
 
-          <div className="flex flex-1 min-h-0 gap-8 overflow-hidden">
-            <div className="flex-1 overflow-y-auto pr-4 space-y-8">
+          <div className="grid grid-cols-[2fr_1fr] gap-8 min-h-0">
+            <div className="overflow-y-auto space-y-6">
+              <div>
+                <DialogTitle className="font-black text-4xl text-muted-foreground mb-2">
+                  {data.task_name}
+                </DialogTitle>
+                <p className="text-sm text-muted-foreground">
+                  Agregada el: {formatDate(data.created_at)}{" "}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Última actualización: {formatDate(data.updated_at)}{" "}
+                </p>
+              </div>
               {editingDesc ? (
                 <div className="space-y-2">
                   <Textarea
@@ -137,7 +159,7 @@ export function TaskModalDetails() {
               />
             </div>
 
-            <div className="w-80 shrink-0 bg-muted/80 rounded-xl p-6 flex flex-col gap-y-8 border border-border overflow-y-auto">
+            <div className="overflow-y-auto space-y-6 bg-muted/50 p-4 rounded-lg">
               <div className="flex flex-col gap-y-3">
                 <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">
                   Prioridad
