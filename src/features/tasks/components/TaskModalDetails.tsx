@@ -35,7 +35,7 @@ export function TaskModalDetails() {
     retry: false,
   })
 
-  const assignees = data?.assignments?.filter(a => a.name) ?? []
+  const assignees = data?.assignments?.filter(a => a.user?.name) ?? []
   const visibleAssignees = assignees.slice(0, 3)
   const extraCount = assignees.length - 3
 
@@ -82,7 +82,7 @@ export function TaskModalDetails() {
           {assignees.length > 0 && (
             <div className="flex items-center gap-1.5 mb-3">
               {visibleAssignees.map((a) => {
-                const initials = `${a.name?.[0] ?? ''}${a.apellido_paterno?.[0] ?? ''}`.toUpperCase() || '?'
+                const initials = `${a.user?.name?.[0] ?? ''}${a.user?.apellido_paterno?.[0] ?? ''}`.toUpperCase() || '?'
                 return (
                   <Avatar key={a.user_id} size="sm" className="ring-2 ring-card">
                     <AvatarFallback className="text-[10px] font-medium">{initials}</AvatarFallback>

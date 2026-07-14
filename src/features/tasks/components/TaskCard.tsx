@@ -173,7 +173,7 @@ const TaskCard = memo(function TaskCard({ task, canEdit, offsetY }: TaskCardProp
             {assignees.length > 0 && (
               <div className="flex items-center -space-x-2">
                 {visibleAssignees.map((a) => {
-                  const initials = `${a.name?.[0] ?? ''}${a.apellido_paterno?.[0] ?? ''}`.toUpperCase() || (a.user_name?.[0]?.toUpperCase() ?? '?')
+                  const initials = `${a.user?.name?.[0] ?? ''}${a.user?.apellido_paterno?.[0] ?? ''}`.toUpperCase() || '?'
                   return (
                     <Avatar key={a.user_id} size="sm" className="ring-2 ring-card">
                       <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
