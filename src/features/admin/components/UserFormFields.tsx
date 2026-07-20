@@ -1,6 +1,6 @@
-import type { UseFormRegister, FieldErrors, Control } from "react-hook-form"
+import type { UseFormRegister, FieldErrors, UseFormReturn } from "react-hook-form"
 import { Controller } from "react-hook-form"
-import { Input } from "@/components/ui/input"
+
 import { Label } from "@/components/ui/label"
 import { Select } from "@/components/ui/select"
 import { InputForm } from "@/features/shared/components/form/InputForm"
@@ -9,7 +9,7 @@ import type { UserEditForm, Area } from "@/features/admin/schemas/user.schema"
 type UserFormFieldsProps = {
   register: UseFormRegister<UserEditForm>
   errors: FieldErrors<UserEditForm>
-  control: Control<UserEditForm>
+  control: UseFormReturn<UserEditForm>['control']
   areas: Area[] | undefined
   areasLoading: boolean
   areasError: boolean

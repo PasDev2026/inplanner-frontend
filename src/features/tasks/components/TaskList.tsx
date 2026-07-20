@@ -107,7 +107,7 @@ export default function TaskList({ tasks, canEdit }: TaskListProps) {
       <div className="rounded-2xl border border-border bg-card shadow-sm p-6 overflow-x-auto">
         <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} collisionDetection={pointerWithin}>
           <div className="grid grid-cols-5 gap-6" style={{ minWidth: '1500px' }}>
-            {STATUS_KEYS.map((statusKey, index) => (
+            {STATUS_KEYS.map((statusKey) => (
               <TaskColumn key={statusKey} status={Number(statusKey)} tasks={groupedTasks[statusKey] ?? []} canEdit={canEdit} />
             ))}
           </div>

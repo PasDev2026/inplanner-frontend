@@ -50,8 +50,6 @@ export default function EditUserModal({ isOpen, onClose, userId }: EditUserModal
     defaultValues: {
       name: "",
       apellido_paterno: "",
-      apellido_materno: "",
-      telefono: "",
       email: "",
       area_id: "",
     },
@@ -62,8 +60,6 @@ export default function EditUserModal({ isOpen, onClose, userId }: EditUserModal
       reset({
         name: user.name,
         apellido_paterno: user.apellido_paterno ?? "",
-        apellido_materno: user.apellido_materno ?? "",
-        telefono: user.telefono ?? "",
         email: user.email,
         area_id: user.area?.id_area?.toString() ?? "",
       })
@@ -71,7 +67,7 @@ export default function EditUserModal({ isOpen, onClose, userId }: EditUserModal
   }, [user, isOpen, reset])
 
   const { mutateAsync } = useMutation({
-    mutationFn: ({ uid, data }: { uid: string; data: { area_id?: number } }) =>
+    mutationFn: ({ uid, data }: { uid: string; data: { area_id?: string } }) =>
       updateUserProfileApi(uid, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: USERS_KEY })
@@ -86,9 +82,8 @@ export default function EditUserModal({ isOpen, onClose, userId }: EditUserModal
 
   const onSubmit = async (formData: UserEditForm) => {
     if (!user) return
-    const { area_id, ...rest } = formData
-    const payload: { area_id?: number } = { ...rest }
-    if (area_id) payload.area_id = Number(area_id)
+    const payload: { area_id?: string } = {}
+    if (formData.area_id) payload.area_id = formData.area_id
     await mutateAsync({ uid: user.id_user, data: payload })
   }
 

@@ -103,7 +103,7 @@ const TaskColumn = memo(function TaskColumn({ status, tasks, canEdit }: TaskColu
       <div className="space-y-2 p-2 overflow-y-auto flex-1">
         <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
           {sortedTasks.map((task, idx) => (
-            <TaskCard key={task.id_task} task={task} canEdit={canEdit} index={idx}
+            <TaskCard key={task.id_task} task={task} canEdit={canEdit}
               offsetY={isDest && idx >= overTarget!.idx ? 88 : 0} />
           ))}
           {isDest && overTarget!.idx === sortedTasks.length && (

@@ -7,5 +7,5 @@ export default function ProfilePage() {
 
     if(isLoading) return <PageSpinner />
 
-  if(data) return <ProfileForm data={data} />
+  if(data) return <ProfileForm data={{ ...data, email: data.email ?? '' }} />
 }
