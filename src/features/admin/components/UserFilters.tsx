@@ -20,17 +20,15 @@ interface UserFiltersProps {
   filters: UserListFilters
   onFiltersChange: (f: UserListFilters) => void
   areas: CentralizadoItem[]
-  roles: CentralizadoItem[]
   sedes: CentralizadoItem[]
   onClearAll: () => void
 }
 
-type ChangeKey = keyof Pick<UserListFilters, 'area_id' | 'rol_id' | 'sede_id'>
-
 export function UserFilters({
   filters,
   onFiltersChange,
-  areas, roles, sedes,
+  areas,
+  sedes,
   onClearAll,
 }: UserFiltersProps) {
   const [localSearch, setLocalSearch] = useState(filters.search)
@@ -51,61 +49,17 @@ export function UserFilters({
     setLocalSearch(filters.search)
   }, [filters.search])
 
-  const [openFilter, setOpenFilter] = useState<ChangeKey | null>(null)
+  const [openArea, setOpenArea] = useState(false)
+  const [openSede, setOpenSede] = useState(false)
   const [openEstado, setOpenEstado] = useState(false)
 
-  const multiSelect = (key: ChangeKey, items: CentralizadoItem[], labelAll: string) => {
-    const selected = filters[key] ? filters[key].split(",").filter(Boolean).map(Number) : []
-    const selectedLabels = selected.map(id => items?.find(i => i.id === id)?.nombre).filter(Boolean)
-    const triggerLabel = selectedLabels.length ? selectedLabels.join(", ") : labelAll
+  const selectedAreaIds = filters.area_id ? filters.area_id.split(",").filter(Boolean) : []
+  const selectedAreaLabels = selectedAreaIds.map(id => areas?.find(i => i.id === id)?.nombre).filter(Boolean)
+  const areaTriggerLabel = selectedAreaLabels.length ? selectedAreaLabels.join(", ") : "Área"
 
-    return (
-      <Popover open={openFilter === key} onOpenChange={(open) => setOpenFilter(open ? key : null)}>
-        <PopoverTrigger
-          render={
-            <button className="shrink-0 px-3 py-2.5 h-auto text-sm border-border shadow-sm bg-card rounded-lg border inline-flex items-center gap-1 min-w-[130px] max-w-[200px]">
-              <span className="truncate">{triggerLabel}</span>
-              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
-            </button>
-          }
-        />
-        <PopoverContent align="start" className="w-52 p-0">
-          <Command>
-            <CommandList>
-              <CommandEmpty>Sin resultados</CommandEmpty>
-              <CommandGroup>
-                <CommandItem
-                  value=""
-                  onSelect={() => { onFiltersChange({ ...filters, [key]: "" }); setOpenFilter(null) }}
-                  className={!selected.length ? "bg-accent" : undefined}
-                >
-                  {labelAll}
-                </CommandItem>
-                {items?.map((item) => {
-                  const isSelected = selected.includes(item.id)
-                  return (
-                    <CommandItem
-                      key={item.id}
-                      value={String(item.id)}
-                      onSelect={() => {
-                        const next = isSelected
-                          ? selected.filter(id => id !== item.id)
-                          : [...selected, item.id]
-                        onFiltersChange({ ...filters, [key]: next.join(",") })
-                      }}
-                      className={isSelected ? "bg-accent" : undefined}
-                    >
-                      {item.nombre}
-                    </CommandItem>
-                  )
-                })}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    )
-  }
+  const selectedSedeIds = filters.sede_id ? filters.sede_id.split(",").filter(Boolean) : []
+  const selectedSedeLabels = selectedSedeIds.map(id => sedes?.find(i => i.id === id)?.nombre).filter(Boolean)
+  const sedeTriggerLabel = selectedSedeLabels.length ? selectedSedeLabels.join(", ") : "Sede"
 
   return (
     <div className="flex items-center gap-3">
@@ -128,9 +82,95 @@ export function UserFilters({
         )}
       </div>
 
-      {multiSelect('area_id', areas, 'Área')}
-      {multiSelect('rol_id', roles, 'Rol')}
-      {multiSelect('sede_id', sedes, 'Sede')}
+      <Popover open={openArea} onOpenChange={setOpenArea}>
+        <PopoverTrigger
+          render={
+            <button className="shrink-0 px-3 py-2.5 h-auto text-sm border-border shadow-sm bg-card rounded-lg border inline-flex items-center gap-1 min-w-[130px] max-w-[200px]">
+              <span className="truncate">{areaTriggerLabel}</span>
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+            </button>
+          }
+        />
+        <PopoverContent align="start" className="w-52 p-0">
+          <Command>
+            <CommandList>
+              <CommandEmpty>Sin resultados</CommandEmpty>
+              <CommandGroup>
+                <CommandItem
+                  value=""
+                  onSelect={() => { onFiltersChange({ ...filters, area_id: "" }); setOpenArea(false) }}
+                  className={!selectedAreaIds.length ? "bg-accent" : undefined}
+                >
+                  Todas las áreas
+                </CommandItem>
+                {areas?.map((item) => {
+                  const isSelected = selectedAreaIds.includes(item.id)
+                  return (
+                    <CommandItem
+                      key={item.id}
+                      value={item.id}
+                      onSelect={() => {
+                        const next = isSelected
+                          ? selectedAreaIds.filter(id => id !== item.id)
+                          : [...selectedAreaIds, item.id]
+                        onFiltersChange({ ...filters, area_id: next.join(",") })
+                      }}
+                      className={isSelected ? "bg-accent" : undefined}
+                    >
+                      {item.nombre}
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
+      <Popover open={openSede} onOpenChange={setOpenSede}>
+        <PopoverTrigger
+          render={
+            <button className="shrink-0 px-3 py-2.5 h-auto text-sm border-border shadow-sm bg-card rounded-lg border inline-flex items-center gap-1 min-w-[130px] max-w-[200px]">
+              <span className="truncate">{sedeTriggerLabel}</span>
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+            </button>
+          }
+        />
+        <PopoverContent align="start" className="w-52 p-0">
+          <Command>
+            <CommandList>
+              <CommandEmpty>Sin resultados</CommandEmpty>
+              <CommandGroup>
+                <CommandItem
+                  value=""
+                  onSelect={() => { onFiltersChange({ ...filters, sede_id: "" }); setOpenSede(false) }}
+                  className={!selectedSedeIds.length ? "bg-accent" : undefined}
+                >
+                  Todas las sedes
+                </CommandItem>
+                {sedes?.map((item) => {
+                  const isSelected = selectedSedeIds.includes(item.id)
+                  return (
+                    <CommandItem
+                      key={item.id}
+                      value={item.id}
+                      onSelect={() => {
+                        const next = isSelected
+                          ? selectedSedeIds.filter(id => id !== item.id)
+                          : [...selectedSedeIds, item.id]
+                        onFiltersChange({ ...filters, sede_id: next.join(",") })
+                      }}
+                      className={isSelected ? "bg-accent" : undefined}
+                    >
+                      {item.nombre}
+                    </CommandItem>
+                  )
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
       <Popover open={openEstado} onOpenChange={setOpenEstado}>
         <PopoverTrigger

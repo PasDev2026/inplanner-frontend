@@ -17,7 +17,7 @@ export default function AppLayout() {
   useEffect(() => {
     if (isLoading || isAuthenticated) return
 
-    const hasSession = localStorage.getItem('USER_PROFILE')
+    const hasSession = localStorage.getItem('auth_user')
 
     if (hasSession) {
       navigate('/auth/login', { replace: true })
@@ -42,10 +42,10 @@ export default function AppLayout() {
       <SidebarProvider>
         <SocketManager />
         <Sidebar
-          name={user?.name ?? ""}
-          apellido_paterno={user?.apellido_paterno ?? ""}
+          name={user?.nombres ?? ""}
+          apellido_paterno={user?.apellidoPaterno ?? ""}
           email={user?.email ?? ""}
-          isAdmin={user?.roles?.includes('ROLE_Super_Administrador') ?? false}
+          isAdmin={user?.roles?.some(r => r.rolCodigo === 'SUPER_ADMINISTRADOR') ?? false}
         />
         <div className="bg-background flex flex-col flex-1 min-w-0">
             <Header />

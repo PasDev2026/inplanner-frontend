@@ -2,8 +2,8 @@ export interface BackendProject {
   id_project: number;
   name_project: string;
   description_project: string | null;
-  manager_id: number;
-  sede_id: number | null;
+  manager_id: string;
+  sede_id: string | null;
   start_date: string | null;
   due_date: string | null;
   status: number;
@@ -13,18 +13,18 @@ export interface BackendProject {
   created_at: string;
   updated_at: string;
   progress: number;
-  responsibles?: { user_id: number; name?: string; apellido_paterno?: string }[];
+  responsibles?: { user_id: string; name?: string; apellido_paterno?: string }[];
 }
 
 export interface BackendNote {
   id_note: number;
   content: string;
   task_id: number;
-  created_by_id: number;
+  created_by_id: string;
   created_at: string;
   updated_at: string;
   createdBy: {
-    id_user: number;
+    id_user: string;
     name: string;
     apellido_paterno: string | null;
     email: string;
@@ -37,8 +37,8 @@ export interface BackendTask {
   task_description: string | null;
   project_id: number;
   parent_task_id: number | null;
-  created_by_id: number;
-  completed_by_id: number | null;
+  created_by_id: string;
+  completed_by_id: string | null;
   start_date: string | null;
   due_date: string | null;
   status: number;
@@ -46,8 +46,8 @@ export interface BackendTask {
   created_at: string;
   updated_at: string;
   assignments?: {
-    user_id: number;
-    user: { id_user: number; name: string; apellido_paterno: string | null; email: string };
+    user_id: string;
+    user: { id_user: string; name: string; apellido_paterno: string | null; email: string };
   }[];
   notes?: BackendNote[];
   children?: BackendTask[];

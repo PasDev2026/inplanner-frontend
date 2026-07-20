@@ -43,7 +43,7 @@ export function useTaskMutations(projectIdNum: number) {
     })
 
     const assignmentMutation = useMutation({
-        mutationFn: async ({ taskId, userIds, currentIds }: { taskId: number; userIds: number[]; currentIds: number[] }) => {
+        mutationFn: async ({ taskId, userIds, currentIds }: { taskId: number; userIds: string[]; currentIds: string[] }) => {
             const toAdd = userIds.filter((id) => !currentIds.includes(id))
             const toRemove = currentIds.filter((id) => !userIds.includes(id))
             const ops: Promise<unknown>[] = [

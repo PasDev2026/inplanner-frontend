@@ -17,10 +17,16 @@ import { ProjectFilters } from "@/features/projects/components/ProjectFilters"
 import { ProjectTableSection } from "@/features/projects/components/ProjectTableSection"
 import ProjectKanbanBoard from "@/features/projects/kanban/ProjectKanbanBoard"
 
-export default function ProjectsView() {
+type ProjectsViewProps = {
+  tab?: 'active' | 'completed'
+}
+
+export default function ProjectsView({ tab = 'active' }: ProjectsViewProps) {
   const [view, setView] = useState<'list' | 'kanban'>('list')
   const filters = useProjectListFilters()
   const { data: user, isLoading: authLoading } = useAuth()
+
+  const baseStatus = tab === 'completed' ? '3' : '0,1,2'
 
   const { data: sedes } = useQuery({
     queryKey: SEDES_KEY,
@@ -35,12 +41,12 @@ export default function ProjectsView() {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: PROJECTS_FILTERED_KEY(filters.debouncedFilters),
+    queryKey: PROJECTS_FILTERED_KEY({ ...filters.debouncedFilters, _tab: tab }, filters.sort),
     queryFn: async ({ pageParam }) => {
       const result = await getProjects({
         search: filters.debouncedFilters.search || undefined,
         sede_id: filters.debouncedFilters.sede_id || undefined,
-        status: filters.debouncedFilters.status || undefined,
+        status: baseStatus,
         responsible_id: filters.debouncedFilters.responsible_id || undefined,
         priority: filters.debouncedFilters.priority || undefined,
         dateFrom: filters.debouncedFilters.dateFrom || undefined,
@@ -72,23 +78,27 @@ export default function ProjectsView() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-3xl font-bold">Mis proyectos</CardTitle>
+            <CardTitle className="text-3xl font-bold">
+              {tab === 'completed' ? 'Proyectos completados' : 'Mis proyectos'}
+            </CardTitle>
             <CardDescription className="text-2xl font-light text-muted-foreground">
-              Maneja y administra tus proyectos
+              {tab === 'completed' ? 'Proyectos finalizados y archivados' : 'Maneja y administra tus proyectos'}
             </CardDescription>
           </div>
-          <ButtonGroup>
-            <Button variant={view === 'list' ? 'default' : 'outline'} onClick={() => setView('list')}>
-              <List className="w-4 h-4 mr-2" />Lista
-            </Button>
-            <Button variant={view === 'kanban' ? 'default' : 'outline'} onClick={() => setView('kanban')}>
-              <Columns3 className="w-4 h-4 mr-2" />Kanban
-            </Button>
-          </ButtonGroup>
+          {tab === 'active' && (
+            <ButtonGroup>
+              <Button variant={view === 'list' ? 'default' : 'outline'} onClick={() => setView('list')}>
+                <List className="w-4 h-4 mr-2" />Lista
+              </Button>
+              <Button variant={view === 'kanban' ? 'default' : 'outline'} onClick={() => setView('kanban')}>
+                <Columns3 className="w-4 h-4 mr-2" />Kanban
+              </Button>
+            </ButtonGroup>
+          )}
         </CardHeader>
       </Card>
 
-      {view === 'list' ? (
+      {view === 'list' || tab !== 'active' ? (
         <>
           <Card>
             <CardContent className="p-4">
@@ -116,7 +126,7 @@ export default function ProjectsView() {
             onSort={filters.handleSort}
             statusSelected={filters.debouncedFilters.status ? filters.debouncedFilters.status.split(",").filter(Boolean) : []}
             onStatusFilter={(values) => filters.setStatusInput(values.join(","))}
-            responsibleSelected={filters.debouncedFilters.responsible_id ? filters.debouncedFilters.responsible_id.split(",").map(Number) : []}
+            responsibleSelected={filters.debouncedFilters.responsible_id ? filters.debouncedFilters.responsible_id.split(",") : []}
             onResponsibleFilter={(ids) => filters.setResponsibleInput(ids.join(","))}
             prioritySelected={filters.debouncedFilters.priority ? filters.debouncedFilters.priority.split(",").map(Number) : []}
             onPriorityFilter={(values) => filters.setPriorityInput(values.join(","))}
@@ -133,9 +143,9 @@ export default function ProjectsView() {
 
           <DeleteProjectModal />
         </>
-      ) : (
+      ) : tab === 'active' ? (
         <ProjectKanbanBoard />
-      )}
+      ) : null}
 
       <ScrollToTop />
     </div>

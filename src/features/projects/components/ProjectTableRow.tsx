@@ -24,7 +24,7 @@ import { TableRow, TableCell } from "@/components/ui/table"
 
 type ProjectTableRowProps = {
     project: BackendProject
-    user: { idUser: number }
+    user: { id: string }
     sedes: CentralizadoItem[]
     filterType: 'project' | 'task' | null
     filterStatus: string | null
@@ -41,7 +41,7 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
     const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     const sedeMap = useMemo(() => new Map(sedes.map(s => [s.id, s.nombre])), [sedes])
-    const sedeName = project.sede_id != null ? sedeMap.get(Number(project.sede_id)) ?? "" : ""
+    const sedeName = project.sede_id != null ? sedeMap.get(project.sede_id) ?? "" : ""
 
     const handleNameClick = () => {
         if (clickTimer.current) {
@@ -114,7 +114,7 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
                                 {project.name_project}
                             </span>
                         )}
-                        {isManager(project.manager_id, user.idUser) ? (
+                        {isManager(project.manager_id, user.id) ? (
                             <Badge variant="brand-light">Manager</Badge>
                         ) : (
                             <Badge variant="brand">Colaborador</Badge>
@@ -169,7 +169,7 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
                             <DropdownMenuItem onClick={() => navigate(`/projects/${project.id_project}/details-projects`)}>
                                 Ver Proyecto
                             </DropdownMenuItem>
-                            {isManager(project.manager_id, user.idUser) && (
+                            {isManager(project.manager_id, user.id) && (
                                 <>
                                     <DropdownMenuItem onClick={() => navigate(`/projects/${project.id_project}/edit`)}>
                                         Editar Proyecto

@@ -12,9 +12,12 @@ export const connectSocket = (): Socket => {
         return socket
     }
 
+    const token = localStorage.getItem('auth_token')
+
     socket = io(getSocketUrl(), {
         withCredentials: true,
-        transports: ['polling', 'websocket']
+        transports: ['polling', 'websocket'],
+        auth: { token }
     })
 
     socket.on('connect', () => {

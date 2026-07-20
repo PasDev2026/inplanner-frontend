@@ -1,7 +1,7 @@
 import api from "@/features/shared/lib/axios";
 
 export interface CentralizadoItem {
-  id: number;
+  id: string;
   nombre: string;
 }
 

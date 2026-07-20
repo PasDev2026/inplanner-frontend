@@ -16,6 +16,7 @@ export const taskStatusStyles: Record<string, string> = {
 
 export type StatusColorSet = {
   dot: string
+  dotBorder: string
   columnBg: string
   cardBorder: string
   cardBg: string
@@ -23,11 +24,11 @@ export type StatusColorSet = {
 }
 
 export const statusColors: Record<string, StatusColorSet> = {
-  pending:      { dot: "bg-muted-foreground",     columnBg: "bg-muted/30",   cardBorder: "border-l-muted-foreground",   cardBg: "bg-muted/50",   overlayBorder: "border-l-muted-foreground" },
-  onHold:       { dot: "bg-warning",       columnBg: "bg-warning/10",    cardBorder: "border-l-warning",     cardBg: "bg-warning/15",     overlayBorder: "border-l-warning" },
-  inProgress:   { dot: "bg-info",      columnBg: "bg-info/10",   cardBorder: "border-l-info",    cardBg: "bg-info/15",    overlayBorder: "border-l-info" },
-  underReview:  { dot: "bg-warning",     columnBg: "bg-warning/10",  cardBorder: "border-l-warning",   cardBg: "bg-warning/15",  overlayBorder: "border-l-warning" },
-  completed:    { dot: "bg-success",   columnBg: "bg-success/10",cardBorder: "border-l-success", cardBg: "bg-success/15",overlayBorder: "border-l-success" },
+  pending:      { dot: "bg-muted-foreground",     dotBorder: "border-muted-foreground/40",     columnBg: "bg-muted/30",   cardBorder: "border-l-muted-foreground",   cardBg: "bg-muted/50",   overlayBorder: "border-l-muted-foreground" },
+  onHold:       { dot: "bg-warning",       dotBorder: "border-warning/40",       columnBg: "bg-warning/10",    cardBorder: "border-l-warning",     cardBg: "bg-warning/15",     overlayBorder: "border-l-warning" },
+  inProgress:   { dot: "bg-info",      dotBorder: "border-info/40",      columnBg: "bg-info/10",   cardBorder: "border-l-info",    cardBg: "bg-info/15",    overlayBorder: "border-l-info" },
+  underReview:  { dot: "bg-warning",     dotBorder: "border-warning/40",     columnBg: "bg-warning/10",  cardBorder: "border-l-warning",   cardBg: "bg-warning/15",  overlayBorder: "border-l-warning" },
+  completed:    { dot: "bg-success",   dotBorder: "border-success/40",   columnBg: "bg-success/10",cardBorder: "border-l-success", cardBg: "bg-success/15",overlayBorder: "border-l-success" },
 }
 
 export const TASK_STATUS_MAP: Record<number, { label: string; dotColor: string; style: string }> = {

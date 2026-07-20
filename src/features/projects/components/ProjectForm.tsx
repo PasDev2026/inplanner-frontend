@@ -31,8 +31,8 @@ export default function ProjectForm({ errors, register, setValue, getValues, con
     queryFn: getSedes,
   });
 
-  const isSuperAdmin = user?.roles?.includes('ROLE_Super_Administrador') ?? false;
-  const userSedeIds = user?.sedesIds?.map(Number) ?? [];
+  const isSuperAdmin = user?.roles?.some(r => r.rolCodigo === 'SUPER_ADMINISTRADOR') ?? false;
+  const userSedeIds = user?.roles?.map(r => r.sedeId).filter(Boolean) ?? [];
   const userSedes = isSuperAdmin
     ? (sedes ?? [])
     : (sedes ?? []).filter(s => userSedeIds.includes(s.id));
@@ -49,7 +49,7 @@ export default function ProjectForm({ errors, register, setValue, getValues, con
 
   useEffect(() => {
     if (!hideEmpresa && userSedes?.length === 1 && setValue) {
-      setValue("sede_id", String(userSedes[0].id));
+      setValue("sede_id", userSedes[0].id);
     }
   }, [hideEmpresa, userSedes, setValue]);
 

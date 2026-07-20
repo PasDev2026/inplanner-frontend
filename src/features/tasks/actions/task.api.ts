@@ -47,7 +47,7 @@ export async function deleteTask(id: number) {
   }
 }
 
-export async function updateTaskStatus(id: number, dto: { status: number; completed_by_id?: number }) {
+export async function updateTaskStatus(id: number, dto: { status: number; completed_by_id?: string }) {
   try {
     const { data } = await api.patch<BackendTask>(`/tasks/${id}/status`, dto);
     return data;
@@ -65,7 +65,7 @@ export async function getTaskChildren(id: number) {
   }
 }
 
-export async function createAssignment(taskId: number, userId: number) {
+export async function createAssignment(taskId: number, userId: string) {
   try {
     const { data } = await api.post(`/tasks/${taskId}/assignments`, { user_id: userId });
     return data;
@@ -74,7 +74,7 @@ export async function createAssignment(taskId: number, userId: number) {
   }
 }
 
-export async function removeAssignment(taskId: number, userId: number) {
+export async function removeAssignment(taskId: number, userId: string) {
   try {
     const { data } = await api.delete(`/tasks/${taskId}/assignments/${userId}`);
     return data;

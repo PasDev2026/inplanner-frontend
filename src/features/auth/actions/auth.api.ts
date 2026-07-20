@@ -1,31 +1,59 @@
 import { isAxiosError } from "axios";
 import api from "@/features/shared/lib/axios";
 import { handleApiError, createApiError } from "@/features/shared/lib/handle-api-error";
-import { CheckPasswordForm } from "@/features/auth/schemas/reset-password.schema";
 
-export interface BackendUserProfile {
-    idUser: number;
-    username: string;
-    email: string;
-    name: string;
-    apellido_paterno: string;
-    dni: string;
-    fullName: string;
-    roles: string[];
-    sedesIds: number[];
+export interface AuthUser {
+  id: string;
+  numDocumento: string;
+  nombres: string;
+  apellidoPaterno: string;
+  email: string | null;
+  roles: { sedeId: string; sedeNombre: string; rolCodigo: string }[];
 }
 
-export interface LoginResponse {
-    user: BackendUserProfile;
-    accessToken: string;
+interface LoginUser {
+  id: string;
+  numero_documento: string;
+  nombre_completo: string;
+  nombres: string;
+  apellido_paterno: string;
+  email: string | null;
+  roles: { sedeId: string; sedeNombre: string; rolCodigo: string }[];
 }
 
-export async function authenticate(formData: { username: string; password: string }) {
+interface LoginData {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: string;
+  usuario: LoginUser;
+}
+
+interface JwtPayload {
+  sub: string;
+  persona_id: string;
+  numero_documento: string;
+  nombres: string;
+  apellido_paterno: string;
+  email?: string;
+  roles: { sede_id: string; sede_nombre: string; rol_codigo: string }[];
+}
+
+export async function authenticate(formData: { numero_documento: string; password: string }) {
     try {
-        const url = '/auth/login'
-        const { data } = await api.post<LoginResponse>(url, formData)
-        localStorage.setItem('USER_PROFILE', JSON.stringify(data.user))
-        return data
+        const { data } = await api.post<LoginData>('/auth/login', formData)
+        localStorage.setItem('auth_token', data.access_token)
+        localStorage.setItem('refresh_token', data.refresh_token)
+        const user: AuthUser = {
+          id: data.usuario.id,
+          numDocumento: data.usuario.numero_documento,
+          nombres: data.usuario.nombres,
+          apellidoPaterno: data.usuario.apellido_paterno,
+          email: data.usuario.email,
+          roles: data.usuario.roles,
+        }
+        localStorage.setItem('auth_user', JSON.stringify(user))
+        return user
     } catch (error) {
         if(isAxiosError(error) && error.response){
             const err = createApiError(error, 'Error de conexión con el servidor', error.response.data.field || 'general');
@@ -35,22 +63,21 @@ export async function authenticate(formData: { username: string; password: strin
     }
 }
 
-export async function getUserApi() {
+export async function getUserApi(): Promise<AuthUser | undefined> {
     try {
-        const { data } = await api<{ user: BackendUserProfile }>('/auth/me')
-        return data.user
-    } catch (error) {
-        handleApiError(error, 'Error de conexión con el servidor')
-    }
-}
-
-
-
-export async function checkPasswordApi(formData:CheckPasswordForm) {
-    try {
-        const url = `/auth/check-password`
-        const { data } = await api.post<string>(url, formData)
-        return data
+        const { data } = await api<JwtPayload>('/auth/me')
+        return {
+            id: data.sub,
+            numDocumento: data.numero_documento,
+            nombres: data.nombres,
+            apellidoPaterno: data.apellido_paterno,
+            email: data.email ?? null,
+            roles: data.roles.map(r => ({
+                sedeId: r.sede_id,
+                sedeNombre: r.sede_nombre,
+                rolCodigo: r.rol_codigo,
+            })),
+        }
     } catch (error) {
         handleApiError(error, 'Error de conexión con el servidor')
     }

@@ -18,7 +18,7 @@ export default function SocketManager() {
 
         const startFallbackTimer = () => {
             fallbackTimer = setTimeout(() => {
-                localStorage.removeItem('USER_PROFILE')
+                localStorage.removeItem('auth_user')
                 queryClient.clear()
                 disconnectSocket()
                 navigate('/auth/login?session=expired')

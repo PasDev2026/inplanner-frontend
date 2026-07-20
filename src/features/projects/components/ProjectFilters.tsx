@@ -45,7 +45,7 @@ export function ProjectFilters({
 }: ProjectFiltersProps) {
   const [open, setOpen] = useState(false)
 
-  const selectedSedes = sede ? sede.split(",").filter(Boolean).map(Number) : []
+  const selectedSedes = sede ? sede.split(",").filter(Boolean) : []
   const selectedLabels = selectedSedes
     .map(id => sedes?.find(s => s.id === id)?.nombre)
     .filter(Boolean)
