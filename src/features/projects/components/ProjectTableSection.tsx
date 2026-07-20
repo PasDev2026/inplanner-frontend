@@ -1,4 +1,5 @@
-import { ChevronUp, ChevronDown } from "lucide-react"
+import { ChevronUp, ChevronDown, FolderOpen, SearchX } from "lucide-react"
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
 import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody } from "@/components/ui/table"
 import { COL_GROUP, TABLE_GRID } from "@/features/shared/lib/tableColumns"
@@ -9,7 +10,7 @@ import ResponsibleColumnFilter from "@/features/shared/components/ResponsibleCol
 import PriorityColumnFilter from "@/features/shared/components/PriorityColumnFilter"
 import type { BackendProject } from "@/features/shared/lib/types"
 import type { CentralizadoItem } from "@/features/shared/actions/centralizado.api"
-import type { BackendUserProfile } from "@/features/auth/actions/auth.api"
+import type { AuthUser } from "@/features/auth/actions/auth.api"
 import { useRef, useCallback } from "react"
 
 interface ProjectTableSectionProps {
@@ -18,8 +19,8 @@ interface ProjectTableSectionProps {
   onSort: (field: string) => void
   statusSelected: string[]
   onStatusFilter: (values: string[]) => void
-  responsibleSelected: number[]
-  onResponsibleFilter: (ids: number[]) => void
+  responsibleSelected: string[]
+  onResponsibleFilter: (ids: string[]) => void
   prioritySelected: number[]
   onPriorityFilter: (values: number[]) => void
   onLoadMore: () => void
@@ -29,7 +30,7 @@ interface ProjectTableSectionProps {
   searchTerm: string
   dateFrom: string
   dateTo: string
-  user: BackendUserProfile
+  user: AuthUser
   sedes: CentralizadoItem[]
 }
 
@@ -110,9 +111,17 @@ export function ProjectTableSection({
 
   if (!projects.length && !hasActiveFilters) {
     return (
-      <p className="text-2xl font-light text-muted-foreground mt-5">
-        No hay proyectos aún
-      </p>
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <FolderOpen />
+          </EmptyMedia>
+          <EmptyTitle>No hay proyectos aún</EmptyTitle>
+          <EmptyDescription>
+            Crea tu primer proyecto para comenzar a gestionar tus tareas.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     )
   }
 
@@ -145,11 +154,19 @@ export function ProjectTableSection({
               </Table>
             </div>
           ) : (
-            <div className="text-center text-xl font-light text-muted-foreground py-10">
-              No se encontraron resultados
-              {searchTerm && <> para <span className="font-medium">&quot;{searchTerm}&quot;</span></>}
-              {(dateFrom || dateTo) && <> en el rango de fechas seleccionado</>}
-            </div>
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <SearchX />
+                </EmptyMedia>
+                <EmptyTitle>Sin resultados</EmptyTitle>
+                <EmptyDescription>
+                  No se encontraron proyectos
+                  {searchTerm && <> para <strong>&quot;{searchTerm}&quot;</strong></>}
+                  {(dateFrom || dateTo) && <> en el rango de fechas seleccionado</>}
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
           )}
         </div>
         {projects.length > 0 && (

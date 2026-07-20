@@ -2,7 +2,15 @@ import axios from 'axios'
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
-    withCredentials: true,
+})
+
+api.interceptors.request.use(config => {
+    if (config.url?.includes('/auth/refresh')) return config
+    const token = localStorage.getItem('auth_token')
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
 })
 
 let isRefreshing = false
@@ -49,17 +57,21 @@ api.interceptors.response.use(
         isRefreshing = true
 
         try {
-            await axios.post(
-                `${import.meta.env.VITE_API_URL}auth/refresh-token`,
-                {},
-                { withCredentials: true }
-            )
+            const refreshToken = localStorage.getItem('refresh_token')
+            if (!refreshToken) throw new Error('No refresh token available')
+
+            const { data } = await api.post('/auth/refresh', { refresh_token: refreshToken })
+
+            localStorage.setItem('auth_token', data.access_token)
+            localStorage.setItem('refresh_token', data.refresh_token)
 
             processQueue(null)
             return api(originalRequest)
         } catch (refreshError) {
             processQueue(refreshError)
-            localStorage.removeItem('USER_PROFILE')
+            localStorage.removeItem('auth_token')
+            localStorage.removeItem('refresh_token')
+            localStorage.removeItem('auth_user')
             return Promise.reject(error)
         } finally {
             isRefreshing = false

@@ -1,15 +1,15 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 
 type Option = {
-  id: number;
+  id: string;
   nombre: string;
 };
 
 type TagInputProps = {
   label: string;
   options: Option[];
-  value: number[];
-  onChange: (ids: number[]) => void;
+  value: string[];
+  onChange: (ids: string[]) => void;
   placeholder?: string;
 };
 
@@ -46,7 +46,7 @@ export default function TagInput({ label, options, value, onChange, placeholder 
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const select = (id: number) => {
+  const select = (id: string) => {
     const next = selectedSet.has(id) ? value.filter((v) => v !== id) : [...value, id];
     onChange(next);
     setQuery("");

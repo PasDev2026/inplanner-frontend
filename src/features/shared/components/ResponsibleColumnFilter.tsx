@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/popover"
 
 type ResponsibleColumnFilterProps = {
-  selected: number[]
-  onChange: (ids: number[]) => void
+  selected: string[]
+  onChange: (ids: string[]) => void
 }
 
 export default function ResponsibleColumnFilter({ selected, onChange }: ResponsibleColumnFilterProps) {

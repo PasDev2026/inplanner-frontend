@@ -1,15 +1,13 @@
 import { useState, useEffect, useMemo, memo } from "react";
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { USERS_KEY, USERS_PAGINATED_KEY } from "@/features/admin/lib/admin-keys";
-import { ROLES_KEY, SEDES_KEY, AREAS_KEY } from "@/features/shared/lib/shared-keys";
-import { Key, Pencil } from "lucide-react"
+import { AREAS_KEY, SEDES_KEY } from "@/features/shared/lib/shared-keys";
+import { Pencil } from "lucide-react"
 import { getAllUsers, updateUserStatus } from "@/features/admin/actions/admin.api";
-import { getRoles, getSedes, getAreas } from "@/features/shared/actions/centralizado.api";
+import { getAreas, getSedes } from "@/features/shared/actions/centralizado.api";
 import PageSpinner from "@/components/ui/PageSpinner";
 import UserStatusModal from "@/features/admin/components/UserStatusModal";
-import CreateUserModal from "@/features/admin/components/CreateUserModal";
 import EditUserModal from "@/features/admin/components/EditUserModal";
-import ResetPasswordModal from "@/features/admin/components/ResetPasswordModal";
 import { Pagination } from "@/components/ui/pagination";
 import { UserAdmin } from "@/features/admin/schemas/user.schema";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,25 +24,23 @@ import {
 
 type UserTableProps = {
   users: UserAdmin[]
-  roleMap: Map<number, string>
-  sedeMap: Map<number, string>
-  onEdit: (id: number) => void
-  onResetPassword: (id: number, name: string) => void
+  sedesMap: Map<string, string>
+  onEdit: (id: string) => void
   onStatusChange: (user: UserAdmin) => void
 }
 
 const UserTable = memo(function UserTable({
-  users, roleMap, sedeMap, onEdit, onResetPassword, onStatusChange
+  users, sedesMap, onEdit, onStatusChange
 }: UserTableProps) {
   return (
     <Table>
       <TableHeader className="bg-brand-primary">
         <TableRow className="hover:bg-transparent border-none">
           <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">Usuario</TableHead>
-          <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">DNI</TableHead>
-          <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">Rol / Área</TableHead>
-          <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">Estado</TableHead>
+          <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">N° Documento</TableHead>
           <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">Sede</TableHead>
+          <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">Área</TableHead>
+          <TableHead className="px-6 py-2.5 text-left text-[10px] font-extrabold text-white uppercase tracking-wider">Estado</TableHead>
           <TableHead className="px-6 py-2.5 text-right text-[10px] font-extrabold text-white uppercase tracking-wider">Acciones</TableHead>
         </TableRow>
       </TableHeader>
@@ -62,32 +58,21 @@ const UserTable = memo(function UserTable({
                     {user.name} {user.apellido_paterno} {user.apellido_materno || ""}
                   </div>
                   <div className="text-[11px] text-muted-foreground font-normal truncate mt-0">
-                    {user.email} <span className="text-muted-foreground mx-0.5 font-light">•</span> @{user.username}
+                    {user.email}
                   </div>
                 </div>
               </div>
             </TableCell>
             <TableCell className="px-6 py-2.5 whitespace-nowrap">
-              <div className="text-xs text-muted-foreground font-medium">{user.dni || "—"}</div>
+              <div className="text-xs text-muted-foreground font-medium">{user.numero_documento || "—"}</div>
             </TableCell>
             <TableCell className="px-6 py-2.5 whitespace-nowrap">
-              {user.userRoles && user.userRoles.length > 0 ? (
-                <div className="flex flex-wrap gap-1">
-                  {user.userRoles.slice(0, 2).map(r => (
-                    <span key={Number(r.rol_id)} className="px-2 py-0.5 text-[9px] rounded bg-muted text-muted-foreground border border-border font-medium whitespace-nowrap">
-                      {roleMap.get(Number(r.rol_id)) ?? "—"}
-                    </span>
-                  ))}
-                  {user.userRoles.length > 2 && (
-                    <span className="px-2 py-0.5 text-[9px] rounded bg-muted text-muted-foreground border border-border font-medium whitespace-nowrap">
-                      +{user.userRoles.length - 2}
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <div className="text-xs font-bold text-foreground">Sin rol</div>
-              )}
-              <div className="text-[11px] text-muted-foreground font-normal mt-0.5">
+              <div className="text-[11px] text-muted-foreground font-normal">
+                {sedesMap.get(user.sede_id ?? "") ?? "Sin sede"}
+              </div>
+            </TableCell>
+            <TableCell className="px-6 py-2.5 whitespace-nowrap">
+              <div className="text-[11px] text-muted-foreground font-normal">
                 {user.area?.nombre_area
                   ? user.area.nombre_area.charAt(0).toUpperCase() + user.area.nombre_area.slice(1)
                   : "Sin área"}
@@ -107,24 +92,6 @@ const UserTable = memo(function UserTable({
                 {user.estado ? "Activo" : "Inactivo"}
               </button>
             </TableCell>
-            <TableCell className="px-6 py-2.5">
-              {user.userSedes && user.userSedes.length > 0 ? (
-                <div className="flex flex-wrap gap-1">
-                  {user.userSedes.slice(0, 2).map(s => (
-                    <span key={Number(s.sede_id)} className="px-2 py-0.5 text-[9px] rounded bg-muted text-muted-foreground border border-border font-medium whitespace-nowrap">
-                      {sedeMap.get(Number(s.sede_id)) ?? "—"}
-                    </span>
-                  ))}
-                  {user.userSedes.length > 2 && (
-                    <span className="px-2 py-0.5 text-[9px] rounded bg-muted text-muted-foreground border border-border font-medium whitespace-nowrap">
-                      +{user.userSedes.length - 2}
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <span className="text-[10px] text-muted-foreground font-light">—</span>
-              )}
-            </TableCell>
             <TableCell className="px-6 py-2.5 whitespace-nowrap text-right">
               <div className="flex items-center justify-end gap-1">
                 <button
@@ -134,14 +101,6 @@ const UserTable = memo(function UserTable({
                   title="Editar usuario"
                 >
                   <Pencil className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onResetPassword(user.id_user, `${user.name} ${user.apellido_paterno}`)}
-                  className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all duration-200 cursor-pointer"
-                  title="Restablecer contraseña"
-                >
-                  <Key className="h-4 w-4" />
                 </button>
               </div>
             </TableCell>
@@ -156,9 +115,7 @@ const UserList = memo(function UserList() {
 
   const queryClient = useQueryClient()
   const [selectedUser, setSelectedUser] = useState<UserAdmin | null>(null)
-  const [editingUserId, setEditingUserId] = useState<number | null>(null)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [resetPasswordUserId, setResetPasswordUserId] = useState<{ id: number; name: string } | null>(null)
+  const [editingUserId, setEditingUserId] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const PAGE_SIZE = 10
 
@@ -174,7 +131,6 @@ const UserList = memo(function UserList() {
       search: filters.search || undefined,
       estado: filters.estado || undefined,
       area_id: filters.area_id || undefined,
-      rol_id: filters.rol_id || undefined,
       sede_id: filters.sede_id || undefined,
     }),
     placeholderData: keepPreviousData,
@@ -184,9 +140,9 @@ const UserList = memo(function UserList() {
 
   useEffect(() => { setPage(1) }, [filters])
 
-  const { data: roles } = useQuery({
-    queryKey: ROLES_KEY,
-    queryFn: getRoles,
+  const { data: areas } = useQuery({
+    queryKey: AREAS_KEY,
+    queryFn: getAreas,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -196,29 +152,18 @@ const UserList = memo(function UserList() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: areas } = useQuery({
-    queryKey: AREAS_KEY,
-    queryFn: getAreas,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const roleMap = useMemo(() => {
-    if (!roles) return new Map<number, string>()
-    return new Map(roles.map(r => [Number(r.id), r.nombre]))
-  }, [roles])
-
-  const sedeMap = useMemo(() => {
-    if (!sedes) return new Map<number, string>()
-    return new Map(sedes.map(s => [Number(s.id), s.nombre]))
+  const sedesMap = useMemo(() => {
+    if (!sedes) return new Map<string, string>()
+    return new Map(sedes.map(s => [s.id, s.nombre]))
   }, [sedes])
 
   const areasForFilter = useMemo(() => {
     if (!areas) return []
-    return areas.map(a => ({ id: a.id_area, nombre: a.nombre_area }))
+    return areas.map(a => ({ id: String(a.id_area), nombre: a.nombre_area }))
   }, [areas])
 
   const { mutate } = useMutation({
-    mutationFn: ({ userId, estado }: { userId: number; estado: boolean }) =>
+    mutationFn: ({ userId, estado }: { userId: string; estado: boolean }) =>
       updateUserStatus(userId, estado),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: USERS_KEY })
@@ -244,22 +189,13 @@ const UserList = memo(function UserList() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardContent className="flex items-center justify-between p-6">
+        <CardContent className="p-6">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Gestión de usuarios</h1>
             <p className="text-sm font-medium text-muted-foreground mt-1">
-              Administra los roles, áreas y accesos de los usuarios del sistema
+              Administra los usuarios del sistema
             </p>
           </div>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-sm font-bold rounded-lg shadow-sm shadow-brand-primary/10 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer shrink-0"
-          >
-            <svg className="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Crear Usuario
-          </button>
         </CardContent>
       </Card>
 
@@ -269,7 +205,6 @@ const UserList = memo(function UserList() {
             filters={filters}
             onFiltersChange={onFiltersChange}
             areas={areasForFilter}
-            roles={roles ?? []}
             sedes={sedes ?? []}
             onClearAll={clearAllFilters}
           />
@@ -280,10 +215,8 @@ const UserList = memo(function UserList() {
         <div className="bg-card border border-border rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
           <UserTable
             users={data.users}
-            roleMap={roleMap}
-            sedeMap={sedeMap}
+            sedesMap={sedesMap}
             onEdit={setEditingUserId}
-            onResetPassword={(id, name) => setResetPasswordUserId({ id, name })}
             onStatusChange={setSelectedUser}
           />
           <Pagination
@@ -299,15 +232,6 @@ const UserList = memo(function UserList() {
           <p className="text-lg font-semibold text-muted-foreground">
             No hay coincidencias con los filtros aplicados
           </p>
-          <p className="text-sm text-muted-foreground mt-1 mb-6">
-            Comienza creando el primer usuario del sistema.
-          </p>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-sm font-bold rounded-lg shadow-sm shadow-brand-primary/10 transition-all duration-200 cursor-pointer"
-          >
-            Crear Usuario
-          </button>
         </div>
       )}
       <UserStatusModal
@@ -327,17 +251,6 @@ const UserList = memo(function UserList() {
         onClose={() => setEditingUserId(null)}
         userId={editingUserId!}
       />
-      <CreateUserModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-      />
-      {resetPasswordUserId && (
-        <ResetPasswordModal
-          userId={resetPasswordUserId.id}
-          userName={resetPasswordUserId.name}
-          onClose={() => setResetPasswordUserId(null)}
-        />
-      )}
     </div>
   );
 })

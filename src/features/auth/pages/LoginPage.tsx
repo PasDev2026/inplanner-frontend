@@ -11,10 +11,10 @@ import { toast } from "sonner";
 import InputField from "@/components/ui/InputField";
 import { UserIcon, LockIcon } from "@/features/auth/components/login-icons";
 import { LoginButton } from "@/features/auth/components/LoginButton";
-import type { BackendUserProfile } from "@/features/auth/actions/auth.api";
+import type { AuthUser } from "@/features/auth/actions/auth.api";
 
 interface ApiErrors {
-  username?: string;
+  numero_documento?: string;
   password?: string;
   general?: string;
 }
@@ -23,7 +23,7 @@ export default function Login() {
 
   const [showPassword, setShowPassword] = useState(false)
   const [apiErrors, setApiErrors] = useState<ApiErrors>({})
-  const initialValues: UserLoginForm = {username: '',password: ''}
+  const initialValues: UserLoginForm = {numero_documento: '',password: ''}
   const { register, handleSubmit, formState: { errors } } = useForm<UserLoginForm>({ defaultValues: initialValues, resolver: zodResolver(loginSchema) })
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -57,10 +57,10 @@ export default function Login() {
       setApiErrors({});
     },
     onSuccess: () => {
-      const raw = localStorage.getItem('USER_PROFILE')
+      const raw = localStorage.getItem('auth_user')
       if (raw) {
-        const user = JSON.parse(raw) as BackendUserProfile
-        toast.success(`Bienvenido ${user.fullName}`, {
+        const user = JSON.parse(raw) as AuthUser
+        toast.success(`Bienvenido ${user.nombres} ${user.apellidoPaterno}`, {
           description: 'Sesión iniciada correctamente',
         })
       }
@@ -89,14 +89,14 @@ export default function Login() {
         noValidate
       >
         <InputField
-          id="username"
-          label="Usuario"
+          id="numero_documento"
+          label="Número de documento"
           type="text"
-          placeholder="Ingresa tu usuario"
+          placeholder="Ingresa tu número de documento"
           icon={<UserIcon />}
-          error={errors.username?.message || apiErrors.username}
-          {...register("username", {
-            onChange: () => clearFieldError('username'),
+          error={errors.numero_documento?.message || apiErrors.numero_documento}
+          {...register("numero_documento", {
+            onChange: () => clearFieldError('numero_documento'),
           })}
         />
 

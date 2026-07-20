@@ -1,7 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { User, Folder, Users, LogOut } from "lucide-react";
+import { User, Folder, Users, LogOut, ChevronDown } from "lucide-react";
+import { cn } from "@/features/shared/lib/utils";
 import { useAuthContext } from "@/features/auth/hooks/useAuthContext";
 import { disconnectSocket } from "@/features/shared/lib/socket";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   Sidebar as SidebarBase,
   SidebarContent,
@@ -12,6 +14,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarTrigger,
   SidebarRail,
 } from "@/components/ui/sidebar";
@@ -51,7 +56,6 @@ export default function Sidebar({
   const navLinks = [
     { to: "/profile", label: "Mi perfil", icon: User, matchPaths: ["/profile"] },
    /*  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, matchPaths: ["/dashboard"] }, */
-    { to: "/projects", label: "Mis proyectos", icon: Folder, matchPaths: ["/projects"] },
     /* { to: "/mis-tareas", label: "Mis tareas", icon: ListChecks, matchPaths: ["/mis-tareas"] },
     { to: "/calendario", label: "Calendario", icon: CalendarDays, matchPaths: ["/calendario"] },
     { to: "/reportes", label: "Reportes", icon: BarChart3, matchPaths: ["/reportes"] }, */
@@ -74,6 +78,41 @@ export default function Sidebar({
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
+              {/* Mis proyectos — collapsible con submenu */}
+              <SidebarMenuItem>
+                <Collapsible defaultOpen className="w-full">
+                  <CollapsibleTrigger className="w-full">
+                    <SidebarMenuButton tooltip="Mis proyectos">
+                      <Folder />
+                      <span>Mis proyectos</span>
+                      <ChevronDown className="ml-auto transition-transform group-data-[state=open]:rotate-180" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton
+                          isActive={location.pathname === '/projects'}
+                          onClick={() => navigate('/projects')}
+                          className={cn("w-full", location.pathname === '/projects' && "bg-sidebar-accent text-sidebar-accent-foreground font-medium")}
+                        >
+                          <span>Activos</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton
+                          isActive={location.pathname === '/projects/completed'}
+                          onClick={() => navigate('/projects/completed')}
+                          className={cn("w-full", location.pathname === '/projects/completed' && "bg-sidebar-accent text-sidebar-accent-foreground font-medium")}
+                        >
+                          <span>Completados</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </Collapsible>
+              </SidebarMenuItem>
+
               {navLinks.map(({ to, label, icon: Icon, matchPaths }) => (
                 <SidebarMenuItem key={to}>
                   <SidebarMenuButton

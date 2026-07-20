@@ -12,8 +12,8 @@ import {
 
 type ResponsiblePopoverProps = {
   projectId: number
-  assignedTo: { user_id: number }[]
-  onAssign: (userIds: number[]) => void
+  assignedTo: { user_id: string }[]
+  onAssign: (userIds: string[]) => void
   isPending?: boolean
 }
 
@@ -41,7 +41,7 @@ export default function ResponsiblePopover({ projectId, assignedTo, onAssign, is
 
   const selectedIds = new Set(assignedTo.map((u) => u.user_id))
 
-  const toggleUser = (userId: number) => {
+  const toggleUser = (userId: string) => {
     const next = new Set(selectedIds)
     if (next.has(userId)) next.delete(userId)
     else next.add(userId)

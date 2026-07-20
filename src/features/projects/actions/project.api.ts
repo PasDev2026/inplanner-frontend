@@ -9,7 +9,7 @@ export type ProjectFilters = {
   sede_id?: string;
   status?: string;
   priority?: string;
-  manager_id?: number;
+  manager_id?: string;
   responsible_id?: string;
   page?: number;
   limit?: number;
@@ -20,8 +20,8 @@ export type ProjectFilters = {
 export async function createProject(formData: {
   name_project: string;
   description_project?: string;
-  manager_id: number;
-  sede_id?: number;
+  manager_id: string;
+  sede_id?: string;
   start_date?: string | null;
   due_date?: string | null;
   status?: number;
@@ -77,7 +77,7 @@ export async function updateProjectField(id: number, fields: Partial<BackendProj
   }
 }
 
-export async function deleteProject(id: number) {
+export async function deleteProject(id: string | number) {
   try {
     const { data } = await api.delete<string>(`/projects/${id}`);
     return data;
@@ -95,7 +95,7 @@ export async function getProjectTasks(projectId: number, page = 1, limit = 0) {
   }
 }
 
-export async function createResponsible(projectId: number, userId: number) {
+export async function createResponsible(projectId: number, userId: string) {
   try {
     const { data } = await api.post(`/projects/${projectId}/responsibles`, { user_id: userId });
     return data;
@@ -113,7 +113,7 @@ export async function getResponsibles(projectId: number) {
   }
 }
 
-export async function removeResponsible(projectId: number, userId: number) {
+export async function removeResponsible(projectId: number, userId: string) {
   try {
     const { data } = await api.delete(`/projects/${projectId}/responsibles/${userId}`);
     return data;

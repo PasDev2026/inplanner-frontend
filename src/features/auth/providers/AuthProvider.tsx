@@ -6,64 +6,59 @@ import {
   logoutApi,
   getUserApi,
 } from '@/features/auth/actions/auth.api'
-import type { BackendUserProfile } from '@/features/auth/actions/auth.api'
+import type { AuthUser } from '@/features/auth/actions/auth.api'
 
 interface AuthContextType {
-  user: BackendUserProfile | null
+  user: AuthUser | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (credentials: { username: string; password: string }) => Promise<void>
+  login: (credentials: { numero_documento: string; password: string }) => Promise<void>
   logout: () => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<BackendUserProfile | null>(null)
+  const [user, setUser] = useState<AuthUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
   useEffect(() => {
-    const profile = localStorage.getItem('USER_PROFILE')
-    if (!profile) {
+    const raw = localStorage.getItem('auth_user')
+    if (!raw) {
       setIsLoading(false)
       return
-    }
-
-    try {
-      const cached = localStorage.getItem('USER_PROFILE')
-      if (cached) {
-        setUser(JSON.parse(cached))
-      }
-    } catch {
-      // cached profile may be invalid JSON, ignore
     }
 
     getUserApi()
       .then((userData) => {
         if (userData) {
           setUser(userData)
-          localStorage.setItem('USER_PROFILE', JSON.stringify(userData))
+          localStorage.setItem('auth_user', JSON.stringify(userData))
         }
       })
       .catch(() => {
-        localStorage.removeItem('USER_PROFILE')
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('refresh_token')
+        localStorage.removeItem('auth_user')
         setUser(null)
       })
       .finally(() => setIsLoading(false))
   }, [])
 
-  const login = useCallback(async (credentials: { username: string; password: string }) => {
-    const response = await authenticateApi(credentials)
-    localStorage.setItem('USER_PROFILE', JSON.stringify(response.user))
-    setUser(response.user)
+  const login = useCallback(async (credentials: { numero_documento: string; password: string }) => {
+    const authUser = await authenticateApi(credentials)
+    localStorage.setItem('auth_user', JSON.stringify(authUser))
+    setUser(authUser)
   }, [])
 
   const logout = useCallback(async () => {
     await logoutApi()
     queryClient.clear()
-    localStorage.removeItem('USER_PROFILE')
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('refresh_token')
+    localStorage.removeItem('auth_user')
     setUser(null)
     navigate('/auth/login?session=closed', { replace: true })
   }, [queryClient, navigate])

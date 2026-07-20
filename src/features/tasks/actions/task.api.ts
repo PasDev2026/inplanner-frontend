@@ -47,7 +47,7 @@ export async function deleteTask(id: number) {
   }
 }
 
-export async function updateTaskStatus(id: number, dto: { status: number; completed_by_id?: number }) {
+export async function updateTaskStatus(id: number, dto: { status: number; completed_by_id?: string }) {
   try {
     const { data } = await api.patch<BackendTask>(`/tasks/${id}/status`, dto);
     return data;

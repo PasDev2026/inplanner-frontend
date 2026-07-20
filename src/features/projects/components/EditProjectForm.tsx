@@ -33,7 +33,7 @@ export default function EditProjectForm({
     defaultValues: {
       name_project: data.name_project,
       description_project: data.description_project ?? "",
-      sede_id: data.sede_id != null ? String(data.sede_id) : "",
+      sede_id: data.sede_id ?? "",
       start_date: data.start_date ? data.start_date.split('T')[0] : null,
       due_date: data.due_date ? data.due_date.split('T')[0] : null,
       privacy_level: String(data.privacy_level ?? 0),
@@ -47,7 +47,7 @@ export default function EditProjectForm({
       updateProjectField(projectId, {
         name_project: formData.name_project,
         description_project: formData.description_project,
-        sede_id: formData.sede_id ? Number(formData.sede_id) : undefined,
+        sede_id: formData.sede_id || undefined,
         start_date: formData.start_date,
         due_date: formData.due_date,
         privacy_level: Number(formData.privacy_level),

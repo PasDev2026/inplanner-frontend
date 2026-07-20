@@ -8,10 +8,10 @@ type PageSpinnerProps = {
   centered?: boolean
 }
 
-const sizeToClass: Record<number, string> = {
-  15: "size-11",
-  12: "size-9",
-  10: "size-8",
+const sizeToVariant: Record<number, "sm" | "md" | "lg" | "xl"> = {
+  15: "xl",
+  12: "lg",
+  10: "md",
 }
 
 export default function PageSpinner({
@@ -22,7 +22,8 @@ export default function PageSpinner({
 }: PageSpinnerProps) {
   const loader = (
     <Spinner
-      className={cn("text-foreground", sizeToClass[size], className)}
+      size={sizeToVariant[size] ?? "md"}
+      className={cn(className)}
       aria-label="Cargando..."
     />
   )

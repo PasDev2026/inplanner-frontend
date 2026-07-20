@@ -4,7 +4,7 @@ import { createResponsible, removeResponsible, getResponsibles } from "@/feature
 
 type UseUpdateProjectResponsibleParams = {
     projectId: number
-    userIds: number[]
+    userIds: string[]
 }
 
 export const useUpdateProjectResponsible = () => {
@@ -12,7 +12,7 @@ export const useUpdateProjectResponsible = () => {
 
     return useMutation({
         mutationFn: async ({ projectId, userIds }: UseUpdateProjectResponsibleParams) => {
-            const current = await getResponsibles(projectId) as { user_id: number }[]
+            const current = await getResponsibles(projectId) as { user_id: string }[]
             const currentIds = current.map((r) => r.user_id)
             const toAdd = userIds.filter((id) => !currentIds.includes(id))
             const toRemove = currentIds.filter((id) => !userIds.includes(id))

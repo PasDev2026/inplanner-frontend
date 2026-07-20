@@ -52,7 +52,7 @@ export default function ProjectDetailPage() {
         </CardContent>
       </Card>
 
-      <TasksView projectId={projectId} canEdit={!!user && isManager(data.manager_id, user.idUser)} />
+      <TasksView projectId={projectId} canEdit={!!user && isManager(data.manager_id, user.id)} />
     </div>
   );
 

@@ -30,6 +30,7 @@ export default function Router() {
                 <Route element={<AppLayout/>}>
                     <Route path="/dashboard" element={<DashboardPage />}/>
                     <Route path="/projects" element={<ProjectListPage/>}/>
+                    <Route path="/projects/completed" element={<ProjectListPage/>}/>
                     <Route path="/mis-tareas" element={<MyTasksPage />}/>
                     <Route path="/calendario" element={<CalendarPage />}/>
                     <Route path="/reportes" element={<ReportsPage />}/>

@@ -68,8 +68,8 @@ export default function CreateProjectSheet({ open, onOpenChange }: CreateProject
     mutate({
       name_project: formData.name_project,
       description_project: formData.description_project,
-      manager_id: user?.idUser ?? 0,
-      sede_id: formData.sede_id ? Number(formData.sede_id) : undefined,
+      manager_id: user?.id ?? '',
+      sede_id: formData.sede_id || undefined,
       start_date: formData.start_date,
       due_date: formData.due_date,
       privacy_level: Number(formData.privacy_level),

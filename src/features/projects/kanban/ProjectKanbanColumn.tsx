@@ -92,7 +92,13 @@ const ProjectKanbanColumn = memo(function ProjectKanbanColumn({ status, projects
           )}
         </SortableContext>
         {projects.length === 0 && (
-          <p className="text-xs text-muted-foreground text-center py-8 italic">Arrastra proyectos aquí</p>
+          <div className="flex flex-col items-center justify-center py-10 gap-2.5">
+            <div className={`w-12 h-12 rounded-full border-2 border-dashed ${colors.dotBorder} flex items-center justify-center`}>
+              <div className={`w-3 h-3 rounded-full ${colors.dot}`} />
+            </div>
+            <p className="text-sm font-semibold text-foreground">No hay proyectos</p>
+            <p className="text-xs text-muted-foreground">Arrastra proyectos aquí</p>
+          </div>
         )}
       </div>
     </div>

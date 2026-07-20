@@ -1,7 +1,7 @@
 import api from "@/features/shared/lib/axios"
 
 export type AvailableUser = {
-  id_user: number
+  id_user: string
   name: string
   apellido_paterno: string | null
   apellido_materno: string | null

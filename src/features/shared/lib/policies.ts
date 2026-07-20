@@ -1,4 +1,4 @@
-const isManager = (managerId: number, userId: number) => {
+const isManager = (managerId: string, userId: string) => {
     return managerId === userId
 }
 export default isManager

@@ -28,12 +28,12 @@ export default function ChangePasswordProfile() {
 
   const { mutate } = useMutation({
     mutationFn: (formData: UpdateCurrentUserPasswordForm) =>
-      changePasswordProfile({ current_password: formData.current_password, new_password: formData.password }),
+      changePasswordProfile({ password_actual: formData.current_password, password_nueva: formData.password, repetir_password: formData.password_confirmation }),
     onError: (error) => {
       toast.error(error.message)
     },
     onSuccess: (data) => {
-      toast.success(data.message)
+      toast.success(data.mensaje)
       navigate('/projects')
     },
   });
