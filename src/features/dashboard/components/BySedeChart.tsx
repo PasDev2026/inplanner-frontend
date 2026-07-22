@@ -89,7 +89,7 @@ export default function BySedeChart() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="font-semibold">Proyectos y tareas por sede</CardTitle>
-          <Select value={selected} onValueChange={setSelected}>
+          <Select value={selected} onValueChange={(v) => { if (v) setSelected(v); }}>
             <Select.Trigger className="h-8 w-[160px] rounded-lg">
               <Select.Value />
             </Select.Trigger>
