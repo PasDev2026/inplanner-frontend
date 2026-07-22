@@ -46,7 +46,7 @@ export default function ProjectsView({ tab = 'active' }: ProjectsViewProps) {
       const result = await getProjects({
         search: filters.debouncedFilters.search || undefined,
         sede_id: filters.debouncedFilters.sede_id || undefined,
-        status: baseStatus,
+        status: filters.debouncedFilters.status || baseStatus,
         responsible_id: filters.debouncedFilters.responsible_id || undefined,
         priority: filters.debouncedFilters.priority || undefined,
         dateFrom: filters.debouncedFilters.dateFrom || undefined,

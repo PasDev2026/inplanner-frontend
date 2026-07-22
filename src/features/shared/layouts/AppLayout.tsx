@@ -46,6 +46,7 @@ export default function AppLayout() {
           apellido_paterno={user?.apellidoPaterno ?? ""}
           email={user?.email ?? ""}
           isAdmin={user?.roles?.some(r => r.rolCodigo === 'SUPER_ADMINISTRADOR') ?? false}
+          canAccessDashboard={user?.roles?.some(r => r.rolCodigo === 'SUPER_ADMINISTRADOR' || r.rolCodigo === 'JEFATURA') ?? false}
         />
         <div className="bg-background flex flex-col flex-1 min-w-0">
             <Header />
