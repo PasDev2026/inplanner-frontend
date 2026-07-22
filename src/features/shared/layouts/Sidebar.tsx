@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { User, Folder, Users, LogOut, ChevronDown } from "lucide-react";
+import { User, Folder, Users, LogOut, ChevronDown, LayoutDashboard } from "lucide-react";
 import { cn } from "@/features/shared/lib/utils";
 import { useAuthContext } from "@/features/auth/hooks/useAuthContext";
 import { disconnectSocket } from "@/features/shared/lib/socket";
@@ -36,6 +36,7 @@ type SidebarProps = {
   apellido_paterno: string;
   email?: string;
   isAdmin: boolean;
+  canAccessDashboard: boolean;
 };
 
 export default function Sidebar({
@@ -43,6 +44,7 @@ export default function Sidebar({
   apellido_paterno,
   email,
   isAdmin,
+  canAccessDashboard,
 }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -55,7 +57,9 @@ export default function Sidebar({
 
   const navLinks = [
     { to: "/profile", label: "Mi perfil", icon: User, matchPaths: ["/profile"] },
-   /*  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, matchPaths: ["/dashboard"] }, */
+    ...(canAccessDashboard
+      ? [{ to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, matchPaths: ["/dashboard"] }]
+      : []),
     /* { to: "/mis-tareas", label: "Mis tareas", icon: ListChecks, matchPaths: ["/mis-tareas"] },
     { to: "/calendario", label: "Calendario", icon: CalendarDays, matchPaths: ["/calendario"] },
     { to: "/reportes", label: "Reportes", icon: BarChart3, matchPaths: ["/reportes"] }, */
@@ -82,7 +86,7 @@ export default function Sidebar({
               <SidebarMenuItem>
                 <Collapsible defaultOpen className="w-full">
                   <CollapsibleTrigger className="w-full">
-                    <SidebarMenuButton tooltip="Mis proyectos">
+                    <SidebarMenuButton render={<div />}>
                       <Folder />
                       <span>Mis proyectos</span>
                       <ChevronDown className="ml-auto transition-transform group-data-[state=open]:rotate-180" />
