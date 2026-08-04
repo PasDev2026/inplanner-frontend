@@ -6,7 +6,6 @@ export interface DashboardStats {
   projectCounts: { total: number; planning: number; active: number; onHold: number; completed: number; cancelled: number }
   taskCounts: { total: number; pending: number; inProgress: number; underReview: number; completed: number; overdue: number }
   tasksByUser: { userId: string; name: string; email: string; pending: number; total: number }[]
-  upcomingDeadlines: BackendTask[]
   recentProjects: BackendProject[]
 }
 
@@ -23,6 +22,19 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
     return data
   } catch (error) {
     handleApiError(error, "Error al cargar estadísticas del dashboard")
+  }
+}
+
+export type UpcomingTaskItem = BackendTask & { project?: { name_project: string } }
+
+export async function fetchUpcomingDeadlines(limit: number): Promise<UpcomingTaskItem[]> {
+  try {
+    const { data } = await api.get<UpcomingTaskItem[]>("/dashboard/upcoming-deadlines", {
+      params: { limit },
+    })
+    return data
+  } catch (error) {
+    handleApiError(error, "Error al cargar los próximos vencimientos")
   }
 }
 

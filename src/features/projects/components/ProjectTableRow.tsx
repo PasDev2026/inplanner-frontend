@@ -18,6 +18,7 @@ import TaskTableSection from "@/features/tasks/components/TaskTableSection"
 import StatusPopover from "./StatusPopover"
 import ResponsiblePopover from "@/features/shared/components/ResponsiblePopover"
 import PriorityPopover from "@/features/shared/components/PriorityPopover"
+import EditProjectSheet from "./EditProjectSheet"
 import { useUpdateProject } from "../hooks/useUpdateProject"
 import { useUpdateProjectResponsible } from "../hooks/useUpdateProjectResponsible"
 import { TableRow, TableCell } from "@/components/ui/table"
@@ -38,6 +39,7 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
     const updateProjectResponsibleHook = useUpdateProjectResponsible()
     const [isEditing, setIsEditing] = useState(false)
     const [editValue, setEditValue] = useState("")
+    const [editOpen, setEditOpen] = useState(false)
     const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     const sedeMap = useMemo(() => new Map(sedes.map(s => [s.id, s.nombre])), [sedes])
@@ -171,7 +173,7 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
                             </DropdownMenuItem>
                             {isManager(project.manager_id, user.id) && (
                                 <>
-                                    <DropdownMenuItem onClick={() => navigate(`/projects/${project.id_project}/edit`)}>
+                                    <DropdownMenuItem onClick={() => setEditOpen(true)}>
                                         Editar Proyecto
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
@@ -201,6 +203,8 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
                     </TableCell>
                 </TableRow>
             )}
+
+            <EditProjectSheet open={editOpen} onOpenChange={setEditOpen} project={project} />
         </>
     )
 }

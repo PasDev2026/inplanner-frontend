@@ -7,16 +7,16 @@ import { Select } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import DeadlineBadge from "@/components/ui/DeadlineBadge"
 import { TASK_STATUS_MAP } from "@/features/shared/constants/task-status.constant"
-import { fetchUpcomingDeadlines } from "@/features/dashboard/actions/dashboard.api"
-import { UPCOMING_DEADLINES_KEY } from "@/features/dashboard/lib/dashboard-keys"
+import { fetchMyUpcomingDeadlines } from "@/features/mi-dashboard/actions/mi-dashboard.api"
+import { MY_UPCOMING_DEADLINES_KEY } from "@/features/mi-dashboard/lib/mi-dashboard-keys"
 
 const LIMIT_OPTIONS = [10, 25, 50, 100]
 
-export default function UpcomingTasks() {
+export default function MyUpcomingTasks() {
   const [limit, setLimit] = useState(10)
   const { data, isLoading } = useQuery({
-    queryKey: [...UPCOMING_DEADLINES_KEY, limit],
-    queryFn: () => fetchUpcomingDeadlines(limit),
+    queryKey: [...MY_UPCOMING_DEADLINES_KEY, limit],
+    queryFn: () => fetchMyUpcomingDeadlines(limit),
     placeholderData: keepPreviousData,
   })
 
@@ -59,24 +59,20 @@ export default function UpcomingTasks() {
               </TableHeader>
               <TableBody>
                 {!data || data.length === 0 ? (
-                  <TableRow className="even:bg-muted/30 hover:bg-muted/50 transition-colors">
-                    <TableCell colSpan={4} className="text-center text-muted-foreground">
-                      No hay tareas pendientes
-                    </TableCell>
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground">No hay tareas pendientes</TableCell>
                   </TableRow>
                 ) : (
                   data.map((task) => {
                     const statusInfo = TASK_STATUS_MAP[task.status]
                     return (
-                      <TableRow key={task.id_task} className="even:bg-muted/30 hover:bg-muted/50 transition-colors">
+                      <TableRow key={task.id_task}>
                         <TableCell className="font-medium">{task.task_name}</TableCell>
-                        <TableCell>{task.project?.name_project ?? "-"}</TableCell>
+                        <TableCell>{task.project_name}</TableCell>
                         <TableCell>
-                          <DeadlineBadge dueDate={task.due_date} isOverdue={task.due_date ? new Date(task.due_date) < new Date() : false} />
+                          <DeadlineBadge dueDate={task.due_date} isOverdue={new Date(task.due_date) < new Date()} />
                         </TableCell>
-                        <TableCell>
-                          <Badge className={statusInfo?.style}>{statusInfo?.label ?? task.status}</Badge>
-                        </TableCell>
+                        <TableCell><Badge className={statusInfo?.style}>{statusInfo?.label ?? task.status}</Badge></TableCell>
                       </TableRow>
                     )
                   })

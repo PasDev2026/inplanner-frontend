@@ -8,13 +8,13 @@ import { AuthProvider } from "@/features/auth/providers/AuthProvider"
 
 const ProjectListPage = lazy(() => import("@/features/projects/pages/ProjectListPage"))
 const UserListPage = lazy(() => import("@/features/admin/pages/UserListPage"))
-const ProjectEditPage = lazy(() => import("@/features/projects/pages/ProjectEditPage"))
 const ProjectDetailPage = lazy(() => import("@/features/projects/pages/ProjectDetailPage"))
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"))
 const ProfilePage = lazy(() => import("@/features/profile/pages/ProfilePage"))
 const ChangePasswordProfile = lazy(() => import("@/features/profile/components/ChangePasswordProfile"))
 const DashboardPage = lazy(() => import("@/features/dashboard/pages/DashboardPage"))
 const MyTasksPage = lazy(() => import("@/features/my-tasks/pages/MyTasksPage"))
+const MiDashboardPage = lazy(() => import("@/features/mi-dashboard/pages/MiDashboardPage"))
 const CalendarPage = lazy(() => import("@/features/calendar/pages/CalendarPage"))
 const ReportsPage = lazy(() => import("@/features/reports/pages/ReportsPage"))
 
@@ -32,11 +32,11 @@ export default function Router() {
                     <Route path="/projects" element={<ProjectListPage/>}/>
                     <Route path="/projects/completed" element={<ProjectListPage/>}/>
                     <Route path="/mis-tareas" element={<MyTasksPage />}/>
+                    <Route path="/mi-dashboard" element={<MiDashboardPage />}/>
                     <Route path="/calendario" element={<CalendarPage />}/>
                     <Route path="/reportes" element={<ReportsPage />}/>
                     <Route path="/admin/users" element={<UserListPage/>}/>
                     <Route path="/projects/:projectId/details-projects" element={<ProjectDetailPage />}/>
-                    <Route path="/projects/:projectId/edit" element={<ProjectEditPage/>}/>
 
                     <Route element={<ProfileLayout/>}>
                         <Route path="/profile" element={<ProfilePage />}/>

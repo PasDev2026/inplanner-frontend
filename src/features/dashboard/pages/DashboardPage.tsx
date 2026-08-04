@@ -55,7 +55,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex flex-col gap-6">
             <OverviewChart taskCounts={data.taskCounts} />
-            <UpcomingTasks tasks={data.upcomingDeadlines} />
+            <UpcomingTasks />
             <ProjectDistribution projectCounts={data.projectCounts} taskCounts={data.taskCounts} />
             <BySedeChart />
           </div>

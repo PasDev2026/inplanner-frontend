@@ -41,7 +41,7 @@ api.interceptors.response.use(
     response => response,
     async error => {
         const originalRequest = error.config
-        if (error.response?.status !== 401 || originalRequest._retry) {
+        if (error.response?.status !== 401 || originalRequest._retry || originalRequest.url?.includes('/auth/refresh')) {
             return Promise.reject(error)
         }
 
@@ -72,6 +72,7 @@ api.interceptors.response.use(
             localStorage.removeItem('auth_token')
             localStorage.removeItem('refresh_token')
             localStorage.removeItem('auth_user')
+            window.dispatchEvent(new Event('auth:expired'))
             return Promise.reject(error)
         } finally {
             isRefreshing = false

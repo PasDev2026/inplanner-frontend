@@ -117,6 +117,19 @@ export default function Sidebar({
                 </Collapsible>
               </SidebarMenuItem>
 
+              {/* Mi Dashboard — visible a todos los autenticados */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={location.pathname === '/mi-dashboard'}
+                  onClick={() => navigate('/mi-dashboard')}
+                  tooltip="Mi Dashboard"
+                  className={location.pathname === '/mi-dashboard' ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""}
+                >
+                  <LayoutDashboard />
+                  <span>Mi Dashboard</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
               {navLinks.map(({ to, label, icon: Icon, matchPaths }) => (
                 <SidebarMenuItem key={to}>
                   <SidebarMenuButton

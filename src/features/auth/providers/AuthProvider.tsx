@@ -63,6 +63,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     navigate('/auth/login?session=closed', { replace: true })
   }, [queryClient, navigate])
 
+  useEffect(() => {
+    const onExpired = () => {
+      queryClient.clear()
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('refresh_token')
+      localStorage.removeItem('auth_user')
+      setUser(null)
+      navigate('/auth/login?session=expired', { replace: true })
+    }
+    window.addEventListener('auth:expired', onExpired)
+    return () => window.removeEventListener('auth:expired', onExpired)
+  }, [queryClient, navigate])
+
   const value = useMemo(() => ({
     user,
     isAuthenticated: !!user,
