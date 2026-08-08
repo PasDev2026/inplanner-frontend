@@ -55,6 +55,25 @@ export interface BackendTask {
   position: number;
 }
 
+export interface ActivityReportItem {
+  id_task: number;
+  task_name: string;
+  task_description: string | null;
+  status: number;
+  priority: number;
+  start_date: string | null;
+  due_date: string | null;
+  created_at: string;
+  updated_at: string;
+  id_project: number;
+  project_name: string;
+  project_status: number;
+  project_due_date: string | null;
+  sede_id: string | null;
+  manager_id: string | null;
+  assignments?: { user_id: string; name: string | null; apellido_paterno: string | null }[];
+}
+
 export interface BackendPaginatedResponse<T> {
   data: T[];
   meta: {

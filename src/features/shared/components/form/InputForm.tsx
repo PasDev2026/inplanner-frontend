@@ -14,6 +14,7 @@ type InputFormProps<T extends FieldValues> = {
   className?: string
   labelClassName?: string
   suffix?: ReactNode
+  hideErrors?: boolean
 }
 
 export function InputForm<T extends FieldValues>({
@@ -27,6 +28,7 @@ export function InputForm<T extends FieldValues>({
   className,
   labelClassName,
   suffix,
+  hideErrors,
 }: InputFormProps<T>) {
   const error = errors[name]
   return (
@@ -58,7 +60,7 @@ export function InputForm<T extends FieldValues>({
           {...register(name)}
         />
       )}
-      {error?.message && <p className="text-sm text-destructive">{error.message as string}</p>}
+      {!hideErrors && error?.message && <p className="text-sm text-destructive">{error.message as string}</p>}
     </div>
   )
 }

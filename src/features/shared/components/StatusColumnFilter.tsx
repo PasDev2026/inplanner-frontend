@@ -6,12 +6,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-type StatusColumnFilterProps = {
-    selected: string[]
-    onChange: (values: string[]) => void
-}
-
-type StatusOption = {
+export type StatusOption = {
     value: string
     label: string
     dotColor: string
@@ -27,11 +22,27 @@ const PROJECT_OPTIONS: StatusOption[] = [
     { value: "4", label: "Cancelado", dotColor: "bg-muted-foreground", hoverBg: "hover:bg-muted", textColor: "text-muted-foreground" },
 ]
 
-export default function StatusColumnFilter({ selected, onChange }: StatusColumnFilterProps) {
+const TASK_OPTIONS: StatusOption[] = [
+    { value: "0", label: "Pendiente", dotColor: "bg-muted-foreground", hoverBg: "hover:bg-muted", textColor: "text-muted-foreground" },
+    { value: "1", label: "En espera", dotColor: "bg-warning", hoverBg: "hover:bg-warning/10", textColor: "text-warning" },
+    { value: "2", label: "En progreso", dotColor: "bg-info", hoverBg: "hover:bg-info/10", textColor: "text-info" },
+    { value: "3", label: "En revisión", dotColor: "bg-warning", hoverBg: "hover:bg-warning/10", textColor: "text-warning" },
+    { value: "4", label: "Completado", dotColor: "bg-success", hoverBg: "hover:bg-success/10", textColor: "text-success" },
+]
+
+type StatusColumnFilterProps = {
+    selected: string[]
+    onChange: (values: string[]) => void
+    variant?: "project" | "task"
+}
+
+export default function StatusColumnFilter({ selected, onChange, variant = "project" }: StatusColumnFilterProps) {
     const [open, setOpen] = useState(false)
 
+    const options = variant === "task" ? TASK_OPTIONS : PROJECT_OPTIONS
+
     const triggerLabel = selected.length
-        ? selected.map(v => PROJECT_OPTIONS.find(o => o.value === v)?.label ?? v).join(", ")
+        ? selected.map(v => options.find(o => o.value === v)?.label ?? v).join(", ")
         : "Estado"
 
     return (
@@ -47,7 +58,7 @@ export default function StatusColumnFilter({ selected, onChange }: StatusColumnF
             />
             <PopoverContent sideOffset={6} align="start" className="w-48 p-1.5">
                 <div className="space-y-0.5">
-                    {PROJECT_OPTIONS.map((opt) => {
+                    {options.map((opt) => {
                         const isSelected = selected.includes(opt.value)
                         return (
                             <button

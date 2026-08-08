@@ -16,7 +16,7 @@ export type CheckPasswordForm = z.infer<typeof checkPasswordSchema>
 
 export const updateCurrentUserPasswordSchema = z.object({
     current_password: z.string().min(1, "El password actual es obligatorio"),
-    password: z.string().min(8, "El Password debe ser mínimo de 8 caracteres"),
+    password: z.string().min(8, "El Password debe ser mínimo de 8 caracteres").regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*.])/, "Debe contener mayúscula, minúscula, número y carácter especial"),
     password_confirmation: z.string().min(1, "Este campo es obligatorio"),
 }).refine(data => data.password === data.password_confirmation, {
     message: "Los Passwords no son iguales",

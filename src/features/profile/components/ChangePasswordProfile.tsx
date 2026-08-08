@@ -55,7 +55,12 @@ export default function ChangePasswordProfile() {
         </p>
 
         <form
-          onSubmit={handleSubmit(handleChangePassword)}
+          onSubmit={handleSubmit(handleChangePassword, (errs) => {
+            const msgs = Object.values(errs)
+              .map((e) => e.message)
+              .filter(Boolean)
+            if (msgs.length) toast.error(msgs.join(' '))
+          })}
           className="mt-10 space-y-6"
           noValidate
         >
@@ -64,6 +69,7 @@ export default function ChangePasswordProfile() {
             name="current_password"
             register={register}
             errors={errors}
+            hideErrors
             type={showPasswords.current_password ? "text" : "password"}
             suffix={
               <button
@@ -90,6 +96,7 @@ export default function ChangePasswordProfile() {
             name="password"
             register={register}
             errors={errors}
+            hideErrors
             type={showPasswords.password ? "text" : "password"}
             suffix={
               <button
@@ -116,6 +123,7 @@ export default function ChangePasswordProfile() {
             name="password_confirmation"
             register={register}
             errors={errors}
+            hideErrors
             type={showPasswords.password_confirmation ? "text" : "password"}
             suffix={
               <button
