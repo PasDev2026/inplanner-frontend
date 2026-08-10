@@ -4,6 +4,7 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 //import Footer from "./Footer";
 import { useAuthContext } from "@/features/auth/hooks/useAuthContext";
+import { getSedeSlug } from "@/features/auth/actions/auth.api";
 import PageSpinner from "@/components/ui/PageSpinner";
 import SocketManager from "@/components/SocketManager";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -20,12 +21,12 @@ export default function AppLayout() {
     const hasSession = localStorage.getItem('auth_user')
 
     if (hasSession) {
-      navigate('/auth/login', { replace: true })
+      navigate(`/${getSedeSlug()}/auth/login`, { replace: true })
       return
     }
 
-    if (!window.location.pathname.startsWith('/auth/login')) {
-      navigate('/auth/login?session=expired', { replace: true })
+    if (!window.location.pathname.includes('/auth/login')) {
+      navigate(`/${getSedeSlug()}/auth/login?session=expired`, { replace: true })
     }
   }, [isLoading, isAuthenticated, navigate])
 

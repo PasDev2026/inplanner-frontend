@@ -5,14 +5,15 @@ import {
   authenticate as authenticateApi,
   logoutApi,
   getUserApi,
+  getSedeSlug,
 } from '@/features/auth/actions/auth.api'
-import type { AuthUser } from '@/features/auth/actions/auth.api'
+import type { AuthUser, LoginCredentials } from '@/features/auth/actions/auth.api'
 
 interface AuthContextType {
   user: AuthUser | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (credentials: { numero_documento: string; password: string }) => Promise<void>
+  login: (credentials: LoginCredentials) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -47,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setIsLoading(false))
   }, [])
 
-  const login = useCallback(async (credentials: { numero_documento: string; password: string }) => {
+  const login = useCallback(async (credentials: LoginCredentials) => {
     const authUser = await authenticateApi(credentials)
     localStorage.setItem('auth_user', JSON.stringify(authUser))
     setUser(authUser)
@@ -60,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('refresh_token')
     localStorage.removeItem('auth_user')
     setUser(null)
-    navigate('/auth/login?session=closed', { replace: true })
+    navigate(`/${getSedeSlug()}/auth/login?session=closed`, { replace: true })
   }, [queryClient, navigate])
 
   useEffect(() => {
@@ -70,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('refresh_token')
       localStorage.removeItem('auth_user')
       setUser(null)
-      navigate('/auth/login?session=expired', { replace: true })
+      navigate(`/${getSedeSlug()}/auth/login?session=expired`, { replace: true })
     }
     window.addEventListener('auth:expired', onExpired)
     return () => window.removeEventListener('auth:expired', onExpired)

@@ -3,8 +3,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/features/auth/schemas/login.schema";
 import type { UserLoginForm } from "@/features/auth/schemas/login.schema";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuthContext } from "@/features/auth/hooks/useAuthContext";
+import { getSedeSlug } from "@/features/auth/actions/auth.api";
 import { Eye, EyeOff } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -27,6 +28,7 @@ export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm<UserLoginForm>({ defaultValues: initialValues, resolver: zodResolver(loginSchema) })
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const { sede } = useParams()
 
   useEffect(() => {
     const reason = searchParams.get('session')
@@ -70,7 +72,7 @@ export default function Login() {
 
   const handleLogin = (formData: UserLoginForm) => {
     setApiErrors({})
-    mutate(formData)
+    mutate({ ...formData, sede_slug: sede ?? getSedeSlug() })
   }
 
   const clearFieldError = (field: keyof ApiErrors) => {

@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 
 import { connectSocket, disconnectSocket } from '@/features/shared/lib/socket'
 import { useActivityTracking } from '@/features/shared/hooks/useActivityTracking'
+import { getSedeSlug } from '@/features/auth/actions/auth.api'
 
 const FALLBACK_IDLE_MS = 8 * 60 * 60 * 1000
 
@@ -21,7 +22,7 @@ export default function SocketManager() {
                 localStorage.removeItem('auth_user')
                 queryClient.clear()
                 disconnectSocket()
-                navigate('/auth/login?session=expired')
+                navigate(`/${getSedeSlug()}/auth/login?session=expired`)
             }, FALLBACK_IDLE_MS)
         }
 
@@ -32,7 +33,7 @@ export default function SocketManager() {
             const reason = payload.message.includes('desactivada') ? 'disabled'
                          : payload.message.includes('inactividad') ? 'expired'
                          : 'closed'
-            navigate(`/auth/login?session=${reason}`)
+            navigate(`/${getSedeSlug()}/auth/login?session=${reason}`)
         }
 
         startFallbackTimer()

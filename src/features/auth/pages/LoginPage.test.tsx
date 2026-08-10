@@ -26,12 +26,12 @@ function createQueryClient() {
   });
 }
 
-function renderLogin(initialEntries = ['/auth/login']) {
+function renderLogin(initialEntries = ['/hub/auth/login']) {
   return render(
     <QueryClientProvider client={createQueryClient()}>
       <MemoryRouter initialEntries={initialEntries}>
         <Routes>
-          <Route path="/auth/login" element={<Login />} />
+          <Route path="/:sede/auth/login" element={<Login />} />
           <Route path="/dashboard" element={<div>Dashboard Page</div>} />
         </Routes>
       </MemoryRouter>
@@ -98,7 +98,7 @@ describe('LoginPage', () => {
   });
 
   it('shows session expired toast when ?session=expired is present', async () => {
-    renderLogin(['/auth/login?session=expired']);
+    renderLogin(['/hub/auth/login?session=expired']);
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
@@ -109,7 +109,7 @@ describe('LoginPage', () => {
   });
 
   it('shows session closed toast when ?session=closed is present', async () => {
-    renderLogin(['/auth/login?session=closed']);
+    renderLogin(['/hub/auth/login?session=closed']);
 
     await waitFor(() => {
       expect(toast.info).toHaveBeenCalledWith(

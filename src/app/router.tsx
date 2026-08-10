@@ -5,6 +5,7 @@ import AuthLayout from "@/features/shared/layouts/AuthLayout"
 import ProfileLayout from "@/features/shared/layouts/ProfileLayout"
 import NotFoundPage from "@/features/shared/pages/NotFoundPage"
 import { AuthProvider } from "@/features/auth/providers/AuthProvider"
+import { getSedeSlug } from "@/features/auth/actions/auth.api"
 
 const ProjectListPage = lazy(() => import("@/features/projects/pages/ProjectListPage"))
 const UserListPage = lazy(() => import("@/features/admin/pages/UserListPage"))
@@ -26,7 +27,7 @@ export default function Router() {
         <BrowserRouter>
             <AuthProvider>
             <Routes>
-                <Route path="/" element={<Navigate to="/auth/login" replace />} />
+                <Route path="/" element={<Navigate to={`/${getSedeSlug()}/auth/login`} replace />} />
                 <Route element={<AppLayout/>}>
                     <Route path="/dashboard" element={<DashboardPage />}/>
                     <Route path="/projects" element={<ProjectListPage/>}/>
@@ -45,7 +46,7 @@ export default function Router() {
                 </Route>
 
                 <Route element={<AuthLayout/>} >
-                    <Route path='/auth/login' element={<LoginPage/>}></Route>
+                    <Route path='/:sede/auth/login' element={<LoginPage/>}></Route>
                 </Route>
 
                 <Route element={<AuthLayout/>} > 
