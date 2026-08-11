@@ -49,6 +49,7 @@ export default function ProjectsView({ tab = 'active' }: ProjectsViewProps) {
         status: filters.debouncedFilters.status || baseStatus,
         responsible_id: filters.debouncedFilters.responsible_id || undefined,
         priority: filters.debouncedFilters.priority || undefined,
+        mine: filters.debouncedFilters.scope === 'mine',
         dateFrom: filters.debouncedFilters.dateFrom || undefined,
         dateTo: filters.debouncedFilters.dateTo || undefined,
         sortBy: filters.sort?.field,
@@ -107,6 +108,8 @@ export default function ProjectsView({ tab = 'active' }: ProjectsViewProps) {
                 onSearchChange={filters.setSearchInput}
                 sede={filters.sedeInput}
                 onSedeChange={filters.setSedeInput}
+                scope={filters.scopeInput}
+                onScopeChange={filters.setScopeInput}
                 dateFrom={filters.dateFromInput}
                 dateTo={filters.dateToInput}
                 onDateRangeChange={(from, to) => {

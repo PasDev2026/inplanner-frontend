@@ -11,6 +11,7 @@ export type ProjectFilters = {
   priority?: string;
   manager_id?: string;
   responsible_id?: string;
+  mine?: boolean;
   page?: number;
   limit?: number;
   sortBy?: string;
@@ -47,6 +48,7 @@ export async function getProjects(filters?: ProjectFilters) {
     if (filters?.priority !== undefined) params.priority = filters.priority;
     if (filters?.manager_id !== undefined) params.manager_id = filters.manager_id;
     if (filters?.responsible_id !== undefined) params.responsible_id = filters.responsible_id;
+    if (filters?.mine) params.mine = 'true';
     if (filters?.page !== undefined) params.page = filters.page;
     if (filters?.limit !== undefined) params.limit = filters.limit;
     if (filters?.sortBy) params.sortBy = filters.sortBy;
@@ -122,9 +124,10 @@ export async function removeResponsible(projectId: number, userId: string) {
   }
 }
 
-export async function getKanbanProjects() {
+export async function getKanbanProjects(mine = true) {
   try {
-    const { data } = await api.get<BackendProject[]>('/projects/kanban');
+    const params = mine ? { mine: 'true' } : undefined;
+    const { data } = await api.get<BackendProject[]>('/projects/kanban', { params });
     return data;
   } catch (error) {
     handleApiError(error, 'Error al cargar proyectos para Kanban');

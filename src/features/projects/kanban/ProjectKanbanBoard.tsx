@@ -7,6 +7,7 @@ import { PROJECTS_KEY, PROJECTS_KANBAN_KEY } from "@/features/projects/lib/proje
 import { SEDES_KEY } from "@/features/shared/lib/shared-keys"
 import { getKanbanProjects, reorderProject } from "@/features/projects/actions/project.api"
 import { getSedes } from "@/features/shared/actions/centralizado.api"
+import { useProjectListFilters } from "@/features/projects/hooks/useProjectListFilters"
 import { toast } from "sonner"
 import { LayoutGrid } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -22,10 +23,12 @@ const STATUS_KEYS = ["0", "1", "2", "3", "4"]
 export default function ProjectKanbanBoard() {
   const queryClient = useQueryClient()
   const [activeProject, setActiveProject] = useState<BackendProject | null>(null)
+  const filters = useProjectListFilters()
+  const scope = filters.scopeInput
 
   const { data: projects = [] } = useQuery({
-    queryKey: PROJECTS_KANBAN_KEY,
-    queryFn: getKanbanProjects,
+    queryKey: [...PROJECTS_KANBAN_KEY, scope],
+    queryFn: () => getKanbanProjects(scope === 'mine'),
     staleTime: 30_000,
   })
 

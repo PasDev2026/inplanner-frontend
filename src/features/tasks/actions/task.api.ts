@@ -83,9 +83,14 @@ export async function removeAssignment(taskId: number, userId: string) {
   }
 }
 
-export async function reorderTask(dto: { taskId: number; targetStatus?: number; position: number }) {
+export async function reorderTask(dto: { taskId: number; targetStatus?: number; parentTaskId?: number | null; position: number }) {
   try {
-    await api.patch('/tasks/reorder', dto);
+    await api.patch('/tasks/reorder', {
+      taskId: dto.taskId,
+      targetStatus: dto.targetStatus,
+      parentTaskId: dto.parentTaskId,
+      position: dto.position,
+    });
     return true;
   } catch (error) {
     handleApiError(error, 'Error al reordenar tarea');

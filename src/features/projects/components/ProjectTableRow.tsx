@@ -21,6 +21,7 @@ import PriorityPopover from "@/features/shared/components/PriorityPopover"
 import EditProjectSheet from "./EditProjectSheet"
 import { useUpdateProject } from "../hooks/useUpdateProject"
 import { useUpdateProjectResponsible } from "../hooks/useUpdateProjectResponsible"
+import { useExpandState } from "@/features/shared/providers/ExpandStateProvider"
 import { TableRow, TableCell } from "@/components/ui/table"
 
 type ProjectTableRowProps = {
@@ -37,6 +38,8 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
     const navigate = useNavigate()
     const updateProject = useUpdateProject()
     const updateProjectResponsibleHook = useUpdateProjectResponsible()
+    const { expandedProjects, toggleProject } = useExpandState()
+    const expanded = forceExpanded || expandedProjects.has(project.id_project)
     const [isEditing, setIsEditing] = useState(false)
     const [editValue, setEditValue] = useState("")
     const [editOpen, setEditOpen] = useState(false)
@@ -80,14 +83,12 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
         }
     }
 
-    const [expanded, setExpanded] = useState(forceExpanded ?? false)
-
     return (
         <>
             <TableRow className="hover:bg-brand-primary/5 transition-colors">
                 <TableCell>
                     <button
-                        onClick={() => setExpanded(!expanded)}
+                        onClick={() => toggleProject(project.id_project)}
                         className="p-1 text-muted-foreground hover:text-foreground rounded hover:bg-muted transition-colors flex-shrink-0 cursor-pointer"
                     >
                         <ChevronDown

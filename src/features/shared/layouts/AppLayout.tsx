@@ -9,6 +9,7 @@ import PageSpinner from "@/components/ui/PageSpinner";
 import SocketManager from "@/components/SocketManager";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ExpandStateProvider } from "@/features/shared/providers/ExpandStateProvider";
 
 export default function AppLayout() {
 
@@ -52,9 +53,11 @@ export default function AppLayout() {
         <div className="bg-background flex flex-col flex-1 min-w-0">
             <Header />
             <section id="main-content" className="w-full p-5">
-              <Suspense fallback={<PageSpinner />}>
-                <Outlet />
-              </Suspense>
+              <ExpandStateProvider>
+                <Suspense fallback={<PageSpinner />}>
+                  <Outlet />
+                </Suspense>
+              </ExpandStateProvider>
             </section>
             {/* <Footer/> */}
         </div>

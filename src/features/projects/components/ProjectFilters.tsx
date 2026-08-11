@@ -28,6 +28,8 @@ interface ProjectFiltersProps {
   onSearchChange: (v: string) => void
   sede: string
   onSedeChange: (v: string) => void
+  scope: 'mine' | 'all'
+  onScopeChange: (v: 'mine' | 'all') => void
   dateFrom: string
   dateTo: string
   onDateRangeChange: (from: string, to: string) => void
@@ -39,11 +41,13 @@ interface ProjectFiltersProps {
 export function ProjectFilters({
   search, onSearchChange,
   sede, onSedeChange,
+  scope, onScopeChange,
   dateFrom, dateTo, onDateRangeChange,
   isSearching, sedes,
   onClearAll,
 }: ProjectFiltersProps) {
   const [open, setOpen] = useState(false)
+  const [scopeOpen, setScopeOpen] = useState(false)
 
   const selectedSedes = sede ? sede.split(",").filter(Boolean) : []
   const selectedLabels = selectedSedes
@@ -52,7 +56,7 @@ export function ProjectFilters({
   const triggerLabel = selectedLabels.length ? selectedLabels.join(", ") : "Todas las sedes"
 
   return (
-    <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3">
+    <div className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-3">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
         <input
@@ -111,6 +115,39 @@ export function ProjectFilters({
                     </CommandItem>
                   )
                 })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
+      <Popover open={scopeOpen} onOpenChange={setScopeOpen}>
+        <PopoverTrigger
+          render={
+            <button className="shrink-0 px-3 py-2.5 h-auto text-sm border-border shadow-sm bg-card rounded-lg border inline-flex items-center gap-1 min-w-[150px] max-w-[220px]">
+              <span className="truncate">{scope === 'mine' ? 'Mis proyectos' : 'Todos'}</span>
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+            </button>
+          }
+        />
+        <PopoverContent align="start" className="w-56 p-0">
+          <Command>
+            <CommandList>
+              <CommandGroup>
+                <CommandItem
+                  value="mine"
+                  onSelect={() => { onScopeChange('mine'); setScopeOpen(false) }}
+                  className={scope === 'mine' ? "bg-accent" : undefined}
+                >
+                  Mis proyectos
+                </CommandItem>
+                <CommandItem
+                  value="all"
+                  onSelect={() => { onScopeChange('all'); setScopeOpen(false) }}
+                  className={scope === 'all' ? "bg-accent" : undefined}
+                >
+                  Todos
+                </CommandItem>
               </CommandGroup>
             </CommandList>
           </Command>

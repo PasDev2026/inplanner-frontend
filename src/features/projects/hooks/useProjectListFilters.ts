@@ -9,6 +9,7 @@ type FilterState = {
   status: string
   responsible_id: string
   priority: string
+  scope: 'mine' | 'all'
 }
 
 export function useProjectListFilters() {
@@ -21,6 +22,7 @@ export function useProjectListFilters() {
   const [statusInput, setStatusInput] = useState(() => searchParams.get("status") || "")
   const [responsibleInput, setResponsibleInput] = useState(() => searchParams.get("responsible_id") || "")
   const [priorityInput, setPriorityInput] = useState(() => searchParams.get("priority") || "")
+  const [scopeInput, setScopeInput] = useState<FilterState["scope"]>(() => searchParams.get("scope") === "all" ? "all" : "mine")
 
   const [sort, setSort] = useState<{ field: string; order: string } | null>(null)
 
@@ -32,6 +34,7 @@ export function useProjectListFilters() {
     status: statusInput,
     responsible_id: responsibleInput,
     priority: priorityInput,
+    scope: scopeInput,
   })
 
   useEffect(() => {
@@ -42,10 +45,11 @@ export function useProjectListFilters() {
         status: statusInput,
         responsible_id: responsibleInput,
         priority: priorityInput,
+        scope: scopeInput,
       })
     }, 350)
     return () => clearTimeout(timer)
-  }, [searchInput, sedeInput, dateFromInput, dateToInput, statusInput, responsibleInput, priorityInput])
+  }, [searchInput, sedeInput, dateFromInput, dateToInput, statusInput, responsibleInput, priorityInput, scopeInput])
 
   useEffect(() => {
     const next = new URLSearchParams(searchParams)
@@ -57,6 +61,7 @@ export function useProjectListFilters() {
     setOrDel("status", debouncedFilters.status)
     setOrDel("responsible_id", debouncedFilters.responsible_id)
     setOrDel("priority", debouncedFilters.priority)
+    setOrDel("scope", debouncedFilters.scope === 'mine' ? 'mine' : 'all')
     setSearchParams(next, { replace: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedFilters])
@@ -68,6 +73,7 @@ export function useProjectListFilters() {
     || statusInput !== debouncedFilters.status
     || responsibleInput !== debouncedFilters.responsible_id
     || priorityInput !== debouncedFilters.priority
+    || scopeInput !== debouncedFilters.scope
 
   const hasActiveFilters = !!(debouncedFilters.search || debouncedFilters.sede_id || debouncedFilters.dateFrom || debouncedFilters.dateTo || debouncedFilters.status || debouncedFilters.responsible_id || debouncedFilters.priority)
 
@@ -89,6 +95,7 @@ export function useProjectListFilters() {
     setStatusInput("")
     setResponsibleInput("")
     setPriorityInput("")
+    setScopeInput("mine")
   }, [])
 
   return {
@@ -99,6 +106,7 @@ export function useProjectListFilters() {
     statusInput, setStatusInput,
     responsibleInput, setResponsibleInput,
     priorityInput, setPriorityInput,
+    scopeInput, setScopeInput,
     sort, handleSort,
     clearAllFilters,
     debouncedFilters,

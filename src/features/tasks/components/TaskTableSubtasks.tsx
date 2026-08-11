@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { TASK_CHILDREN_KEY } from "@/features/tasks/lib/task-keys"
 import { PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { getTaskChildren, createTask } from "@/features/tasks/actions/task.api"
+import type { TaskDndAncestor } from "@/features/tasks/lib/task-tree-dnd"
 import { Plus, Check, X } from "lucide-react"
 import { toast } from "sonner"
 import SubtaskRow from "./SubtaskRow"
@@ -12,6 +13,8 @@ import PageSpinner from "@/components/ui/PageSpinner"
 
 type TaskTableSubtasksProps = {
     taskId: number
+    taskSiblingIndex: number
+    ancestors: TaskDndAncestor[]
     projectId: string
     canEdit: boolean
     depth?: number
@@ -23,6 +26,8 @@ type TaskTableSubtasksProps = {
 
 export default function TaskTableSubtasks({
     taskId,
+    taskSiblingIndex,
+    ancestors,
     projectId,
     canEdit,
     depth = 0,
@@ -70,13 +75,18 @@ export default function TaskTableSubtasks({
             ))}
           </colgroup>
             <TableBody>
-                {children.map((child) => (
+                {children.map((child, idx) => (
                     <SubtaskRow
                         key={child.id_task}
                         subtask={child}
                         projectId={projectId}
                         canEdit={canEdit}
                         depth={depth}
+                        siblingIndex={idx}
+                        ancestors={[
+                            ...ancestors,
+                            { taskId: taskId, index: taskSiblingIndex },
+                        ]}
                         projectStartDate={projectStartDate}
                         projectDueDate={projectDueDate}
                         filterType={filterType}
