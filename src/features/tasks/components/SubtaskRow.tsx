@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { getTaskChildren, createTask } from "@/features/tasks/actions/task.api"
 import type { BackendTask } from "@/features/shared/lib/types"
 import type { TaskDndAncestor } from "@/features/tasks/lib/task-tree-dnd"
+import { filterByStatus } from "@/features/tasks/lib/task-status-filter"
 import { TASK_CHILDREN_KEY } from "@/features/tasks/lib/task-keys"
 import { PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { useTaskMutations } from "../hooks/useTaskMutations"
@@ -16,6 +17,7 @@ import { toast } from "sonner"
 import { useExpandState } from "@/features/shared/providers/ExpandStateProvider"
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table"
 import { COL_GROUP } from "@/features/shared/lib/tableColumns"
+import { cn } from "@/features/shared/lib/utils"
 import PageSpinner from "@/components/ui/PageSpinner"
 
 type SubtaskRowProps = {
@@ -27,8 +29,8 @@ type SubtaskRowProps = {
     ancestors: TaskDndAncestor[]
     projectStartDate?: string | null
     projectDueDate?: string | null
-    filterType?: 'project' | 'task' | null
-    filterStatus?: string | null
+    visibleTaskIds: ReadonlySet<number>
+    dimmedTaskIds: ReadonlySet<number>
 }
 
 export default function SubtaskRow({
@@ -40,8 +42,8 @@ export default function SubtaskRow({
     ancestors,
     projectStartDate,
     projectDueDate,
-    filterType,
-    filterStatus,
+    visibleTaskIds,
+    dimmedTaskIds,
 }: SubtaskRowProps) {
     const { expandedTasks, toggleTask } = useExpandState()
     const expanded = expandedTasks.has(subtask.id_task)
@@ -59,9 +61,7 @@ export default function SubtaskRow({
         staleTime: 30000,
     })
 
-    const visibleChildren = filterType === 'task' && filterStatus
-        ? children.filter((c: BackendTask) => String(c.status) === filterStatus)
-        : children
+    const visibleChildren = filterByStatus(children, visibleTaskIds)
 
     const createSubtask = useMutation({
         mutationFn: (name: string) =>
@@ -121,7 +121,10 @@ export default function SubtaskRow({
                 siblingIndex={siblingIndex}
                 ancestors={ancestors}
                 canEdit={canEdit}
-                className="hover:bg-muted transition-colors group"
+                className={cn(
+                    "hover:bg-muted transition-colors group",
+                    dimmedTaskIds.has(subtask.id_task) && "opacity-40",
+                )}
                 expandedContent={
                     expanded ? (
                         <TableRow>
@@ -157,8 +160,8 @@ export default function SubtaskRow({
                                                         ]}
                                                         projectStartDate={projectStartDate}
                                                         projectDueDate={projectDueDate}
-                                                        filterType={filterType}
-                                                        filterStatus={filterStatus}
+                                                        visibleTaskIds={visibleTaskIds}
+                                                        dimmedTaskIds={dimmedTaskIds}
                                                     />
                                                 ))}
 

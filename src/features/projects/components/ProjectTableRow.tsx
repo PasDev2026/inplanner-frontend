@@ -28,18 +28,16 @@ type ProjectTableRowProps = {
     project: BackendProject
     user: { id: string }
     sedes: CentralizadoItem[]
-    filterType: 'project' | 'task' | null
-    filterStatus: string | null
-    forceExpanded?: boolean
+    taskStatusSelected: string[]
 }
 
-export default function ProjectTableRow({ project, user, sedes, filterType, filterStatus, forceExpanded }: ProjectTableRowProps) {
+export default function ProjectTableRow({ project, user, sedes, taskStatusSelected }: ProjectTableRowProps) {
     const location = useLocation()
     const navigate = useNavigate()
     const updateProject = useUpdateProject()
     const updateProjectResponsibleHook = useUpdateProjectResponsible()
     const { expandedProjects, toggleProject } = useExpandState()
-    const expanded = forceExpanded || expandedProjects.has(project.id_project)
+    const expanded = expandedProjects.has(project.id_project)
     const [isEditing, setIsEditing] = useState(false)
     const [editValue, setEditValue] = useState("")
     const [editOpen, setEditOpen] = useState(false)
@@ -190,7 +188,7 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
                 </TableCell>
             </TableRow>
 
-            {(expanded || forceExpanded) && (
+            {expanded && (
                 <TableRow>
                     <TableCell colSpan={9} className="p-0 border-b border-border">
                         <TaskTableSection
@@ -198,8 +196,7 @@ export default function ProjectTableRow({ project, user, sedes, filterType, filt
                             canEdit={true}
                             projectStartDate={project.start_date}
                             projectDueDate={project.due_date}
-                            filterType={filterType}
-                            filterStatus={filterStatus}
+                            taskStatusSelected={taskStatusSelected}
                         />
                     </TableCell>
                 </TableRow>

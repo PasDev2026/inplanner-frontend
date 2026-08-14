@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react"
+import React, { useState, useRef, useCallback, useMemo, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { DndContext, DragOverlay } from "@dnd-kit/core"
@@ -12,6 +12,7 @@ import { useTaskTableDnD } from "../hooks/useTaskTableDnD"
 import { applyMoveInCache, type TaskDrop } from "@/features/tasks/lib/task-tree-dnd"
 import { TaskRowDnd, TaskDragHandle } from "./TaskRowDnd"
 import TaskTableSubtasks from "./TaskTableSubtasks"
+import { buildVisibleTaskIds, buildForcedOpenTaskIds, buildDimmedTaskIds, filterByStatus } from "@/features/tasks/lib/task-status-filter"
 import TaskStatusPopover from "./TaskStatusPopover"
 import ResponsiblePopover from "@/features/shared/components/ResponsiblePopover"
 import PriorityPopover from "@/features/shared/components/PriorityPopover"
@@ -19,6 +20,7 @@ import TaskDateCellPopover from "./TaskDateCellPopover"
 import { ChevronDown, ChevronRight, Plus, Check, X, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import PageSpinner from "@/components/ui/PageSpinner"
+import { cn } from "@/features/shared/lib/utils"
 import { useExpandState } from "@/features/shared/providers/ExpandStateProvider"
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table"
 import { COL_GROUP } from "@/features/shared/lib/tableColumns"
@@ -29,8 +31,7 @@ type TaskTableSectionProps = {
     depth?: number
     projectStartDate?: string | null
     projectDueDate?: string | null
-    filterType?: 'project' | 'task' | null
-    filterStatus?: string | null
+    taskStatusSelected?: string[]
 }
 
 export default function TaskTableSection({
@@ -39,10 +40,9 @@ export default function TaskTableSection({
     depth = 1,
     projectStartDate,
     projectDueDate,
-    filterType,
-    filterStatus,
+    taskStatusSelected,
 }: TaskTableSectionProps) {
-    const { expandedTasks, toggleTask } = useExpandState()
+    const { expandedTasks, toggleTask, expandTasks } = useExpandState()
     const [showForm, setShowForm] = useState(false)
     const [newTaskName, setNewTaskName] = useState("")
     const [editingTaskId, setEditingTaskId] = useState<number | null>(null)
@@ -62,7 +62,35 @@ export default function TaskTableSection({
         retry: false,
     })
 
-    const tasks: BackendTask[] = (data as { data: BackendTask[] } | undefined)?.data ?? []
+    const tasks: BackendTask[] = useMemo(
+        () => (data as { data: BackendTask[] } | undefined)?.data ?? [],
+        [data],
+    )
+
+    const taskStatusSet = useMemo(
+        () => new Set((taskStatusSelected ?? []).map(Number)),
+        [taskStatusSelected],
+    )
+    const visibleTaskIds = useMemo(
+        () => buildVisibleTaskIds(tasks, taskStatusSet),
+        [tasks, taskStatusSet],
+    )
+    const forcedOpenTaskIds = useMemo(
+        () => buildForcedOpenTaskIds(tasks, visibleTaskIds, taskStatusSet),
+        [tasks, visibleTaskIds, taskStatusSet],
+    )
+    const dimmedTaskIds = useMemo(
+        () => buildDimmedTaskIds(tasks, visibleTaskIds, taskStatusSet),
+        [tasks, visibleTaskIds, taskStatusSet],
+    )
+
+    const lastTaskSeed = useRef("")
+    useEffect(() => {
+        const key = `${[...taskStatusSet].sort().join(",")}|${[...forcedOpenTaskIds].sort().join(",")}`
+        if (key === lastTaskSeed.current) return
+        lastTaskSeed.current = key
+        expandTasks(forcedOpenTaskIds)
+    }, [taskStatusSet, forcedOpenTaskIds, expandTasks])
 
     const { statusMutation, priorityMutation, renameMutation, assignmentMutation, deleteTaskMutation } = useTaskMutations(projectIdNum)
 
@@ -176,12 +204,8 @@ export default function TaskTableSection({
     const rootTasks = tasks.filter((t) => t.parent_task_id === null)
     const displayLimit = 50
     const visibleTasks = rootTasks.slice(0, displayLimit)
-    const displayedTasks = filterType === 'task' && filterStatus
-        ? visibleTasks.filter((t) => String(t.status) === filterStatus)
-        : visibleTasks
-    const matchingRootCount = filterType === 'task' && filterStatus
-        ? rootTasks.filter((t) => String(t.status) === filterStatus).length
-        : rootTasks.length
+    const displayedTasks = filterByStatus(visibleTasks, visibleTaskIds)
+    const matchingRootCount = filterByStatus(rootTasks, visibleTaskIds).length
 
     if (rootTasks.length === 0) {
         return (
@@ -240,6 +264,14 @@ export default function TaskTableSection({
         )
     }
 
+    if (taskStatusSet.size > 0 && matchingRootCount === 0) {
+        return (
+            <div className="border-t border-border px-4 py-3">
+                <p className="text-xs text-muted-foreground">Sin tareas en este estado</p>
+            </div>
+        )
+    }
+
     return (
         <div className="border-t border-border">
             <div className="relative" ref={dnd.containerRef}>
@@ -268,7 +300,10 @@ export default function TaskTableSection({
                                         siblingIndex={siblingIndex}
                                         ancestors={[]}
                                         canEdit={canEdit}
-                                        className="hover:bg-muted transition-colors group"
+                                        className={cn(
+                                            "hover:bg-muted transition-colors group",
+                                            dimmedTaskIds.has(task.id_task) && "opacity-40",
+                                        )}
                                         expandedContent={
                                             expandedTasks.has(task.id_task) ? (
                                                 <TableRow>
@@ -282,8 +317,8 @@ export default function TaskTableSection({
                                                             depth={depth + 1}
                                                             projectStartDate={projectStartDate}
                                                             projectDueDate={projectDueDate}
-                                                            filterType={filterType}
-                                                            filterStatus={filterStatus}
+                                                            visibleTaskIds={visibleTaskIds}
+                                                            dimmedTaskIds={dimmedTaskIds}
                                                         />
                                                     </TableCell>
                                                 </TableRow>

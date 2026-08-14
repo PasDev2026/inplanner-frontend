@@ -5,13 +5,14 @@ import { Table, TableBody } from "@/components/ui/table"
 import { COL_GROUP, TABLE_GRID } from "@/features/shared/lib/tableColumns"
 import ProjectTableRow from "@/features/projects/components/ProjectTableRow"
 import { LoadMoreButton } from "@/components/ui/pagination"
-import StatusColumnFilter from "@/features/shared/components/StatusColumnFilter"
+import CombinedStatusFilter from "@/features/shared/components/CombinedStatusFilter"
 import ResponsibleColumnFilter from "@/features/shared/components/ResponsibleColumnFilter"
 import PriorityColumnFilter from "@/features/shared/components/PriorityColumnFilter"
 import type { BackendProject } from "@/features/shared/lib/types"
 import type { CentralizadoItem } from "@/features/shared/actions/centralizado.api"
 import type { AuthUser } from "@/features/auth/actions/auth.api"
-import { useRef, useCallback } from "react"
+import { useRef, useCallback, useState, useEffect } from "react"
+import { useExpandState } from "@/features/shared/providers/ExpandStateProvider"
 
 interface ProjectTableSectionProps {
   projects: BackendProject[]
@@ -43,6 +44,19 @@ export function ProjectTableSection({
   hasActiveFilters, searchTerm, dateFrom, dateTo,
   user, sedes,
 }: ProjectTableSectionProps) {
+  const [taskStatusSelected, setTaskStatusSelected] = useState<string[]>([])
+  const { expandProjects } = useExpandState()
+  const lastProjectSeed = useRef("")
+
+  useEffect(() => {
+    const key = [...taskStatusSelected].sort().join(",")
+    if (key === lastProjectSeed.current) return
+    lastProjectSeed.current = key
+    if (taskStatusSelected.length > 0) {
+      expandProjects(new Set(projects.map((p) => p.id_project)))
+    }
+  }, [taskStatusSelected, projects, expandProjects])
+
   const sortIcon = (field: string) => {
     const isActive = sort?.field === field
     return (
@@ -64,7 +78,7 @@ export function ProjectTableSection({
 
   const stickyHeader = (
     <div
-      className="sticky top-[69px] z-10 bg-background border-b border-border"
+      className="sticky top-[69px] z-10 bg-card border-b border-border"
       style={{ overflow: 'clip' }}
     >
       <div className="overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} ref={headerScrollRef}>
@@ -83,9 +97,11 @@ export function ProjectTableSection({
           </div>
           <div className="text-foreground px-2 flex items-center">Sede</div>
           <div className="px-2 flex items-center">
-            <StatusColumnFilter
-              selected={statusSelected}
-              onChange={onStatusFilter}
+            <CombinedStatusFilter
+              projectSelected={statusSelected}
+              onProjectChange={onStatusFilter}
+              taskSelected={taskStatusSelected}
+              onTaskChange={setTaskStatusSelected}
             />
           </div>
           <div className="group flex items-center gap-1 cursor-pointer select-none text-foreground px-2" onClick={() => onSort('responsible_name')}>
@@ -128,6 +144,7 @@ export function ProjectTableSection({
   return (
     <Card>
       <CardContent className="p-0 flex flex-col">
+        <div className="flex items-center justify-end gap-2 px-4 py-2 border-b border-border" />
         {stickyHeader}
         <div ref={scrollRef} className="overflow-x-auto" onScroll={handleScroll}>
           {projects.length > 0 ? (
@@ -145,9 +162,7 @@ export function ProjectTableSection({
                       project={project}
                       user={user}
                       sedes={sedes}
-                      filterType={statusSelected.length ? 'project' : null}
-                      filterStatus={statusSelected.length ? statusSelected[0] : null}
-                      forceExpanded={false}
+                      taskStatusSelected={taskStatusSelected}
                     />
                   ))}
                 </TableBody>

@@ -4,6 +4,7 @@ import { TASK_CHILDREN_KEY } from "@/features/tasks/lib/task-keys"
 import { PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { getTaskChildren, createTask } from "@/features/tasks/actions/task.api"
 import type { TaskDndAncestor } from "@/features/tasks/lib/task-tree-dnd"
+import { filterByStatus } from "@/features/tasks/lib/task-status-filter"
 import { Plus, Check, X } from "lucide-react"
 import { toast } from "sonner"
 import SubtaskRow from "./SubtaskRow"
@@ -20,8 +21,8 @@ type TaskTableSubtasksProps = {
     depth?: number
     projectStartDate?: string | null
     projectDueDate?: string | null
-    filterType?: 'project' | 'task' | null
-    filterStatus?: string | null
+    visibleTaskIds: ReadonlySet<number>
+    dimmedTaskIds: ReadonlySet<number>
 }
 
 export default function TaskTableSubtasks({
@@ -33,8 +34,8 @@ export default function TaskTableSubtasks({
     depth = 0,
     projectStartDate,
     projectDueDate,
-    filterType,
-    filterStatus,
+    visibleTaskIds,
+    dimmedTaskIds,
 }: TaskTableSubtasksProps) {
     const [showForm, setShowForm] = useState(false)
     const [newTaskName, setNewTaskName] = useState("")
@@ -75,7 +76,7 @@ export default function TaskTableSubtasks({
             ))}
           </colgroup>
             <TableBody>
-                {children.map((child, idx) => (
+                {filterByStatus(children, visibleTaskIds).map((child, idx) => (
                     <SubtaskRow
                         key={child.id_task}
                         subtask={child}
@@ -89,8 +90,8 @@ export default function TaskTableSubtasks({
                         ]}
                         projectStartDate={projectStartDate}
                         projectDueDate={projectDueDate}
-                        filterType={filterType}
-                        filterStatus={filterStatus}
+                        visibleTaskIds={visibleTaskIds}
+                        dimmedTaskIds={dimmedTaskIds}
                     />
                 ))}
 
