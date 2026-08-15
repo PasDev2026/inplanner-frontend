@@ -91,7 +91,7 @@ export const LinkCard = Node.create({
       new Plugin({
         key: new PluginKey("linkCardPaste"),
         props: {
-          handleClick: (view, pos, event) => {
+          handleClick: (view, _pos, event) => {
             if (event.button !== 0) return false
             if (!view.editable) return false
             const anchor = (event.target as Element | null)?.closest?.("a.link-card") ?? null

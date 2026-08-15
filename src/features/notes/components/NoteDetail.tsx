@@ -60,7 +60,7 @@ export default function NoteDetail({ note, taskId }: NoteDetailProps) {
           })
         },
       },
-      cancel: { label: "Cancelar" },
+      cancel: "Cancelar",
     })
   }
 
