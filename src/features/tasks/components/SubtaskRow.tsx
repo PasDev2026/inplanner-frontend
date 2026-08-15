@@ -1,10 +1,11 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { getTaskChildren, createTask } from "@/features/tasks/actions/task.api"
 import type { BackendTask } from "@/features/shared/lib/types"
 import type { TaskDndAncestor } from "@/features/tasks/lib/task-tree-dnd"
 import { filterByStatus } from "@/features/tasks/lib/task-status-filter"
-import { TASK_CHILDREN_KEY } from "@/features/tasks/lib/task-keys"
+import { TASK_CHILDREN_KEY, DASHBOARD_TASKS_KEY } from "@/features/tasks/lib/task-keys"
 import { PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { useTaskMutations } from "../hooks/useTaskMutations"
 import { TaskRowDnd, TaskDragHandle } from "./TaskRowDnd"
@@ -51,6 +52,9 @@ export default function SubtaskRow({
     const [newTaskName, setNewTaskName] = useState("")
     const [isEditing, setIsEditing] = useState(false)
     const [editValue, setEditValue] = useState("")
+    const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const navigate = useNavigate()
+    const location = useLocation()
     const queryClient = useQueryClient()
     const projectIdNum = Number(projectId)
 
@@ -69,6 +73,7 @@ export default function SubtaskRow({
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: TASK_CHILDREN_KEY(subtask.id_task) })
             queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectIdNum) })
+            queryClient.invalidateQueries({ queryKey: DASHBOARD_TASKS_KEY(projectIdNum) })
             setNewTaskName("")
             setShowForm(false)
         },
@@ -89,7 +94,23 @@ export default function SubtaskRow({
         })
     }
 
+    const handleNameClick = () => {
+        if (clickTimer.current) {
+            clearTimeout(clickTimer.current)
+            clickTimer.current = null
+            return
+        }
+        clickTimer.current = setTimeout(() => {
+            clickTimer.current = null
+            navigate(location.pathname + `?viewTask=${subtask.id_task}`)
+        }, 250)
+    }
+
     const handleNameDoubleClick = () => {
+        if (clickTimer.current) {
+            clearTimeout(clickTimer.current)
+            clickTimer.current = null
+        }
         setEditValue(subtask.task_name)
         setIsEditing(true)
     }
@@ -262,8 +283,9 @@ export default function SubtaskRow({
                                     />
                                 ) : (
                                     <span
+                                        onClick={handleNameClick}
                                         onDoubleClick={handleNameDoubleClick}
-                                        className="text-sm text-foreground truncate"
+                                        className="text-sm text-foreground truncate cursor-pointer hover:text-brand-primary hover:underline"
                                     >
                                         {subtask.task_name}
                                     </span>

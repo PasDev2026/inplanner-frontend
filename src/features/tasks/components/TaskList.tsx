@@ -31,9 +31,8 @@ export default function TaskList({ tasks, canEdit }: TaskListProps) {
   const [activeTask, setActiveTask] = useState<BackendTask | null>(null)
 
   const groupedTasks: GroupedTask = useMemo(() => {
-    const rootTasks = tasks.filter(task => !task.parent_task_id)
     return STATUS_KEYS.reduce((acc, key) => {
-      acc[key] = rootTasks.filter(t => (t.status ?? 0) === Number(key))
+      acc[key] = tasks.filter(t => (t.status ?? 0) === Number(key))
       return acc
     }, {} as GroupedTask)
   }, [tasks])
@@ -64,21 +63,28 @@ export default function TaskList({ tasks, canEdit }: TaskListProps) {
     if (!over?.id) return
 
     const taskId = Number(active.id.toString())
+    const draggedTask = tasks.find(t => t.id_task === taskId)
+    if (!draggedTask) return
+    const draggedParentId = draggedTask.parent_task_id ?? null
+
+    const siblingsInColumn = (status: number) =>
+      tasks
+        .filter(t => t.status === status && (t.parent_task_id ?? null) === draggedParentId)
+        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
 
     const taskCollision = collisions?.find(c =>
       !['0','1','2','3','4'].includes(String(c.id)))
     if (taskCollision) {
       const overTaskId = Number(taskCollision.id)
-      const activeTask = tasks.find(t => t.id_task === taskId)
       const overTask = tasks.find(t => t.id_task === overTaskId)
-      if (!activeTask || !overTask) return
+      if (!overTask) return
 
-      const all = tasks
-        .filter(t => t.parent_task_id === null && t.status === overTask.status)
-        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-
-      const overIndex = all.findIndex(t => t.id_task === overTaskId)
-      if (overIndex === -1) return
+      const siblings = siblingsInColumn(overTask.status)
+      const overIndex = siblings.findIndex(t => t.id_task === overTaskId)
+      if (overIndex === -1) {
+        reorderMutation.mutate({ taskId, targetStatus: overTask.status, position: siblings.length })
+        return
+      }
 
       reorderMutation.mutate({ taskId, targetStatus: overTask.status, position: overIndex })
       return
@@ -86,9 +92,7 @@ export default function TaskList({ tasks, canEdit }: TaskListProps) {
 
     const targetStatus = Number(over.id)
     if (!isNaN(targetStatus) && targetStatus >= 0 && targetStatus <= 4) {
-      const end = tasks.filter(t =>
-        t.parent_task_id === null && t.status === targetStatus).length
-      reorderMutation.mutate({ taskId, targetStatus, position: end })
+      reorderMutation.mutate({ taskId, targetStatus, position: siblingsInColumn(targetStatus).length })
     }
   }, [reorderMutation, tasks])
 

@@ -75,9 +75,9 @@ export default function EditProjectSheet({ open, onOpenChange, project }: EditPr
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-lg">
+      <SheetContent side="right" className="w-full sm:max-w-sm">
         <SheetHeader>
-          <SheetTitle>Editar proyecto</SheetTitle>
+          <SheetTitle className="text-2xl font-bold text-foreground">Editar proyecto</SheetTitle>
         </SheetHeader>
 
         <form

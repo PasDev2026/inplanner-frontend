@@ -13,6 +13,21 @@ export function formatDate(isoString: string | null | undefined): string {
     return formatter.format(date)
 }
 
+export function formatDateTime(isoString: string | null | undefined): string {
+    if (!isoString || typeof isoString !== 'string') return '—'
+    const date = new Date(isoString)
+    if (isNaN(date.getTime())) return '—'
+    const formatter = new Intl.DateTimeFormat('es-PE', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    })
+    return formatter.format(date)
+}
+
 export function formatDateShort(isoString: string | null | undefined): string | null {
     if (!isoString || typeof isoString !== 'string') return null
     const date = new Date(isoString)

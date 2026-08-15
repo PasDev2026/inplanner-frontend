@@ -56,6 +56,11 @@ const TaskColumn = memo(function TaskColumn({ status, tasks, canEdit }: TaskColu
     [sortedTasks]
   )
 
+  const parentNameMap = useMemo(
+    () => new Map(sortedTasks.map(t => [t.id_task, t.task_name])),
+    [sortedTasks]
+  )
+
   const overTarget = useMemo(() => {
     if (!active || !collisions?.length) return null
 
@@ -104,6 +109,7 @@ const TaskColumn = memo(function TaskColumn({ status, tasks, canEdit }: TaskColu
         <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
           {sortedTasks.map((task, idx) => (
             <TaskCard key={task.id_task} task={task} canEdit={canEdit}
+              parentTaskName={task.parent_task_id != null ? parentNameMap.get(task.parent_task_id) : undefined}
               offsetY={isDest && idx >= overTarget!.idx ? 88 : 0} />
           ))}
           {isDest && overTarget!.idx === sortedTasks.length && (

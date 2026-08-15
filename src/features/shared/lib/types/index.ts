@@ -46,8 +46,10 @@ export interface BackendTask {
   created_at: string;
   updated_at: string;
   assignments?: {
+    task_id: number;
     user_id: string;
-    user: { id_user: string; name: string; apellido_paterno: string | null; email: string };
+    name: string | null;
+    apellido_paterno: string | null;
   }[];
   notes?: BackendNote[];
   children?: BackendTask[];

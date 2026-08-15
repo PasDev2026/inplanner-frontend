@@ -1,6 +1,6 @@
 import type { BackendTask } from "@/features/shared/lib/types"
 import { memo, useRef, useState } from "react"
-import { MoreVertical, CheckSquare, MessageSquare } from "lucide-react"
+import { MoreVertical, CheckSquare, MessageSquare, CornerDownRight } from "lucide-react"
 import { useNavigate, useParams, useLocation } from "react-router-dom"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { PROJECT_DETAIL_KEY } from "@/features/projects/lib/project-keys"
@@ -26,9 +26,10 @@ type TaskCardProps = {
   task: BackendTask
   canEdit: boolean
   offsetY?: number
+  parentTaskName?: string
 }
 
-const TaskCard = memo(function TaskCard({ task, canEdit, offsetY }: TaskCardProps) {
+const TaskCard = memo(function TaskCard({ task, canEdit, offsetY, parentTaskName }: TaskCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id_task.toString()
   })
@@ -119,6 +120,13 @@ const TaskCard = memo(function TaskCard({ task, canEdit, offsetY }: TaskCardProp
             <PriorityBadge priority={task.priority} />
           </div>
 
+          {parentTaskName && (
+            <div className="flex items-center gap-1 text-[11px] text-muted-foreground mb-1.5">
+              <CornerDownRight className="h-3 w-3 shrink-0" />
+              <span className="truncate">{parentTaskName}</span>
+            </div>
+          )}
+
           {isEditing ? (
             <input
               type="text"
@@ -173,7 +181,7 @@ const TaskCard = memo(function TaskCard({ task, canEdit, offsetY }: TaskCardProp
             {assignees.length > 0 && (
               <div className="flex items-center -space-x-2">
                 {visibleAssignees.map((a) => {
-                  const initials = `${a.user?.name?.[0] ?? ''}${a.user?.apellido_paterno?.[0] ?? ''}`.toUpperCase() || '?'
+                  const initials = `${a.name?.[0] ?? ''}${a.apellido_paterno?.[0] ?? ''}`.toUpperCase() || '?'
                   return (
                     <Avatar key={a.user_id} size="sm" className="ring-2 ring-card">
                       <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>

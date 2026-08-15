@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { DndContext, DragOverlay } from "@dnd-kit/core"
 import { DASHBOARD_TASKS_KEY, TASK_CHILDREN_KEY } from "@/features/tasks/lib/task-keys"
@@ -49,6 +49,7 @@ export default function TaskTableSection({
     const [editValue, setEditValue] = useState("")
     const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
     const navigate = useNavigate()
+    const location = useLocation()
     const queryClient = useQueryClient()
     const projectIdNum = Number(projectId)
 
@@ -150,7 +151,7 @@ export default function TaskTableSection({
         }
         clickTimer.current = setTimeout(() => {
             clickTimer.current = null
-            navigate(`/projects/${projectId}/details-projects?viewTask=${taskId}`)
+            navigate(location.pathname + `?viewTask=${taskId}`)
         }, 250)
     }
 

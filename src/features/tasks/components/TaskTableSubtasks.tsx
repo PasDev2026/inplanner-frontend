@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { TASK_CHILDREN_KEY } from "@/features/tasks/lib/task-keys"
+import { TASK_CHILDREN_KEY, DASHBOARD_TASKS_KEY } from "@/features/tasks/lib/task-keys"
 import { PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { getTaskChildren, createTask } from "@/features/tasks/actions/task.api"
 import type { TaskDndAncestor } from "@/features/tasks/lib/task-tree-dnd"
@@ -54,6 +54,7 @@ export default function TaskTableSubtasks({
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: TASK_CHILDREN_KEY(taskId) })
             queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectIdNum) })
+            queryClient.invalidateQueries({ queryKey: DASHBOARD_TASKS_KEY(projectIdNum) })
             setNewTaskName("")
             setShowForm(false)
         },

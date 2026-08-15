@@ -1,14 +1,14 @@
 import { useQuery } from "@tanstack/react-query"
 import { TASK_CHILDREN_KEY } from "@/features/tasks/lib/task-keys"
 import { getTaskChildren } from "@/features/tasks/actions/task.api"
+import { CheckSquare } from "lucide-react"
 import PageSpinner from "@/components/ui/PageSpinner"
 
 type SubtaskChecklistProps = {
-    projectId: number
     taskId: number
 }
 
-export function SubtaskChecklist({ projectId: _projectId, taskId }: SubtaskChecklistProps) {
+export function SubtaskChecklist({ taskId }: SubtaskChecklistProps) {
     const { data, isLoading } = useQuery({
         queryKey: TASK_CHILDREN_KEY(taskId),
         queryFn: () => getTaskChildren(taskId),
@@ -23,15 +23,15 @@ export function SubtaskChecklist({ projectId: _projectId, taskId }: SubtaskCheck
 
     return (
         <div className="space-y-3">
-            <h4 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+            <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
                 Subtareas ({children.length})
-            </h4>
-            <ul className="space-y-2">
+            </label>
+            <ul className="space-y-1.5">
                 {children.map((child) => (
-                    <li
-                        key={child.id_task}
-                        className="flex items-center gap-3 p-3 bg-muted rounded-lg border border-border"
-                    >
+                    <li key={child.id_task} className="flex items-center gap-2.5">
+                        <CheckSquare
+                            className={`h-4 w-4 shrink-0 ${child.status === 4 ? "text-brand-primary" : "text-muted-foreground"}`}
+                        />
                         <span
                             className={`text-sm ${child.status === 4 ? "line-through text-muted-foreground" : "text-foreground"}`}
                         >

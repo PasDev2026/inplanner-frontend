@@ -8,22 +8,23 @@ import { TASK_KEY } from "@/features/tasks/lib/task-keys"
 import { PROJECTS_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { formatDate } from "@/features/shared/lib/format-date"
 import { TASK_STATUS_MAP } from "@/features/shared/constants/task-status.constant"
-import { Pencil } from "lucide-react"
+import { Pencil, SquareStack } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  Sheet,
+  SheetContent,
+  SheetTitle,
+} from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
-import PriorityBadge from "@/features/shared/components/PriorityBadge"
-import { NotesPanel } from "./notes/NotesPanel"
+import { NotesPanel } from "@/features/notes/components/NotesPanel"
 import { SubtaskChecklist } from "./SubtaskChecklist"
-import { Select } from "@/components/ui/select"
+import PriorityPopover from "@/features/shared/components/PriorityPopover"
+import TaskStatusPopover from "./TaskStatusPopover"
+import DateRangePopover from "@/features/shared/components/DateRangePopover"
+import { useUpdateTaskDates } from "../hooks/useUpdateTask"
 
 export function TaskModalDetails() {
   const params = useParams()
-  const projectId = params.projectId!
   const queryClient = useQueryClient()
 
   const { show, paramValue: taskId, close } = useModalParams("viewTask")
@@ -35,12 +36,16 @@ export function TaskModalDetails() {
     retry: false,
   })
 
-  const assignees = data?.assignments?.filter(a => a.user?.name) ?? []
+  const projectId = data?.project_id ?? Number(params.projectId ?? 0)
+
+  const assignees = data?.assignments?.filter(a => a.name) ?? []
   const visibleAssignees = assignees.slice(0, 3)
   const extraCount = assignees.length - 3
 
   const [editingDesc, setEditingDesc] = useState(false)
   const [descValue, setDescValue] = useState("")
+  const [editingTitle, setEditingTitle] = useState(false)
+  const [titleValue, setTitleValue] = useState("")
 
   const { mutate: mutateDesc } = useMutation({
     mutationFn: ({ task_id, task_description }: { task_id: number; task_description: string }) =>
@@ -50,6 +55,28 @@ export function TaskModalDetails() {
       queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectId) })
     },
   })
+
+  const { mutate: mutateTitle } = useMutation({
+    mutationFn: ({ task_id, task_name, task_description }: { task_id: number; task_name: string; task_description: string }) =>
+      updateTask(task_id, { task_name, task_description }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TASK_KEY(taskId!) })
+      queryClient.invalidateQueries({ queryKey: PROJECTS_KEY })
+      queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectId) })
+    },
+  })
+
+  const { mutate: mutatePriority } = useMutation({
+    mutationFn: ({ task_id, priority }: { task_id: number; priority: number | null }) =>
+      updateTask(task_id, { priority }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TASK_KEY(taskId!) })
+      queryClient.invalidateQueries({ queryKey: PROJECTS_KEY })
+      queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectId) })
+    },
+  })
+
+  const { mutate: mutateDates, isPending: isPendingDates } = useUpdateTaskDates()
 
   const { mutate } = useMutation({
     mutationFn: async (status: number) => {
@@ -77,155 +104,169 @@ export function TaskModalDetails() {
 
   if (data)
     return (
-      <Dialog open={show} onOpenChange={() => close()}>
-        <DialogContent className="max-w-4xl h-[85vh] max-h-[85vh] grid grid-rows-[auto_1fr] p-8 gap-0">
-          {assignees.length > 0 && (
-            <div className="flex items-center gap-1.5 mb-3">
-              {visibleAssignees.map((a) => {
-                const initials = `${a.user?.name?.[0] ?? ''}${a.user?.apellido_paterno?.[0] ?? ''}`.toUpperCase() || '?'
-                return (
-                  <Avatar key={a.user_id} size="sm" className="ring-2 ring-card">
-                    <AvatarFallback className="text-[10px] font-medium">{initials}</AvatarFallback>
-                  </Avatar>
-                )
-              })}
-              {extraCount > 0 && (
-                <span className="text-xs font-medium text-muted-foreground ml-1">+{extraCount}</span>
-              )}
-            </div>
-          )}
-          <hr className="border-border/40 mb-6" />
+      <Sheet open={show} onOpenChange={() => close()}>
+        <SheetContent side="right" className="w-full sm:max-w-3xl overflow-y-auto p-8 gap-6">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <SquareStack className="h-3.5 w-3.5" />
+            <span className="font-medium truncate">{data.task_name}</span>
+            <span>·</span>
+            <span>{TASK_STATUS_MAP[data.status]?.label ?? "Sin estado"}</span>
+          </div>
 
-          <div className="grid grid-cols-[2fr_1fr] gap-8 min-h-0">
-            <div className="overflow-y-auto space-y-6">
-              <div>
-                <DialogTitle className="font-black text-4xl text-muted-foreground mb-2">
-                  {data.task_name}
-                </DialogTitle>
-                <p className="text-sm text-muted-foreground">
-                  Agregada el: {formatDate(data.created_at)}{" "}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Última actualización: {formatDate(data.updated_at)}{" "}
-                </p>
-              </div>
-              {editingDesc ? (
-                <div className="space-y-2">
-                  <Textarea
-                    value={descValue}
-                    onChange={(e) => setDescValue(e.target.value)}
-                    rows={3}
-                    className="bg-card text-foreground text-lg"
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault()
-                        if (descValue.trim()) {
-                          mutateDesc({ task_id: Number(taskId!), task_description: descValue.trim() })
-                        }
-                        setEditingDesc(false)
-                      }
-                      if (e.key === "Escape") {
-                        setEditingDesc(false)
-                      }
-                    }}
-                  />
-                  <div className="flex gap-2 text-sm">
-                    <button
-                      onClick={() => { setEditingDesc(false); setDescValue(data.task_description ?? "") }}
-                      className="text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="group flex items-start gap-2">
-                  <p className="text-lg text-muted-foreground flex-1">
-                    {data.task_description || <span className="italic">Sin descripción</span>}
-                  </p>
-                  <button
-                    onClick={() => { setDescValue(data.task_description ?? ""); setEditingDesc(true) }}
-                    className="shrink-0 p-1 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-
-              <SubtaskChecklist
-                projectId={Number(projectId)}
-                taskId={Number(taskId!)}
+          <div className="space-y-4">
+            {editingTitle ? (
+              <input
+                type="text"
+                value={titleValue}
+                onChange={(e) => setTitleValue(e.target.value)}
+                onBlur={() => setEditingTitle(false)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && titleValue.trim()) {
+                    mutateTitle({ task_id: Number(taskId!), task_name: titleValue.trim(), task_description: data.task_description ?? "" })
+                  }
+                  if (e.key === "Enter" || e.key === "Escape") {
+                    setEditingTitle(false)
+                  }
+                }}
+                autoFocus
+                className="w-full text-3xl font-bold text-foreground bg-transparent border-b border-brand-primary focus:outline-none"
               />
-            </div>
+            ) : (
+              <div className="group flex items-start gap-2">
+                <SheetTitle className="text-3xl font-bold text-foreground flex-1">
+                  {data.task_name}
+                </SheetTitle>
+                <button
+                  onClick={() => { setTitleValue(data.task_name); setEditingTitle(true) }}
+                  className="shrink-0 p-1 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Renombrar tarea"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+              </div>
+            )}
 
-            <div className="overflow-y-auto space-y-6 bg-muted/50 p-4 rounded-lg">
-              <div className="flex flex-col gap-y-3">
-                <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-6">
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                  Estado
+                </label>
+                <TaskStatusPopover
+                  status={data.status ?? 0}
+                  onSelect={(s) => mutate(s)}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
                   Prioridad
                 </label>
-                <PriorityBadge priority={data.priority} />
+                <PriorityPopover
+                  priority={data.priority}
+                  onSelect={(p) => mutatePriority({ task_id: Number(taskId!), priority: p })}
+                />
               </div>
 
-              <div className="flex flex-col gap-y-3">
-                <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                  Responsables
+                </label>
+                {assignees.length > 0 ? (
+                  <div className="flex items-center gap-1.5">
+                    {visibleAssignees.map((a) => {
+                      const initials = `${a.name?.[0] ?? ''}${a.apellido_paterno?.[0] ?? ''}`.toUpperCase() || '?'
+                      return (
+                        <Avatar key={a.user_id} size="sm" className="ring-2 ring-card">
+                          <AvatarFallback className="text-[10px] font-medium">{initials}</AvatarFallback>
+                        </Avatar>
+                      )
+                    })}
+                    {extraCount > 0 && (
+                      <span className="text-xs font-medium text-muted-foreground ml-1">+{extraCount}</span>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm italic text-muted-foreground">Sin asignar</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
                   Cronograma
                 </label>
-                <div className="space-y-2 text-sm">
-                  {data.start_date ? (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Inicio:</span>
-                      <span className="font-medium text-foreground">{formatDate(data.start_date)}</span>
-                    </div>
-                  ) : (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Inicio:</span>
-                      <span className="text-muted-foreground italic">Sin definir</span>
-                    </div>
-                  )}
-                  {data.due_date ? (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Límite:</span>
-                      <span className="font-medium text-foreground">{formatDate(data.due_date)}</span>
-                    </div>
-                  ) : (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Límite:</span>
-                      <span className="text-muted-foreground italic">Sin definir</span>
-                    </div>
-                  )}
-                </div>
+                <DateRangePopover
+                  startDate={data.start_date}
+                  dueDate={data.due_date}
+                  onSave={(start_date, due_date) =>
+                    mutateDates(
+                      { taskId: Number(taskId!), start_date, due_date },
+                      { onError: () => toast.error("Error al actualizar las fechas") },
+                    )
+                  }
+                  isPending={isPendingDates}
+                />
               </div>
-
-              <div className="flex flex-col gap-y-3">
-                <label className="text-xs font-bold text-muted-foreground tracking-wider uppercase">
-                  Estado actual
-                </label>
-                <Select value={String(data.status ?? 0)} onValueChange={(val) => mutate(Number(val))}>
-                  <Select.Trigger className="w-full" id="status">
-                    <Select.Value placeholder="Seleccionar estado">
-                      {data.status !== null && data.status !== undefined
-                        ? TASK_STATUS_MAP[data.status]?.label
-                        : ""}
-                    </Select.Value>
-                  </Select.Trigger>
-                  <Select.Popup>
-                    <Select.List>
-                      {Object.entries(TASK_STATUS_MAP).map(([key, info]) => (
-                        <Select.Item key={key} value={key}>
-                          {info.label}
-                        </Select.Item>
-                      ))}
-                    </Select.List>
-                  </Select.Popup>
-                </Select>
-              </div>
-
-              <NotesPanel notes={data.notes ?? []} taskId={Number(taskId)} />
             </div>
           </div>
 
-        </DialogContent>
-      </Dialog>
+          <div className="space-y-3">
+            <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+              Descripción
+            </label>
+            {editingDesc ? (
+              <div className="space-y-2">
+                <Textarea
+                  value={descValue}
+                  onChange={(e) => setDescValue(e.target.value)}
+                  rows={3}
+                  className="bg-transparent text-foreground text-sm"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault()
+                      if (descValue.trim()) {
+                        mutateDesc({ task_id: Number(taskId!), task_description: descValue.trim() })
+                      }
+                      setEditingDesc(false)
+                    }
+                    if (e.key === "Escape") {
+                      setEditingDesc(false)
+                    }
+                  }}
+                />
+                <div className="flex gap-2 text-sm">
+                  <button
+                    onClick={() => { setEditingDesc(false); setDescValue(data.task_description ?? "") }}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="group flex items-start gap-2">
+                <p className="text-sm text-foreground flex-1">
+                  {data.task_description || <span className="italic text-muted-foreground">Agregar descripción</span>}
+                </p>
+                <button
+                  onClick={() => { setDescValue(data.task_description ?? ""); setEditingDesc(true) }}
+                  className="shrink-0 p-1 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          <SubtaskChecklist taskId={Number(taskId!)} />
+
+          <NotesPanel notes={data.notes ?? []} taskId={Number(taskId)} />
+
+          <div className="pt-2 text-xs text-muted-foreground border-t border-border/60 space-y-0.5">
+            <p>Creada el {formatDate(data.created_at)}</p>
+            <p>Actualizada el {formatDate(data.updated_at)}</p>
+          </div>
+        </SheetContent>
+      </Sheet>
     )
 }

@@ -78,9 +78,9 @@ export default function CreateProjectSheet({ open, onOpenChange }: CreateProject
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-lg">
+      <SheetContent side="right" className="w-full sm:max-w-sm">
         <SheetHeader>
-          <SheetTitle>Crear proyecto</SheetTitle>
+          <SheetTitle className="text-2xl font-bold text-foreground">Crear proyecto</SheetTitle>
         </SheetHeader>
 
         <form

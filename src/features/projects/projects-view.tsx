@@ -16,6 +16,7 @@ import { useProjectListFilters } from "@/features/projects/hooks/useProjectListF
 import { ProjectFilters } from "@/features/projects/components/ProjectFilters"
 import { ProjectTableSection } from "@/features/projects/components/ProjectTableSection"
 import ProjectKanbanBoard from "@/features/projects/kanban/ProjectKanbanBoard"
+import { TaskModalDetails } from "@/features/tasks/components/TaskModalDetails"
 
 type ProjectsViewProps = {
   tab?: 'active' | 'completed'
@@ -145,6 +146,7 @@ export default function ProjectsView({ tab = 'active' }: ProjectsViewProps) {
           />
 
           <DeleteProjectModal />
+          <TaskModalDetails />
         </>
       ) : tab === 'active' ? (
         <ProjectKanbanBoard />

@@ -10,6 +10,7 @@ export function useTaskMutations(projectIdNum: number) {
         queryClient.invalidateQueries({ queryKey: PROJECTS_KEY })
         queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectIdNum) })
         queryClient.invalidateQueries({ queryKey: DASHBOARD_TASKS_KEY(projectIdNum) })
+        queryClient.invalidateQueries({ queryKey: ["taskChildren"] })
     }
 
     const statusMutation = useMutation({
