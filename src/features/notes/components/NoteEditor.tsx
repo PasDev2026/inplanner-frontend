@@ -6,6 +6,7 @@ import Image from "@tiptap/extension-image"
 import Placeholder from "@tiptap/extension-placeholder"
 import { Extension } from "@tiptap/core"
 import { Plugin, PluginKey } from "@tiptap/pm/state"
+import { toast } from "sonner"
 import { LinkCard } from "@/features/notes/lib/link-card"
 import {
   Bold,
@@ -40,6 +41,8 @@ function uploadAndInsert(
     if (!node) return
     view.dispatch(view.state.tr.replaceSelectionWith(node))
     view.focus()
+  }).catch(() => {
+    toast.error("Error al subir la imagen")
   })
 }
 

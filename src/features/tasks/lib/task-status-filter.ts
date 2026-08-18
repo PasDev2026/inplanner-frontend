@@ -26,7 +26,10 @@ export function buildVisibleTaskIds(
   const visible = new Set<number>()
   const visit = (task: BackendTask): boolean => {
     const children = childrenByParent.get(task.id_task) ?? []
-    const hasMatchingDescendant = children.some(visit)
+    let hasMatchingDescendant = false
+    for (const child of children) {
+      if (visit(child)) hasMatchingDescendant = true
+    }
     if (selected.has(task.status) || hasMatchingDescendant) {
       visible.add(task.id_task)
       return true

@@ -1,6 +1,9 @@
+import { toast } from "sonner"
 import api from "@/features/shared/lib/axios"
 import { handleApiError } from "@/features/shared/lib/handle-api-error"
 import { resolveUploadUrl } from "@/features/notes/lib/note-html"
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024
 
 export async function createNote(dto: { content: string; task_id: number }) {
   try {
@@ -30,6 +33,10 @@ export async function deleteNote(noteId: number) {
 }
 
 export async function uploadImage(file: File, taskId: number): Promise<string | null> {
+  if (file.size > MAX_IMAGE_SIZE) {
+    toast.error("La imagen supera el tamaño máximo permitido de 5 MB")
+    return null
+  }
   try {
     const form = new FormData()
     form.append("file", file)
