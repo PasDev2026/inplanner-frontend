@@ -4,9 +4,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import {
   authenticate as authenticateApi,
   logoutApi,
-  getUserApi,
   getSedeSlug,
 } from '@/features/auth/actions/auth.api'
+import { startTokenRefreshLoop, stopTokenRefreshLoop } from '@/features/shared/lib/axios'
 import type { AuthUser, LoginCredentials } from '@/features/auth/actions/auth.api'
 
 interface AuthContextType {
@@ -27,25 +27,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const raw = localStorage.getItem('auth_user')
-    if (!raw) {
-      setIsLoading(false)
-      return
-    }
-
-    getUserApi()
-      .then((userData) => {
-        if (userData) {
-          setUser(userData)
-          localStorage.setItem('auth_user', JSON.stringify(userData))
-        }
-      })
-      .catch(() => {
-        localStorage.removeItem('auth_token')
-        localStorage.removeItem('refresh_token')
+    const token = localStorage.getItem('auth_token')
+    if (raw && token) {
+      try {
+        setUser(JSON.parse(raw))
+      } catch {
         localStorage.removeItem('auth_user')
-        setUser(null)
-      })
-      .finally(() => setIsLoading(false))
+      }
+    }
+    setIsLoading(false)
+  }, [])
+
+  useEffect(() => {
+    startTokenRefreshLoop()
+    return () => stopTokenRefreshLoop()
   }, [])
 
   const login = useCallback(async (credentials: LoginCredentials) => {
