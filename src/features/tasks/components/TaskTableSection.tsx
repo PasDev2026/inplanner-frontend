@@ -17,7 +17,7 @@ import TaskStatusPopover from "./TaskStatusPopover"
 import ResponsiblePopover from "@/features/shared/components/ResponsiblePopover"
 import PriorityPopover from "@/features/shared/components/PriorityPopover"
 import TaskDateCellPopover from "./TaskDateCellPopover"
-import { ChevronDown, ChevronRight, Plus, Check, X, Trash2 } from "lucide-react"
+import { ChevronDown, ChevronRight, Plus, Check, X, Trash2, MessageSquare } from "lucide-react"
 import { toast } from "sonner"
 import PageSpinner from "@/components/ui/PageSpinner"
 import { cn } from "@/features/shared/lib/utils"
@@ -366,6 +366,9 @@ export default function TaskTableSection({
                                                             >
                                                                 {task.task_name}
                                                             </span>
+                                                        )}
+                                                        {!!task.notes?.length && (
+                                                            <MessageSquare className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                                                         )}
                                                     </div>
                                                 </TableCell>
