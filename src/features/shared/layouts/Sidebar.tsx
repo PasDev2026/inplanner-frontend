@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { User, Folder, Users, LogOut, ChevronDown, LayoutDashboard, BarChart3 } from "lucide-react";
 import { cn } from "@/features/shared/lib/utils";
 import { useAuthContext } from "@/features/auth/hooks/useAuthContext";
@@ -19,6 +19,7 @@ import {
   SidebarMenuSubButton,
   SidebarTrigger,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -49,6 +50,7 @@ export default function Sidebar({
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useAuthContext();
+  const { state, isMobile } = useSidebar();
 
   const handleLogout = async () => {
     await logout();
@@ -82,46 +84,60 @@ export default function Sidebar({
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {/* Mis proyectos — collapsible con submenu */}
-              <SidebarMenuItem>
-                <Collapsible defaultOpen className="w-full">
-                  <CollapsibleTrigger className="w-full">
-                    <SidebarMenuButton render={<div />}>
-                      <Folder />
-                      <span>Mis proyectos</span>
-                      <ChevronDown className="ml-auto transition-transform group-data-[state=open]:rotate-180" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton
-                          isActive={location.pathname === '/projects'}
-                          onClick={() => navigate('/projects')}
-                          className={cn("w-full", location.pathname === '/projects' && "bg-sidebar-accent text-sidebar-accent-foreground font-medium")}
-                        >
-                          <span>Activos</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton
-                          isActive={location.pathname === '/projects/completed'}
-                          onClick={() => navigate('/projects/completed')}
-                          className={cn("w-full", location.pathname === '/projects/completed' && "bg-sidebar-accent text-sidebar-accent-foreground font-medium")}
-                        >
-                          <span>Completados</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </Collapsible>
-              </SidebarMenuItem>
+              {/* Mis proyectos — link directo comprimido, collapsible expandido/móvil */}
+              {state === "collapsed" && !isMobile ? (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={location.pathname.startsWith('/projects')}
+                    render={<Link to="/projects" />}
+                    tooltip="Mis proyectos"
+                    className={location.pathname.startsWith('/projects') ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""}
+                  >
+                    <Folder />
+                    <span>Mis proyectos</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ) : (
+                <SidebarMenuItem>
+                  <Collapsible defaultOpen className="w-full">
+                    <CollapsibleTrigger className="w-full">
+                      <SidebarMenuButton render={<div />}>
+                        <Folder />
+                        <span>Mis proyectos</span>
+                        <ChevronDown className="ml-auto transition-transform group-data-[state=open]:rotate-180" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton
+                            isActive={location.pathname === '/projects'}
+                            render={<Link to="/projects" />}
+                            className={cn("w-full", location.pathname === '/projects' && "bg-sidebar-accent text-sidebar-accent-foreground font-medium")}
+                          >
+                            <span>Activos</span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton
+                            isActive={location.pathname === '/projects/completed'}
+                            render={<Link to="/projects/completed" />}
+                            className={cn("w-full", location.pathname === '/projects/completed' && "bg-sidebar-accent text-sidebar-accent-foreground font-medium")}
+                          >
+                            <span>Completados</span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </SidebarMenuItem>
+              )}
 
               {/* Mi Dashboard — visible a todos los autenticados */}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={location.pathname === '/mi-dashboard'}
-                  onClick={() => navigate('/mi-dashboard')}
+                  render={<Link to="/mi-dashboard" />}
                   tooltip="Mi Dashboard"
                   className={location.pathname === '/mi-dashboard' ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""}
                 >
@@ -134,7 +150,7 @@ export default function Sidebar({
                 <SidebarMenuItem key={to}>
                   <SidebarMenuButton
                     isActive={matchPaths.some(p => location.pathname.startsWith(p))}
-                    onClick={() => navigate(to)}
+                    render={<Link to={to} />}
                     tooltip={label}
                     className={matchPaths.some(p => location.pathname.startsWith(p)) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""}
                   >

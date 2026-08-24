@@ -41,7 +41,7 @@ export default function AppLayout() {
       >
         Saltar al contenido
       </a>
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={false}>
         <SocketManager />
         <Sidebar
           name={user?.nombres ?? ""}
