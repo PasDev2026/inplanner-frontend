@@ -100,6 +100,16 @@ const TaskCard = memo(function TaskCard({ task, canEdit, offsetY, parentTaskName
     },
   })
 
+  const handleDelete = () => {
+    toast("¿Eliminar tarea?", {
+      description: "Esta acción eliminará la tarea y todas sus subtareas",
+      action: {
+        label: "Eliminar",
+        onClick: () => mutate(),
+      },
+    })
+  }
+
   const assignees = task.assignments ?? []
   const visibleAssignees = assignees.slice(0, 2)
   const extraCount = assignees.length - 2
@@ -214,14 +224,9 @@ const TaskCard = memo(function TaskCard({ task, canEdit, offsetY, parentTaskName
               </DropdownMenuItem>
 
               {canEdit && (
-                <>
-                  <DropdownMenuItem onClick={() => navigate(location.pathname + `?editTaskId=${task.id_task}`)}>
-                    Editar Tarea
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => mutate()} className="text-destructive focus:text-destructive">
-                    Eliminar Tarea
-                  </DropdownMenuItem>
-                </>
+                <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">
+                  Eliminar Tarea
+                </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
