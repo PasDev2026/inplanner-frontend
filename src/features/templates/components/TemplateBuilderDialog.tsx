@@ -88,7 +88,7 @@ export default function TemplateBuilderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <LayoutTemplate className="h-4 w-4 text-brand-primary" />
@@ -131,7 +131,12 @@ export default function TemplateBuilderDialog({
                 <p className="text-xs font-medium text-muted-foreground mb-1.5">
                   Estructura de tareas
                 </p>
-                <TemplateTreeEditor items={items} onChange={setItems} />
+                <div
+                  className="max-h-96 overflow-y-auto pr-1"
+                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                >
+                  <TemplateTreeEditor items={items} onChange={setItems} />
+                </div>
               </div>
             </>
           )}
