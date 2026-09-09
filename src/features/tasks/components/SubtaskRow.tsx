@@ -13,13 +13,14 @@ import TaskStatusPopover from "./TaskStatusPopover"
 import ResponsiblePopover from "@/features/shared/components/ResponsiblePopover"
 import PriorityPopover from "@/features/shared/components/PriorityPopover"
 import TaskDateCellPopover from "./TaskDateCellPopover"
-import { ChevronRight, ChevronDown, Plus, Check, X, Trash2, MessageSquare } from "lucide-react"
+import { ChevronRight, ChevronDown, Plus, Check, X, Trash2, MessageSquare, LayoutTemplate } from "lucide-react"
 import { toast } from "sonner"
 import { useExpandState } from "@/features/shared/providers/ExpandStateProvider"
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table"
 import { COL_GROUP } from "@/features/shared/lib/tableColumns"
 import { cn } from "@/features/shared/lib/utils"
 import PageSpinner from "@/components/ui/PageSpinner"
+import SaveAsTemplateDialog from "@/features/templates/components/SaveAsTemplateDialog"
 
 type SubtaskRowProps = {
     subtask: BackendTask
@@ -52,6 +53,7 @@ export default function SubtaskRow({
     const [newTaskName, setNewTaskName] = useState("")
     const [isEditing, setIsEditing] = useState(false)
     const [editValue, setEditValue] = useState("")
+    const [saveTemplateOpen, setSaveTemplateOpen] = useState(false)
     const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
     const navigate = useNavigate()
     const location = useLocation()
@@ -349,21 +351,42 @@ export default function SubtaskRow({
                         </TableCell>
                         <TableCell />
                         <TableCell>
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleDelete()
-                                }}
-                                className="p-1 text-destructive hover:text-destructive/80 rounded hover:bg-destructive/10 transition-colors"
-                                title="Eliminar subtarea"
-                            >
-                                <Trash2 className="h-3.5 w-3.5" />
-                            </button>
+                            <div className="flex items-center gap-0.5">
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        setSaveTemplateOpen(true)
+                                    }}
+                                    className="p-1 text-muted-foreground hover:text-brand-primary rounded hover:bg-brand-primary/10 transition-all opacity-0 group-hover:opacity-100"
+                                    title="Guardar como plantilla"
+                                >
+                                    <LayoutTemplate className="h-3.5 w-3.5" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleDelete()
+                                    }}
+                                    className="p-1 text-destructive hover:text-destructive/80 rounded hover:bg-destructive/10 transition-all opacity-0 group-hover:opacity-100"
+                                    title="Eliminar subtarea"
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                            </div>
                         </TableCell>
                     </>
                 )}
             </TaskRowDnd>
+
+            {saveTemplateOpen && (
+                <SaveAsTemplateDialog
+                    open
+                    onOpenChange={setSaveTemplateOpen}
+                    taskId={subtask.id_task}
+                />
+            )}
         </>
     )
 }

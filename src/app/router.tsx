@@ -18,6 +18,7 @@ const MyTasksPage = lazy(() => import("@/features/my-tasks/pages/MyTasksPage"))
 const MiDashboardPage = lazy(() => import("@/features/mi-dashboard/pages/MiDashboardPage"))
 const CalendarPage = lazy(() => import("@/features/calendar/pages/CalendarPage"))
 const ReportsPage = lazy(() => import("@/features/reports/pages/ReportsPage"))
+const TemplatesPage = lazy(() => import("@/features/templates/pages/TemplatesPage"))
 
 
 
@@ -36,6 +37,7 @@ export default function Router() {
                     <Route path="/mi-dashboard" element={<MiDashboardPage />}/>
                     <Route path="/calendario" element={<CalendarPage />}/>
                     <Route path="/reportes" element={<ReportsPage />}/>
+                    <Route path="/plantillas" element={<TemplatesPage />}/>
                     <Route path="/admin/users" element={<UserListPage/>}/>
                     <Route path="/projects/:projectId/details-projects" element={<ProjectDetailPage />}/>
 

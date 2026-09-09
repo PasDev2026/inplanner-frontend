@@ -11,6 +11,7 @@ import SubtaskRow from "./SubtaskRow"
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table"
 import { COL_GROUP } from "@/features/shared/lib/tableColumns"
 import PageSpinner from "@/components/ui/PageSpinner"
+import AddTemplateButton from "@/features/templates/components/AddTemplateButton"
 
 type TaskTableSubtasksProps = {
     taskId: number
@@ -99,13 +100,16 @@ export default function TaskTableSubtasks({
                 {canEdit && !showForm && (
                     <TableRow>
                         <TableCell colSpan={9} className="px-4 py-2" style={{ paddingLeft: padLeft }}>
-                            <button
-                                onClick={() => setShowForm(true)}
-                                className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-dark transition-colors"
-                            >
-                                <Plus className="h-3.5 w-3.5" />
-                                Añadir subtarea
-                            </button>
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={() => setShowForm(true)}
+                                    className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-dark transition-colors"
+                                >
+                                    <Plus className="h-3.5 w-3.5" />
+                                    Añadir subtarea
+                                </button>
+                                <AddTemplateButton projectId={projectIdNum} parentTaskId={taskId} />
+                            </div>
                         </TableCell>
                     </TableRow>
                 )}

@@ -17,11 +17,13 @@ import TaskStatusPopover from "./TaskStatusPopover"
 import ResponsiblePopover from "@/features/shared/components/ResponsiblePopover"
 import PriorityPopover from "@/features/shared/components/PriorityPopover"
 import TaskDateCellPopover from "./TaskDateCellPopover"
-import { ChevronDown, ChevronRight, Plus, Check, X, Trash2, MessageSquare } from "lucide-react"
+import { ChevronDown, ChevronRight, Plus, Check, X, Trash2, MessageSquare, LayoutTemplate } from "lucide-react"
 import { toast } from "sonner"
 import PageSpinner from "@/components/ui/PageSpinner"
 import { cn } from "@/features/shared/lib/utils"
 import { useExpandState } from "@/features/shared/providers/ExpandStateProvider"
+import AddTemplateButton from "@/features/templates/components/AddTemplateButton"
+import SaveAsTemplateDialog from "@/features/templates/components/SaveAsTemplateDialog"
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table"
 import { COL_GROUP } from "@/features/shared/lib/tableColumns"
 
@@ -47,6 +49,7 @@ export default function TaskTableSection({
     const [newTaskName, setNewTaskName] = useState("")
     const [editingTaskId, setEditingTaskId] = useState<number | null>(null)
     const [editValue, setEditValue] = useState("")
+    const [saveTemplateTaskId, setSaveTemplateTaskId] = useState<number | null>(null)
     const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
     const navigate = useNavigate()
     const location = useLocation()
@@ -212,7 +215,7 @@ export default function TaskTableSection({
         return (
             <div className="border-t border-border">
                 {canEdit && (
-                    <div className="px-4 py-3">
+                    <div className="px-4 py-3 flex items-center gap-4">
                         <button
                             onClick={() => setShowForm(true)}
                             className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-dark transition-colors"
@@ -220,6 +223,7 @@ export default function TaskTableSection({
                             <Plus className="h-3.5 w-3.5" />
                             Añadir tarea
                         </button>
+                        <AddTemplateButton projectId={projectIdNum} />
                     </div>
                 )}
                 {canEdit && showForm && (
@@ -415,17 +419,30 @@ export default function TaskTableSection({
                                                 </TableCell>
                                                 <TableCell />
                                                 <TableCell>
-                                                    <button
-                                                        type="button"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            handleDelete(task.id_task)
-                                                        }}
-                                                        className="p-1 text-destructive hover:text-destructive/80 rounded hover:bg-destructive/10 transition-colors"
-                                                        title="Eliminar tarea"
-                                                    >
-                                                        <Trash2 className="h-3.5 w-3.5" />
-                                                    </button>
+                                                    <div className="flex items-center gap-0.5">
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                setSaveTemplateTaskId(task.id_task)
+                                                            }}
+                                                            className="p-1 text-muted-foreground hover:text-brand-primary rounded hover:bg-brand-primary/10 transition-all opacity-0 group-hover:opacity-100"
+                                                            title="Guardar como plantilla"
+                                                        >
+                                                            <LayoutTemplate className="h-3.5 w-3.5" />
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                handleDelete(task.id_task)
+                                                            }}
+                                                            className="p-1 text-destructive hover:text-destructive/80 rounded hover:bg-destructive/10 transition-all opacity-0 group-hover:opacity-100"
+                                                            title="Eliminar tarea"
+                                                        >
+                                                            <Trash2 className="h-3.5 w-3.5" />
+                                                        </button>
+                                                    </div>
                                                 </TableCell>
                                             </>
                                         )}
@@ -450,6 +467,14 @@ export default function TaskTableSection({
                         )}
                     </DragOverlay>
                 </DndContext>
+
+                {saveTemplateTaskId !== null && (
+                    <SaveAsTemplateDialog
+                        open
+                        onOpenChange={(open) => !open && setSaveTemplateTaskId(null)}
+                        taskId={saveTemplateTaskId}
+                    />
+                )}
             </div>
 
             {(matchingRootCount > displayLimit || displayedTasks.length < matchingRootCount) && (
@@ -465,13 +490,16 @@ export default function TaskTableSection({
 
             {canEdit && !showForm && (
                 <div className="border-t border-border">
-                    <button
-                        onClick={() => setShowForm(true)}
-                        className="flex items-center gap-1 px-4 py-2 text-xs text-brand-primary hover:text-brand-dark transition-colors"
-                    >
-                        <Plus className="h-3.5 w-3.5" />
-                        Añadir tarea
-                    </button>
+                    <div className="flex items-center gap-4 px-4 py-2">
+                        <button
+                            onClick={() => setShowForm(true)}
+                            className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-dark transition-colors"
+                        >
+                            <Plus className="h-3.5 w-3.5" />
+                            Añadir tarea
+                        </button>
+                        <AddTemplateButton projectId={projectIdNum} />
+                    </div>
                 </div>
             )}
 

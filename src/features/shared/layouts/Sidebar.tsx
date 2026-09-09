@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, Folder, Users, LogOut, ChevronDown, LayoutDashboard, BarChart3 } from "lucide-react";
+import { User, Folder, Users, LogOut, ChevronDown, LayoutDashboard, BarChart3, LayoutTemplate } from "lucide-react";
 import { cn } from "@/features/shared/lib/utils";
 import { useAuthContext } from "@/features/auth/hooks/useAuthContext";
 import { disconnectSocket } from "@/features/shared/lib/socket";
@@ -65,6 +65,7 @@ export default function Sidebar({
     /* { to: "/mis-tareas", label: "Mis tareas", icon: ListChecks, matchPaths: ["/mis-tareas"] },
     { to: "/calendario", label: "Calendario", icon: CalendarDays, matchPaths: ["/calendario"] }, */
     { to: "/reportes", label: "Reportes", icon: BarChart3, matchPaths: ["/reportes"] },
+    { to: "/plantillas", label: "Plantillas", icon: LayoutTemplate, matchPaths: ["/plantillas"] },
     ...(isAdmin
       ? [{ to: "/admin/users", label: "Usuarios", icon: Users, matchPaths: ["/admin/users"] }]
       : []),

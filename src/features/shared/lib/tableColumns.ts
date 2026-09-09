@@ -13,5 +13,5 @@ export const COL_GROUP = [
   { width: '100px' },
   { width: '160px' },
   { width: '120px' },
-  { width: '40px' },
+  { width: '64px' },
 ] as const

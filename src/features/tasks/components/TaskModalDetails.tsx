@@ -8,7 +8,7 @@ import { TASK_KEY } from "@/features/tasks/lib/task-keys"
 import { PROJECTS_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { formatDate } from "@/features/shared/lib/format-date"
 import { TASK_STATUS_MAP } from "@/features/shared/constants/task-status.constant"
-import { Pencil, SquareStack } from "lucide-react"
+import { Pencil, SquareStack, LayoutTemplate } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   Sheet,
@@ -22,6 +22,7 @@ import PriorityPopover from "@/features/shared/components/PriorityPopover"
 import TaskStatusPopover from "./TaskStatusPopover"
 import DateRangePopover from "@/features/shared/components/DateRangePopover"
 import { useUpdateTaskDates } from "../hooks/useUpdateTask"
+import SaveAsTemplateDialog from "@/features/templates/components/SaveAsTemplateDialog"
 
 export function TaskModalDetails() {
   const params = useParams()
@@ -46,6 +47,7 @@ export function TaskModalDetails() {
   const [descValue, setDescValue] = useState("")
   const [editingTitle, setEditingTitle] = useState(false)
   const [titleValue, setTitleValue] = useState("")
+  const [saveTemplateOpen, setSaveTemplateOpen] = useState(false)
 
   const { mutate: mutateDesc } = useMutation({
     mutationFn: ({ task_id, task_description }: { task_id: number; task_description: string }) =>
@@ -136,6 +138,13 @@ export function TaskModalDetails() {
                 <SheetTitle className="text-3xl font-bold text-foreground flex-1">
                   {data.task_name}
                 </SheetTitle>
+                <button
+                  onClick={() => setSaveTemplateOpen(true)}
+                  className="shrink-0 p-1 text-muted-foreground hover:text-brand-primary opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Guardar como plantilla"
+                >
+                  <LayoutTemplate className="w-4 h-4" />
+                </button>
                 <button
                   onClick={() => { setTitleValue(data.task_name); setEditingTitle(true) }}
                   className="shrink-0 p-1 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
@@ -267,6 +276,14 @@ export function TaskModalDetails() {
             <p>Actualizada el {formatDate(data.updated_at)}</p>
           </div>
         </SheetContent>
+
+        {taskId && (
+          <SaveAsTemplateDialog
+            open={saveTemplateOpen}
+            onOpenChange={setSaveTemplateOpen}
+            taskId={Number(taskId)}
+          />
+        )}
       </Sheet>
     )
 }
