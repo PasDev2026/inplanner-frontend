@@ -16,10 +16,10 @@ export function buildMyProjectStatusData(projects: MyProjectItem[]) {
   }, {})
 
   return [
-    { name: "Planificación", value: counts[0] ?? 0, fill: "var(--color-planning)" },
-    { name: "Activos", value: counts[1] ?? 0, fill: "var(--color-active)" },
-    { name: "En espera", value: counts[2] ?? 0, fill: "var(--color-onHold)" },
-    { name: "Completados", value: counts[3] ?? 0, fill: "var(--color-completed)" },
-    { name: "Cancelados", value: counts[4] ?? 0, fill: "var(--color-cancelled)" },
+    { status: "planning", name: "Planificación", value: counts[0] ?? 0, fill: "var(--color-planning)" },
+    { status: "active", name: "Activos", value: counts[1] ?? 0, fill: "var(--color-active)" },
+    { status: "onHold", name: "En espera", value: counts[2] ?? 0, fill: "var(--color-onHold)" },
+    { status: "completed", name: "Completados", value: counts[3] ?? 0, fill: "var(--color-completed)" },
+    { status: "cancelled", name: "Cancelados", value: counts[4] ?? 0, fill: "var(--color-cancelled)" },
   ]
 }

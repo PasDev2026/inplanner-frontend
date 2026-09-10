@@ -23,11 +23,11 @@ describe("buildMyProjectStatusData", () => {
     ])
 
     expect(data).toEqual([
-      { name: "Planificación", value: 2, fill: "var(--color-planning)" },
-      { name: "Activos", value: 1, fill: "var(--color-active)" },
-      { name: "En espera", value: 0, fill: "var(--color-onHold)" },
-      { name: "Completados", value: 1, fill: "var(--color-completed)" },
-      { name: "Cancelados", value: 1, fill: "var(--color-cancelled)" },
+      { status: "planning", name: "Planificación", value: 2, fill: "var(--color-planning)" },
+      { status: "active", name: "Activos", value: 1, fill: "var(--color-active)" },
+      { status: "onHold", name: "En espera", value: 0, fill: "var(--color-onHold)" },
+      { status: "completed", name: "Completados", value: 1, fill: "var(--color-completed)" },
+      { status: "cancelled", name: "Cancelados", value: 1, fill: "var(--color-cancelled)" },
     ])
   })
 

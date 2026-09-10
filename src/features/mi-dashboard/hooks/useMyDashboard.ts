@@ -6,5 +6,6 @@ export function useMyDashboard() {
   return useQuery({
     queryKey: MY_STATS_KEY,
     queryFn: fetchMyStats,
+    staleTime: 0,
   })
 }

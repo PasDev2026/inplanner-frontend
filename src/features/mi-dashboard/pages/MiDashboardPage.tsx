@@ -3,6 +3,7 @@ import MyStatsCards from "@/features/mi-dashboard/components/MyStatsCards"
 import MyStatusDistribution from "@/features/mi-dashboard/components/MyStatusDistribution"
 import MyWeeklyActivity from "@/features/mi-dashboard/components/MyWeeklyActivity"
 import MyUpcomingTasks from "@/features/mi-dashboard/components/MyUpcomingTasks"
+import MyActivities from "@/features/mi-dashboard/components/MyActivities"
 import MyProjectsList from "@/features/mi-dashboard/components/MyProjectsList"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -29,6 +30,9 @@ export default function MiDashboardPage() {
               {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
             </div>
           </div>
+          <div className="lg:col-span-2">
+            <Skeleton className="h-[300px] rounded-xl" />
+          </div>
           <Skeleton className="h-[300px] rounded-xl" />
           <Skeleton className="h-[300px] rounded-xl" />
           <Skeleton className="h-[300px] rounded-xl" />
@@ -38,6 +42,9 @@ export default function MiDashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="lg:col-span-2">
             <MyStatsCards taskCounts={data.taskCounts} />
+          </div>
+          <div className="lg:col-span-2">
+            <MyActivities />
           </div>
           <MyStatusDistribution taskCounts={data.taskCounts} projects={data.myProjects} />
           <MyWeeklyActivity />

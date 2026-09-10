@@ -41,6 +41,16 @@ export interface MyWeeklyActivityItem {
   completed: number
 }
 
+export interface MyActivityItem {
+  id_task: number
+  task_name: string
+  created_at: string
+  status: number
+  priority: number
+  project_id: number
+  project_name: string
+}
+
 export interface MyStats {
   taskCounts: MyTaskCounts
   myProjects: MyProjectItem[]
@@ -78,5 +88,16 @@ export async function fetchMyUpcomingDeadlines(limit: number): Promise<UpcomingD
     return data
   } catch (error) {
     handleApiError(error, "Error al cargar tus próximos vencimientos")
+  }
+}
+
+export async function fetchMyActivities(status: number | undefined, limit: number): Promise<MyActivityItem[]> {
+  try {
+    const { data } = await api.get<MyActivityItem[]>("/dashboard/my-activities", {
+      params: { status, limit },
+    })
+    return data
+  } catch (error) {
+    handleApiError(error, "Error al cargar tus actividades")
   }
 }

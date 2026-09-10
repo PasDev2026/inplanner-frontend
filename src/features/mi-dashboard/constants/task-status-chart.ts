@@ -11,10 +11,10 @@ export const myTaskChartConfig = {
 
 export function buildMyTaskStatusData(taskCounts: MyTaskCounts) {
   return [
-    { name: "Pendientes", value: taskCounts.pending, fill: "var(--color-pending)" },
-    { name: "En progreso", value: taskCounts.inProgress, fill: "var(--color-inProgress)" },
-    { name: "En revisión", value: taskCounts.underReview, fill: "var(--color-underReview)" },
-    { name: "Completadas", value: taskCounts.completed, fill: "var(--color-completed)" },
-    { name: "Vencidas", value: taskCounts.overdue, fill: "var(--color-overdue)" },
+    { status: "pending", name: "Pendientes", value: taskCounts.pending, fill: "var(--color-pending)" },
+    { status: "inProgress", name: "En progreso", value: taskCounts.inProgress, fill: "var(--color-inProgress)" },
+    { status: "underReview", name: "En revisión", value: taskCounts.underReview, fill: "var(--color-underReview)" },
+    { status: "completed", name: "Completadas", value: taskCounts.completed, fill: "var(--color-completed)" },
+    { status: "overdue", name: "Vencidas", value: taskCounts.overdue, fill: "var(--color-overdue)" },
   ]
 }

@@ -20,6 +20,7 @@ export default function MyWeeklyActivity() {
     queryKey: [...MY_WEEKLY_ACTIVITY_KEY, range.from.toISOString(), range.to.toISOString()],
     queryFn: () => fetchMyWeeklyActivity(range.from, range.to),
     placeholderData: keepPreviousData,
+    staleTime: 0,
   })
 
   const chartData = data ? buildWeeklyActivityData(data, range.from, range.to) : []
