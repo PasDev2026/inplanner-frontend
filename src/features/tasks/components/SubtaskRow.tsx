@@ -22,6 +22,7 @@ import { cn } from "@/features/shared/lib/utils"
 import PageSpinner from "@/components/ui/PageSpinner"
 import SaveAsTemplateDialog from "@/features/templates/components/SaveAsTemplateDialog"
 import AddTemplateButton from "@/features/templates/components/AddTemplateButton"
+import ImportActivitiesButton from "./ImportActivitiesButton"
 
 type SubtaskRowProps = {
     subtask: BackendTask
@@ -201,6 +202,7 @@ export default function SubtaskRow({
                                                                     Añadir subtarea
                                                                 </button>
                                                                 <AddTemplateButton projectId={projectIdNum} parentTaskId={subtask.id_task} />
+                                                                <ImportActivitiesButton projectId={projectIdNum} parentTaskId={subtask.id_task} />
                                                             </div>
                                                         </TableCell>
                                                     </TableRow>

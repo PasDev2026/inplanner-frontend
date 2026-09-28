@@ -24,6 +24,7 @@ import { cn } from "@/features/shared/lib/utils"
 import { useExpandState } from "@/features/shared/providers/ExpandStateProvider"
 import AddTemplateButton from "@/features/templates/components/AddTemplateButton"
 import SaveAsTemplateDialog from "@/features/templates/components/SaveAsTemplateDialog"
+import ImportActivitiesButton from "./ImportActivitiesButton"
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table"
 import { COL_GROUP } from "@/features/shared/lib/tableColumns"
 
@@ -224,6 +225,7 @@ export default function TaskTableSection({
                             Añadir tarea
                         </button>
                         <AddTemplateButton projectId={projectIdNum} />
+                        <ImportActivitiesButton projectId={projectIdNum} />
                     </div>
                 )}
                 {canEdit && showForm && (
@@ -499,6 +501,7 @@ export default function TaskTableSection({
                             Añadir tarea
                         </button>
                         <AddTemplateButton projectId={projectIdNum} />
+                        <ImportActivitiesButton projectId={projectIdNum} />
                     </div>
                 </div>
             )}

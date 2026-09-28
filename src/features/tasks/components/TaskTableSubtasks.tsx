@@ -12,6 +12,7 @@ import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table"
 import { COL_GROUP } from "@/features/shared/lib/tableColumns"
 import PageSpinner from "@/components/ui/PageSpinner"
 import AddTemplateButton from "@/features/templates/components/AddTemplateButton"
+import ImportActivitiesButton from "./ImportActivitiesButton"
 
 type TaskTableSubtasksProps = {
     taskId: number
@@ -109,6 +110,7 @@ export default function TaskTableSubtasks({
                                     Añadir subtarea
                                 </button>
                                 <AddTemplateButton projectId={projectIdNum} parentTaskId={taskId} />
+                                <ImportActivitiesButton projectId={projectIdNum} parentTaskId={taskId} />
                             </div>
                         </TableCell>
                     </TableRow>
