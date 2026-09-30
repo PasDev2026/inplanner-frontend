@@ -107,7 +107,7 @@ export function useProjectListFilters() {
     responsibleInput, setResponsibleInput,
     priorityInput, setPriorityInput,
     scopeInput, setScopeInput,
-    sort, handleSort,
+    sort, setSort, handleSort,
     clearAllFilters,
     debouncedFilters,
     isSearching,

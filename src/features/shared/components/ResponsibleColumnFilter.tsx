@@ -2,19 +2,24 @@ import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { AVAILABLE_USERS_KEY } from "@/features/shared/lib/shared-keys"
 import { getAvailableUsers } from "@/features/shared/actions/users.api"
-import { X, Check } from "lucide-react"
+import { X, Check, ChevronDown } from "lucide-react"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  filterTriggerClass,
+  type FilterAppearance,
+} from "@/features/shared/lib/filter-trigger"
 
 type ResponsibleColumnFilterProps = {
   selected: string[]
   onChange: (ids: string[]) => void
+  appearance?: FilterAppearance
 }
 
-export default function ResponsibleColumnFilter({ selected, onChange }: ResponsibleColumnFilterProps) {
+export default function ResponsibleColumnFilter({ selected, onChange, appearance = "header" }: ResponsibleColumnFilterProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
 
@@ -40,12 +45,11 @@ export default function ResponsibleColumnFilter({ selected, onChange }: Responsi
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
-          <button
-            className={`flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider cursor-pointer select-none hover:text-foreground transition-colors group ${
-              selected.length ? "text-brand-primary" : "text-muted-foreground"
-            }`}
-          >
+          <button className={filterTriggerClass(appearance, selected.length > 0)}>
             <span className="max-w-[120px] truncate">{triggerLabel}</span>
+            {appearance === "chip" && (
+              <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+            )}
           </button>
         }
       />

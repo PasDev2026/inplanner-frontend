@@ -1,5 +1,5 @@
-import { useState, useRef, useMemo } from "react"
-import { MoreVertical, ChevronDown } from "lucide-react"
+import { useState, useMemo } from "react"
+import { MoreVertical, ChevronDown, GitBranch } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -14,6 +14,7 @@ import type { CentralizadoItem } from "@/features/shared/actions/centralizado.ap
 import isManager from "@/features/shared/lib/policies"
 import CircularProgress from "@/components/ui/CircularProgress"
 import DateCellPopover from "./DateCellPopover"
+import EditableName from "./EditableName"
 import TaskTableSection from "@/features/tasks/components/TaskTableSection"
 import StatusPopover from "./StatusPopover"
 import ResponsiblePopover from "@/features/shared/components/ResponsiblePopover"
@@ -38,48 +39,10 @@ export default function ProjectTableRow({ project, user, sedes, taskStatusSelect
     const updateProjectResponsibleHook = useUpdateProjectResponsible()
     const { expandedProjects, toggleProject } = useExpandState()
     const expanded = expandedProjects.has(project.id_project)
-    const [isEditing, setIsEditing] = useState(false)
-    const [editValue, setEditValue] = useState("")
     const [editOpen, setEditOpen] = useState(false)
-    const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     const sedeMap = useMemo(() => new Map(sedes.map(s => [s.id, s.nombre])), [sedes])
     const sedeName = project.sede_id != null ? sedeMap.get(project.sede_id) ?? "" : ""
-
-    const handleNameClick = () => {
-        if (clickTimer.current) {
-            clearTimeout(clickTimer.current)
-            clickTimer.current = null
-            return
-        }
-        clickTimer.current = setTimeout(() => {
-            clickTimer.current = null
-            navigate(`/projects/${project.id_project}/details-projects`)
-        }, 250)
-    }
-
-    const handleNameDoubleClick = () => {
-        if (clickTimer.current) {
-            clearTimeout(clickTimer.current)
-            clickTimer.current = null
-        }
-        setEditValue(project.name_project)
-        setIsEditing(true)
-    }
-
-    const handleEditKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" && editValue.trim()) {
-            updateProject.mutate({
-                projectId: project.id_project,
-                name_project: editValue.trim(),
-                description_project: project.description_project ?? "",
-            })
-            setIsEditing(false)
-        }
-        if (e.key === "Escape") {
-            setIsEditing(false)
-        }
-    }
 
     return (
         <>
@@ -96,25 +59,25 @@ export default function ProjectTableRow({ project, user, sedes, taskStatusSelect
                 </TableCell>
                 <TableCell>
                     <div className="flex items-center gap-3 min-w-0">
-                        {isEditing ? (
-                            <input
-                                type="text"
-                                value={editValue}
-                                onChange={(e) => setEditValue(e.target.value)}
-                                onKeyDown={handleEditKeyDown}
-                                onBlur={() => setIsEditing(false)}
-                                autoFocus
-                                className="flex-1 text-sm font-medium text-foreground bg-[var(--input-bg)] border border-brand-primary rounded px-2 py-0.5 focus:outline-none min-w-0"
-                            />
-                        ) : (
-                            <span
-                                onClick={handleNameClick}
-                                onDoubleClick={handleNameDoubleClick}
-                                className="font-medium text-brand-dark truncate hover:underline text-sm cursor-pointer"
-                            >
-                                {project.name_project}
-                            </span>
-                        )}
+                        <EditableName
+                            value={project.name_project}
+                            onNavigate={() => navigate(`/projects/${project.id_project}/details-projects`)}
+                            onRename={(name) => updateProject.mutate({
+                                projectId: project.id_project,
+                                name_project: name,
+                                description_project: project.description_project ?? "",
+                            })}
+                            className="text-sm font-medium text-brand-dark"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => navigate(`/projects/${project.id_project}/branches`)}
+                            title="Ver diagrama de ramas"
+                            className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-brand-primary/10 hover:text-brand-primary"
+                        >
+                            <span className="sr-only">Ver diagrama de ramas</span>
+                            <GitBranch className="h-3.5 w-3.5" aria-hidden="true" />
+                        </button>
                         {isManager(project.manager_id, user.id) ? (
                             <Badge variant="brand-light">Manager</Badge>
                         ) : (

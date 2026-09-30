@@ -1,19 +1,17 @@
 import { useState, useRef } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { getTaskChildren, createTask } from "@/features/tasks/actions/task.api"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { getTaskChildren } from "@/features/tasks/actions/task.api"
 import type { BackendTask } from "@/features/shared/lib/types"
-import type { TaskDndAncestor } from "@/features/tasks/lib/task-tree-dnd"
 import { filterByStatus } from "@/features/tasks/lib/task-status-filter"
-import { TASK_CHILDREN_KEY, DASHBOARD_TASKS_KEY } from "@/features/tasks/lib/task-keys"
-import { PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
+import { TASK_CHILDREN_KEY } from "@/features/tasks/lib/task-keys"
 import { useTaskMutations } from "../hooks/useTaskMutations"
 import { TaskRowDnd, TaskDragHandle } from "./TaskRowDnd"
 import TaskStatusPopover from "./TaskStatusPopover"
 import ResponsiblePopover from "@/features/shared/components/ResponsiblePopover"
 import PriorityPopover from "@/features/shared/components/PriorityPopover"
 import TaskDateCellPopover from "./TaskDateCellPopover"
-import { ChevronRight, ChevronDown, Plus, Check, X, Trash2, MessageSquare, LayoutTemplate } from "lucide-react"
+import { ChevronRight, ChevronDown, Trash2, MessageSquare, LayoutTemplate } from "lucide-react"
 import { toast } from "sonner"
 import { useExpandState } from "@/features/shared/providers/ExpandStateProvider"
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table"
@@ -21,16 +19,13 @@ import { COL_GROUP } from "@/features/shared/lib/tableColumns"
 import { cn } from "@/features/shared/lib/utils"
 import PageSpinner from "@/components/ui/PageSpinner"
 import SaveAsTemplateDialog from "@/features/templates/components/SaveAsTemplateDialog"
-import AddTemplateButton from "@/features/templates/components/AddTemplateButton"
-import ImportActivitiesButton from "./ImportActivitiesButton"
+import TaskAddBar from "./TaskAddBar"
 
 type SubtaskRowProps = {
     subtask: BackendTask
     projectId: string
     canEdit: boolean
     depth: number
-    siblingIndex: number
-    ancestors: TaskDndAncestor[]
     projectStartDate?: string | null
     projectDueDate?: string | null
     visibleTaskIds: ReadonlySet<number>
@@ -42,8 +37,6 @@ export default function SubtaskRow({
     projectId,
     canEdit,
     depth,
-    siblingIndex,
-    ancestors,
     projectStartDate,
     projectDueDate,
     visibleTaskIds,
@@ -51,8 +44,6 @@ export default function SubtaskRow({
 }: SubtaskRowProps) {
     const { expandedTasks, toggleTask } = useExpandState()
     const expanded = expandedTasks.has(subtask.id_task)
-    const [showForm, setShowForm] = useState(false)
-    const [newTaskName, setNewTaskName] = useState("")
     const [isEditing, setIsEditing] = useState(false)
     const [editValue, setEditValue] = useState("")
     const [saveTemplateOpen, setSaveTemplateOpen] = useState(false)
@@ -70,21 +61,6 @@ export default function SubtaskRow({
     })
 
     const visibleChildren = filterByStatus(children, visibleTaskIds)
-
-    const createSubtask = useMutation({
-        mutationFn: (name: string) =>
-            createTask({ task_name: name, project_id: projectIdNum, parent_task_id: subtask.id_task }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: TASK_CHILDREN_KEY(subtask.id_task) })
-            queryClient.invalidateQueries({ queryKey: PROJECT_TASKS_KEY(projectIdNum) })
-            queryClient.invalidateQueries({ queryKey: DASHBOARD_TASKS_KEY(projectIdNum) })
-            setNewTaskName("")
-            setShowForm(false)
-        },
-        onError: (error) => {
-            toast.error((error as Error).message)
-        },
-    })
 
     const { statusMutation, priorityMutation, renameMutation, assignmentMutation, deleteTaskMutation } = useTaskMutations(projectIdNum)
 
@@ -142,9 +118,6 @@ export default function SubtaskRow({
         <>
             <TaskRowDnd
                 task={subtask}
-                depth={depth}
-                siblingIndex={siblingIndex}
-                ancestors={ancestors}
                 canEdit={canEdit}
                 className={cn(
                     "hover:bg-muted transition-colors group",
@@ -171,18 +144,13 @@ export default function SubtaskRow({
                                             </TableRow>
                                         ) : (
                                             <>
-                                                {visibleChildren.map((child: BackendTask, idx: number) => (
+                                                {visibleChildren.map((child: BackendTask) => (
                                                     <SubtaskRow
                                                         key={child.id_task}
                                                         subtask={child}
                                                         projectId={projectId}
                                                         canEdit={canEdit}
                                                         depth={depth + 1}
-                                                        siblingIndex={idx}
-                                                        ancestors={[
-                                                            ...ancestors,
-                                                            { taskId: subtask.id_task, index: siblingIndex },
-                                                        ]}
                                                         projectStartDate={projectStartDate}
                                                         projectDueDate={projectDueDate}
                                                         visibleTaskIds={visibleTaskIds}
@@ -190,64 +158,10 @@ export default function SubtaskRow({
                                                     />
                                                 ))}
 
-                                                {canEdit && !showForm && (
+                                                {canEdit && (
                                                     <TableRow>
                                                         <TableCell colSpan={9} className="px-4 py-2" style={{ paddingLeft: childPad }}>
-                                                            <div className="flex items-center gap-4">
-                                                                <button
-                                                                    onClick={() => setShowForm(true)}
-                                                                    className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-dark transition-colors"
-                                                                >
-                                                                    <Plus className="h-3.5 w-3.5" />
-                                                                    Añadir subtarea
-                                                                </button>
-                                                                <AddTemplateButton projectId={projectIdNum} parentTaskId={subtask.id_task} />
-                                                                <ImportActivitiesButton projectId={projectIdNum} parentTaskId={subtask.id_task} />
-                                                            </div>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                )}
-
-                                                {canEdit && showForm && (
-                                                    <TableRow>
-                                                        <TableCell colSpan={9} className="px-4 py-2" style={{ paddingLeft: childPad }}>
-                                                            <div className="flex items-center gap-2">
-                                                                <input
-                                                                    type="text"
-                                                                    value={newTaskName}
-                                                                    onChange={(e) => setNewTaskName(e.target.value)}
-                                                                    placeholder="Nombre de la subtarea"
-                                                                    className="flex-1 text-xs border border-border rounded px-2 py-1.5 focus:outline-none focus:border-brand-primary"
-                                                                    autoFocus
-                                                                    onKeyDown={(e) => {
-                                                                        if (e.key === "Enter" && newTaskName.trim()) {
-                                                                            createSubtask.mutate(newTaskName.trim())
-                                                                        }
-                                                                        if (e.key === "Escape") {
-                                                                            setShowForm(false)
-                                                                            setNewTaskName("")
-                                                                        }
-                                                                    }}
-                                                                />
-                                                                <button
-                                                                    onClick={() => {
-                                                                        if (newTaskName.trim()) createSubtask.mutate(newTaskName.trim())
-                                                                    }}
-                                                                    disabled={!newTaskName.trim() || createSubtask.isPending}
-                                                                    className="p-1 text-brand-primary hover:text-brand-dark disabled:text-muted-foreground"
-                                                                >
-                                                                    <Check className="h-3.5 w-3.5" />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        setShowForm(false)
-                                                                        setNewTaskName("")
-                                                                    }}
-                                                                    className="p-1 text-muted-foreground hover:text-foreground"
-                                                                >
-                                                                    <X className="h-3.5 w-3.5" />
-                                                                </button>
-                                                            </div>
+                                                            <TaskAddBar projectId={projectIdNum} parentTaskId={subtask.id_task} />
                                                         </TableCell>
                                                     </TableRow>
                                                 )}

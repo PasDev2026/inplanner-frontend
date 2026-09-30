@@ -1,22 +1,25 @@
 import { useEffect } from "react"
+import { Controller, useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { userEditSchema } from "@/features/admin/schemas/user.schema"
-import type { UserEditForm } from "@/features/admin/schemas/user.schema"
-import { getUserById, updateUserProfileApi } from "@/features/admin/actions/admin.api"
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query"
-import { USERS_KEY, USER_DETAIL_KEY } from "@/features/admin/lib/admin-keys"
-import { AREAS_KEY } from "@/features/shared/lib/shared-keys"
-import { getAreas } from "@/features/shared/actions/centralizado.api"
-import { toast } from "sonner"
-import UserFormFields from "./UserFormFields"
+import { Label } from "@/components/ui/label"
+import { Select } from "@/components/ui/select"
+import { AREAS_KEY, SEDES_KEY } from "@/features/shared/lib/shared-keys"
+import { getAreas, getSedes } from "@/features/shared/actions/centralizado.api"
+import { getUserById, updateUserProfileApi } from "../actions/admin.api"
+import { USERS_KEY, USER_DETAIL_KEY } from "../lib/admin-keys"
+import { userEditSchema, type UserEditForm } from "../schemas/user.schema"
+import UserReadonlyFields from "./UserReadonlyFields"
 
 type EditUserModalProps = {
   isOpen: boolean
@@ -24,7 +27,11 @@ type EditUserModalProps = {
   userId: string
 }
 
-export default function EditUserModal({ isOpen, onClose, userId }: EditUserModalProps) {
+export default function EditUserModal({
+  isOpen,
+  onClose,
+  userId,
+}: EditUserModalProps) {
   const queryClient = useQueryClient()
 
   const { data: user, isError, error } = useQuery({
@@ -33,51 +40,40 @@ export default function EditUserModal({ isOpen, onClose, userId }: EditUserModal
     enabled: isOpen,
   })
 
-  const { data: areas, isLoading: areasLoading, isError: areasError } = useQuery({
+  const { data: areas, isLoading: areasLoading } = useQuery({
     queryKey: AREAS_KEY,
     queryFn: getAreas,
     enabled: isOpen,
   })
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<UserEditForm>({
+  const { data: sedes } = useQuery({
+    queryKey: SEDES_KEY,
+    queryFn: getSedes,
+    enabled: isOpen,
+    staleTime: 5 * 60_000,
+  })
+
+  const { control, handleSubmit, reset } = useForm<UserEditForm>({
     resolver: zodResolver(userEditSchema),
-    defaultValues: {
-      name: "",
-      apellido_paterno: "",
-      email: "",
-      area_id: "",
-    },
+    defaultValues: { area_id: "" },
   })
 
   useEffect(() => {
     if (user && isOpen) {
-      reset({
-        name: user.name,
-        apellido_paterno: user.apellido_paterno ?? "",
-        email: user.email,
-        area_id: user.area?.id_area?.toString() ?? "",
-      })
+      reset({ area_id: user.area?.id_area?.toString() ?? "" })
     }
   }, [user, isOpen, reset])
 
-  const { mutateAsync } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: ({ uid, data }: { uid: string; data: { area_id?: string } }) =>
       updateUserProfileApi(uid, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: USERS_KEY })
       queryClient.invalidateQueries({ queryKey: USER_DETAIL_KEY(userId) })
-      toast.success("Los datos del usuario han sido actualizados correctamente")
+      toast.success("Área actualizada correctamente")
       onClose()
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
-    },
+    onError: (err) => toast.error((err as Error).message),
   })
 
   const onSubmit = async (formData: UserEditForm) => {
@@ -87,39 +83,91 @@ export default function EditUserModal({ isOpen, onClose, userId }: EditUserModal
     await mutateAsync({ uid: user.id_user, data: payload })
   }
 
+  const sedeName = user?.sede_id
+    ? (sedes?.find((s) => s.id === user.sede_id)?.nombre ?? "")
+    : ""
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose()
+      }}
+    >
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Editar usuario</DialogTitle>
+          <DialogDescription>
+            Los datos de la persona se administran en Centralizado; aquí solo
+            asignas el área.
+          </DialogDescription>
         </DialogHeader>
 
         {isError && (
-          <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive text-center">
+          <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
             Error al cargar los datos del usuario. {error?.message}
-            <button onClick={onClose} className="ml-2 underline font-semibold hover:no-underline cursor-pointer">Cerrar</button>
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-          <UserFormFields
-            register={register}
-            errors={errors}
-            control={control}
-            areas={areas}
-            areasLoading={areasLoading}
-            areasError={areasError}
-          />
+        {user && (
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+            <UserReadonlyFields user={user} sedeName={sedeName} />
 
-          <div className="flex gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="flex-1">
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isSubmitting} className="flex-1">
-              {isSubmitting ? "Guardando..." : "Guardar cambios"}
-            </Button>
-          </div>
-        </form>
+            <div className="space-y-1.5 border-t pt-5">
+              <Label
+                htmlFor="edit-area_id"
+                className="text-xs font-medium text-foreground"
+              >
+                Área
+              </Label>
+              <Controller
+                control={control}
+                name="area_id"
+                render={({ field }) => (
+                  <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                    <Select.Trigger id="edit-area_id">
+                      <Select.Value
+                        placeholder={areasLoading ? "Cargando..." : "Seleccionar"}
+                      >
+                        {field.value
+                          ? areas?.find(
+                              (a) => a.id_area.toString() === field.value,
+                            )?.nombre_area
+                          : undefined}
+                      </Select.Value>
+                    </Select.Trigger>
+                    <Select.Popup>
+                      <Select.List>
+                        {areas?.map((area) => (
+                          <Select.Item
+                            key={area.id_area}
+                            value={area.id_area.toString()}
+                          >
+                            {area.nombre_area}
+                          </Select.Item>
+                        ))}
+                      </Select.List>
+                    </Select.Popup>
+                  </Select>
+                )}
+              />
+            </div>
+
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={isPending}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Guardando..." : "Guardar cambios"}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   )

@@ -1,11 +1,15 @@
 import { useState } from "react"
-import { Check } from "lucide-react"
+import { Check, ChevronDown } from "lucide-react"
 import { PRIORITY_MAP } from "@/features/shared/constants/priority.constant"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  filterTriggerClass,
+  type FilterAppearance,
+} from "@/features/shared/lib/filter-trigger"
 
 const PRIORITY_KEYS = [1, 2, 3, 4] as const
 
@@ -19,9 +23,10 @@ const PRIORITY_SELECTED_BG: Record<number, string> = {
 type PriorityColumnFilterProps = {
   selected: number[]
   onChange: (values: number[]) => void
+  appearance?: FilterAppearance
 }
 
-export default function PriorityColumnFilter({ selected, onChange }: PriorityColumnFilterProps) {
+export default function PriorityColumnFilter({ selected, onChange, appearance = "header" }: PriorityColumnFilterProps) {
   const [open, setOpen] = useState(false)
 
   const triggerLabel = selected.length
@@ -32,12 +37,11 @@ export default function PriorityColumnFilter({ selected, onChange }: PriorityCol
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
-          <button
-            className={`flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider cursor-pointer select-none hover:text-foreground transition-colors group ${
-              selected.length ? "text-brand-primary" : "text-muted-foreground"
-            }`}
-          >
+          <button className={filterTriggerClass(appearance, selected.length > 0)}>
             <span className="max-w-[120px] truncate">{triggerLabel}</span>
+            {appearance === "chip" && (
+              <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+            )}
           </button>
         }
       />

@@ -1,19 +1,29 @@
 import { useState } from "react"
-import { Check } from "lucide-react"
+import { Check, ChevronDown } from "lucide-react"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  filterTriggerClass,
+  type FilterAppearance,
+} from "@/features/shared/lib/filter-trigger"
 import { PROJECT_OPTIONS, TASK_OPTIONS } from "@/features/shared/lib/statusOptions"
 
 type StatusColumnFilterProps = {
     selected: string[]
     onChange: (values: string[]) => void
     variant?: "project" | "task"
+    appearance?: FilterAppearance
 }
 
-export default function StatusColumnFilter({ selected, onChange, variant = "project" }: StatusColumnFilterProps) {
+export default function StatusColumnFilter({
+    selected,
+    onChange,
+    variant = "project",
+    appearance = "header",
+}: StatusColumnFilterProps) {
     const [open, setOpen] = useState(false)
 
     const options = variant === "task" ? TASK_OPTIONS : PROJECT_OPTIONS
@@ -26,10 +36,11 @@ export default function StatusColumnFilter({ selected, onChange, variant = "proj
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger
                 render={
-                    <button className={`flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider cursor-pointer select-none hover:text-foreground transition-colors group ${
-                        selected.length ? 'text-brand-primary' : 'text-muted-foreground'
-                    }`}>
+                    <button className={filterTriggerClass(appearance, selected.length > 0)}>
                         <span className="max-w-[120px] truncate">{triggerLabel}</span>
+                        {appearance === "chip" && (
+                            <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+                        )}
                     </button>
                 }
             />

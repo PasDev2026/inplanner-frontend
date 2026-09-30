@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/features/auth/schemas/login.schema";
@@ -24,6 +24,7 @@ export default function Login() {
 
   const [showPassword, setShowPassword] = useState(false)
   const [apiErrors, setApiErrors] = useState<ApiErrors>({})
+  const submitting = useRef(false)
   const initialValues: UserLoginForm = {numero_documento: '',password: ''}
   const { register, handleSubmit, formState: { errors } } = useForm<UserLoginForm>({ defaultValues: initialValues, resolver: zodResolver(loginSchema) })
   const navigate = useNavigate()
@@ -48,21 +49,24 @@ export default function Login() {
         description: 'Has cerrado sesión correctamente.',
       })
     }
-  },)
+  }, [searchParams])
   
   const { login } = useAuthContext()
 
-  const {mutate} = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: login,
     onError: (error: { message: string }) => {
+      submitting.current = false
       toast.error(error.message, { position: 'top-center' });
       setApiErrors({});
     },
     onSuccess: () => {
+      submitting.current = false
       const raw = localStorage.getItem('auth_user')
       if (raw) {
         const user = JSON.parse(raw) as AuthUser
         toast.success(`Bienvenido ${user.nombres} ${user.apellidoPaterno}`, {
+          id: 'login-success',
           description: 'Sesión iniciada correctamente',
         })
       }
@@ -71,6 +75,8 @@ export default function Login() {
   })
 
   const handleLogin = (formData: UserLoginForm) => {
+    if (submitting.current) return
+    submitting.current = true
     setApiErrors({})
     mutate({ ...formData, sede_slug: sede ?? getSedeSlug() })
   }
@@ -97,6 +103,7 @@ export default function Login() {
           placeholder="Ingresa tu número de documento"
           icon={<UserIcon />}
           error={errors.numero_documento?.message || apiErrors.numero_documento}
+          disabled={isPending}
           {...register("numero_documento", {
             onChange: () => clearFieldError('numero_documento'),
           })}
@@ -109,6 +116,7 @@ export default function Login() {
           placeholder="Ingresa tu contraseña"
           icon={<LockIcon />}
           error={errors.password?.message || apiErrors.password}
+          disabled={isPending}
           suffix={
             <button
               type="button"
@@ -123,7 +131,7 @@ export default function Login() {
           })}
         />
 
-        <LoginButton type="submit">
+        <LoginButton type="submit" isLoading={isPending}>
           Iniciar Sesión
         </LoginButton>
       </form>

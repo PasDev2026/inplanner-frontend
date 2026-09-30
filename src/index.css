@@ -14,10 +14,10 @@
     --text-secondary: #64748B;
     --bg-primary: #FFFFFF;
     --bg-secondary: #F8FAFC;
-    --brand-primary: #259d9a;
-    --brand-dark: #00375A;
-    --brand-light: #4dc4c1;
-    --brand-hover: #248f8a;
+    --brand-primary: 178 62% 38%;
+    --brand-dark: 203 100% 18%;
+    --brand-light: 179 50% 53%;
+    --brand-hover: 177 60% 35%;
 
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
@@ -89,10 +89,10 @@
     --text-secondary: #94A3B8;
     --bg-primary: #0F172A;
     --bg-secondary: #1E293B;
-    --brand-primary: #014568;
-    --brand-dark: #0180b6;
-    --brand-light: #002a40;
-    --brand-hover: #3DAFAA;
+    --brand-primary: 200 98% 21%;
+    --brand-dark: 198 99% 36%;
+    --brand-light: 201 100% 13%;
+    --brand-hover: 177 48% 46%;
 
     --background: 210 5% 12%;
     --foreground: 0 0% 98%;

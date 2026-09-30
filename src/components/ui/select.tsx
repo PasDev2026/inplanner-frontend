@@ -3,12 +3,9 @@ import { ChevronDown } from "lucide-react"
 
 import { cn } from "@/features/shared/lib/utils"
 
-function SelectRoot<Value, Multiple extends boolean | undefined = false>({
-  className,
-  ...props
-}: SelectPrimitive.Root.Props<Value, Multiple> & {
-  className?: string
-}) {
+function SelectRoot<Value, Multiple extends boolean | undefined = false>(
+  props: SelectPrimitive.Root.Props<Value, Multiple>,
+) {
   return <SelectPrimitive.Root data-slot="select" {...props} />
 }
 
@@ -21,7 +18,7 @@ function SelectTrigger({
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       className={cn(
-        "flex h-9 w-full! items-center justify-between rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-placeholder:text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+        "flex h-8 w-full items-center justify-between rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm shadow-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-placeholder:text-muted-foreground hover:bg-accent hover:text-accent-foreground dark:bg-input/30",
         className
       )}
       {...props}

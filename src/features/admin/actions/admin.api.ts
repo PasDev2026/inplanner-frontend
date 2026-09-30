@@ -1,4 +1,5 @@
 import api from "@/features/shared/lib/axios";
+import { handleApiError } from "@/features/shared/lib/handle-api-error";
 import type { UserAdmin } from "@/features/admin/schemas/user.schema";
 
 export type UserFilters = {
@@ -6,6 +7,35 @@ export type UserFilters = {
   estado?: string
   area_id?: string
   sede_id?: string
+}
+
+export type CreateUserPayload = {
+  tipo_documento_uuid: string
+  numero_documento: string
+  nombres: string
+  apellido_paterno: string
+  apellido_materno?: string
+  fecha_nacimiento: string
+  sexo: string
+  email: string
+  telefono?: string
+  direccion?: string
+  password: string
+  repetir_password: string
+  area_id?: number
+  asignaciones: { sede_uuid: string; rol_uuid: string }[]
+}
+
+export type TipoDocumentoItem = {
+  uuid_tipo_documento: string
+  nombre: string
+  codigo: string
+}
+
+export type SunatDniResult = {
+  nombres: string
+  apellido_paterno: string
+  apellido_materno: string
 }
 
 export async function getAllUsers(page: number, limit: number, filters?: UserFilters) {
@@ -16,6 +46,35 @@ export async function getAllUsers(page: number, limit: number, filters?: UserFil
   if (filters?.sede_id) params.set('sede_id', filters.sede_id)
   const { data } = await api<{ data: UserAdmin[]; meta: { page: number; limit: number; total: number; totalPages: number } }>(`/users?${params}`)
   return { users: data.data, total: data.meta.total }
+}
+
+export async function createUser(payload: CreateUserPayload) {
+  try {
+    const { data } = await api.post<UserAdmin>('/users', payload)
+    return data
+  } catch (error) {
+    handleApiError(error, 'Error al crear el usuario')
+  }
+}
+
+export async function getTiposDocumento() {
+  try {
+    const { data } = await api.get<TipoDocumentoItem[]>('/centralizado/tipos-documento')
+    return data
+  } catch (error) {
+    handleApiError(error, 'Error al cargar los tipos de documento')
+  }
+}
+
+export async function searchDni(document: string) {
+  try {
+    const { data } = await api.get<SunatDniResult>('/centralizado/sunat/dni', {
+      params: { document },
+    })
+    return data
+  } catch (error) {
+    handleApiError(error, 'Error al consultar el DNI')
+  }
 }
 
 export async function updateUserStatus(userId: string, estado: boolean) {

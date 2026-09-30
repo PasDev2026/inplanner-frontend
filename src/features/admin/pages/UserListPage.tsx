@@ -2,12 +2,14 @@ import { useState, useEffect, useMemo, memo } from "react";
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { USERS_KEY, USERS_PAGINATED_KEY } from "@/features/admin/lib/admin-keys";
 import { AREAS_KEY, SEDES_KEY } from "@/features/shared/lib/shared-keys";
-import { Pencil } from "lucide-react"
+import { Pencil, Plus, Users } from "lucide-react"
 import { getAllUsers, updateUserStatus } from "@/features/admin/actions/admin.api";
 import { getAreas, getSedes } from "@/features/shared/actions/centralizado.api";
 import PageSpinner from "@/components/ui/PageSpinner";
+import { Button } from "@/components/ui/button";
 import UserStatusModal from "@/features/admin/components/UserStatusModal";
 import EditUserModal from "@/features/admin/components/EditUserModal";
+import CreateUserModal from "@/features/admin/components/CreateUserModal";
 import { Pagination } from "@/components/ui/pagination";
 import { UserAdmin } from "@/features/admin/schemas/user.schema";
 import { Card, CardContent } from "@/components/ui/card";
@@ -116,6 +118,7 @@ const UserList = memo(function UserList() {
   const queryClient = useQueryClient()
   const [selectedUser, setSelectedUser] = useState<UserAdmin | null>(null)
   const [editingUserId, setEditingUserId] = useState<string | null>(null)
+  const [createOpen, setCreateOpen] = useState(false)
   const [page, setPage] = useState(1)
   const PAGE_SIZE = 10
 
@@ -177,9 +180,9 @@ const UserList = memo(function UserList() {
 
   if (isError) {
     return (
-      <div>
-        <h1 className="text-5xl font-black">Usuarios registrados</h1>
-        <p className="text-2xl font-light text-red-500 mt-5">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-xl font-semibold text-foreground">Gestión de usuarios</h1>
+        <p className="text-sm text-destructive">
           Error al cargar los usuarios. Verifica tus permisos.
         </p>
       </div>
@@ -189,13 +192,22 @@ const UserList = memo(function UserList() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardContent className="p-6">
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Gestión de usuarios</h1>
-            <p className="text-sm font-medium text-muted-foreground mt-1">
-              Administra los usuarios del sistema
-            </p>
+        <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary">
+              <Users className="h-5 w-5" />
+            </span>
+            <div>
+              <h1 className="text-xl font-semibold text-foreground">Gestión de usuarios</h1>
+              <p className="text-sm text-muted-foreground">
+                Administra los usuarios del sistema
+              </p>
+            </div>
           </div>
+          <Button onClick={() => setCreateOpen(true)}>
+            <Plus className="h-4 w-4" />
+            Nuevo usuario
+          </Button>
         </CardContent>
       </Card>
 
@@ -251,6 +263,7 @@ const UserList = memo(function UserList() {
         onClose={() => setEditingUserId(null)}
         userId={editingUserId!}
       />
+      <CreateUserModal isOpen={createOpen} onClose={() => setCreateOpen(false)} />
     </div>
   );
 })

@@ -23,13 +23,6 @@ export const userAdminSchema = z.object({
 export type UserAdmin = z.infer<typeof userAdminSchema>
 
 export const userEditSchema = z.object({
-  name: z.string(),
-  apellido_paterno: z.string(),
-  // ponytail: apellido_materno comentado — pendiente de sync desde centralizado vía JWT
-  // apellido_materno: z.string(),
-  // ponytail: telefono comentado — pendiente de sync desde centralizado vía JWT
-  // telefono: z.string().max(9, 'El teléfono debe tener máximo 9 caracteres').regex(/^\d+$/, 'Solo se permiten números'),
-  email: z.string().email(),
   area_id: z.string().optional(),
 })
 export type UserEditForm = z.infer<typeof userEditSchema>

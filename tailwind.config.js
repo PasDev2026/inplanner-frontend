@@ -14,9 +14,10 @@ module.exports = {
       },
       colors: {
         brand: {
-          primary: 'var(--brand-primary)',
-          dark: 'var(--brand-dark)',
-          light: 'var(--brand-light)',
+          primary: 'hsl(var(--brand-primary))',
+          dark: 'hsl(var(--brand-dark))',
+          light: 'hsl(var(--brand-light))',
+          hover: 'hsl(var(--brand-hover))',
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

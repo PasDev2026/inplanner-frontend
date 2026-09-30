@@ -6,10 +6,10 @@ import {
   type DraggableSyntheticListeners,
 } from "@dnd-kit/core"
 import type { BackendTask } from "@/features/shared/lib/types"
-import type { TaskDndAncestor, TaskDndRowData } from "@/features/tasks/lib/task-tree-dnd"
 import { TableRow } from "@/components/ui/table"
 import { cn } from "@/features/shared/lib/utils"
 import { GripVertical } from "lucide-react"
+import { useTaskDndContext } from "./TaskDndContext"
 
 export type TaskDndProps = {
   listeners: DraggableSyntheticListeners | undefined
@@ -19,20 +19,8 @@ export type TaskDndProps = {
 
 export function useTaskRowDnd(params: {
   task: BackendTask
-  depth: number
-  siblingIndex: number
-  ancestors: TaskDndAncestor[]
   canEdit: boolean
 }): TaskDndProps & { setNodeRef: (node: HTMLElement | null) => void } {
-  const rowData: TaskDndRowData = {
-    taskId: params.task.id_task,
-    parentTaskId: params.task.parent_task_id,
-    depth: params.depth,
-    siblingIndex: params.siblingIndex,
-    ancestors: params.ancestors,
-    subtasksCount: params.task.subtasks_count ?? 0,
-  }
-
   const draggable = useDraggable({
     id: `task-${params.task.id_task}`,
     disabled: !params.canEdit,
@@ -40,7 +28,6 @@ export function useTaskRowDnd(params: {
   })
   const droppable = useDroppable({
     id: `row-${params.task.id_task}`,
-    data: rowData,
   })
 
   const setNodeRef = useCallback(
@@ -61,9 +48,6 @@ export function useTaskRowDnd(params: {
 
 type TaskRowDndProps = {
   task: BackendTask
-  depth: number
-  siblingIndex: number
-  ancestors: TaskDndAncestor[]
   canEdit: boolean
   className?: string
   expandedContent?: React.ReactNode
@@ -72,9 +56,6 @@ type TaskRowDndProps = {
 
 export function TaskRowDnd({
   task,
-  depth,
-  siblingIndex,
-  ancestors,
   canEdit,
   className,
   expandedContent,
@@ -82,17 +63,21 @@ export function TaskRowDnd({
 }: TaskRowDndProps) {
   const { listeners, attributes, isDragging, setNodeRef } = useTaskRowDnd({
     task,
-    depth,
-    siblingIndex,
-    ancestors,
     canEdit,
   })
+  const dropTarget = useTaskDndContext()
+  const isInside =
+    dropTarget?.overId === task.id_task && dropTarget.zone === "inside"
 
   return (
     <>
       <TableRow
         ref={setNodeRef}
-        className={cn(className, isDragging && "opacity-40")}
+        className={cn(
+          className,
+          isDragging && "opacity-40",
+          isInside && "bg-brand-primary/5 ring-2 ring-inset ring-brand-primary",
+        )}
       >
         {children({ listeners, attributes, isDragging })}
       </TableRow>

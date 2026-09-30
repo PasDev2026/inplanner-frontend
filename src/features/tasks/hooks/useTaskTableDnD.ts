@@ -1,140 +1,152 @@
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import {
   PointerSensor,
   useSensor,
   useSensors,
-  type DragCancelEvent,
   type DragEndEvent,
   type DragMoveEvent,
   type DragStartEvent,
 } from "@dnd-kit/core"
 import type { BackendTask } from "@/features/shared/lib/types"
 import {
-  TASK_CELL_LEFT,
-  TASK_INDENT,
-  computeDropTarget,
-  verticalRowCollisionDetection,
-  type TaskDndRowData,
-  type TaskDrop,
-} from "@/features/tasks/lib/task-tree-dnd"
+  computeBranchDropTarget,
+  makeRowCollisionDetection,
+  resolveDropZone,
+  type BranchDropTarget,
+  type BranchDropZone,
+} from "@/features/projects/branches/lib/branch-dnd"
+import type { TaskDropTarget } from "../components/TaskDndContext"
+
+export type TaskDrop = {
+  taskId: number
+  parentId: number | null
+  oldParentId: number | null
+  index: number
+}
 
 type Indicator = { top: number; left: number; width: number }
+type DragLike = DragMoveEvent | DragEndEvent
 
-export function useTaskTableDnD(onDrop: (drop: TaskDrop) => void) {
+const ROW_PREFIX = "row-"
+
+export function useTaskTableDnD(
+  tasks: BackendTask[],
+  onDrop: (drop: TaskDrop) => void,
+) {
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const pointerOffset = useRef({ x: 0, y: 0 })
-  const lastTarget = useRef<TaskDrop | null>(null)
+  const activeTaskRef = useRef<BackendTask | null>(null)
   const [activeTask, setActiveTask] = useState<BackendTask | null>(null)
   const [indicator, setIndicator] = useState<Indicator | null>(null)
+  const [dropTarget, setDropTarget] = useState<TaskDropTarget | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   )
+  const collisionDetection = useMemo(
+    () => makeRowCollisionDetection(ROW_PREFIX),
+    [],
+  )
 
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    const task = event.active.data.current?.task as BackendTask | undefined
-    setActiveTask(task ?? null)
-    lastTarget.current = null
-    setIndicator(null)
-    const initial = event.active.rect.current.initial
+  const readPointerY = useCallback((event: DragLike): number => {
     const activator = event.activatorEvent as MouseEvent
-    if (initial) {
-      pointerOffset.current = {
-        x: activator.clientX - initial.left,
-        y: activator.clientY - initial.top,
-      }
-    }
-  }, [])
-
-  const readPointer = useCallback((event: DragMoveEvent | DragEndEvent) => {
-    const translated = event.active.rect.current.translated
-    if (!translated) return null
-    return {
-      x: translated.left + pointerOffset.current.x,
-      y: translated.top + pointerOffset.current.y,
-    }
+    return activator.clientY + event.delta.y
   }, [])
 
   const computeTarget = useCallback(
-    (event: DragMoveEvent | DragEndEvent) => {
+    (
+      event: DragLike,
+    ): { overId: number; zone: BranchDropZone; drop: BranchDropTarget } | null => {
       const over = event.over
-      if (!over || over.id.toString() === event.active.id.toString()) return null
-      const row = over.data?.current as TaskDndRowData | undefined
-      const pointer = readPointer(event)
-      if (!row || !pointer) return null
-      return computeDropTarget({ row, rect: over.rect, pointerX: pointer.x, pointerY: pointer.y })
+      const activeId = activeTaskRef.current?.id_task
+      if (!over || activeId == null) return null
+
+      const overIdStr = over.id.toString()
+      if (!overIdStr.startsWith(ROW_PREFIX)) return null
+      const overId = Number(overIdStr.slice(ROW_PREFIX.length))
+      if (overId === activeId) return null
+
+      const zone = resolveDropZone(
+        readPointerY(event),
+        over.rect.top,
+        over.rect.height,
+      )
+      const drop = computeBranchDropTarget({ tasks, activeId, overId, zone })
+      return drop ? { overId, zone, drop } : null
     },
-    [readPointer],
+    [tasks, readPointerY],
   )
+
+  const reset = useCallback(() => {
+    setActiveTask(null)
+    setIndicator(null)
+    setDropTarget(null)
+    activeTaskRef.current = null
+  }, [])
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    const task = event.active.data.current?.task as BackendTask | undefined
+    activeTaskRef.current = task ?? null
+    setActiveTask(task ?? null)
+    setIndicator(null)
+    setDropTarget(null)
+  }, [])
 
   const handleDragMove = useCallback(
     (event: DragMoveEvent) => {
-      const over = event.over
-      if (!over || over.id.toString() === event.active.id.toString()) {
-        lastTarget.current = null
+      const resolved = computeTarget(event)
+      if (!resolved) {
         setIndicator(null)
+        setDropTarget(null)
         return
-      }
-      const row = over.data?.current as TaskDndRowData | undefined
-      const pointer = readPointer(event)
-      if (!row || !pointer || !containerRef.current) {
-        lastTarget.current = null
-        setIndicator(null)
-        return
-      }
-      const target = computeTarget(event)
-      if (!target) {
-        lastTarget.current = null
-        setIndicator(null)
-        return
-      }
-      const taskId = Number(event.active.id.toString().replace("task-", ""))
-      const task = event.active.data?.current?.task as BackendTask | undefined
-      lastTarget.current = {
-        taskId,
-        parentId: target.parentId,
-        oldParentId: task?.parent_task_id ?? null,
-        index: target.index,
       }
 
-      const cRect = containerRef.current.getBoundingClientRect()
-      const midY = over.rect.top + over.rect.height / 2
-      const top = (pointer.y < midY ? over.rect.top : over.rect.bottom) - cRect.top
-      const left = over.rect.left - cRect.left + TASK_CELL_LEFT + target.depth * TASK_INDENT
-      const width = Math.max(80, over.rect.right - cRect.left - left - 80)
-      setIndicator({ top, left, width })
+      setDropTarget({ overId: resolved.overId, zone: resolved.zone })
+
+      if (resolved.zone === "inside" || !containerRef.current) {
+        setIndicator(null)
+        return
+      }
+
+      const over = event.over!
+      const containerRect = containerRef.current.getBoundingClientRect()
+      setIndicator({
+        top:
+          (resolved.zone === "before" ? over.rect.top : over.rect.bottom) -
+          containerRect.top,
+        left: over.rect.left - containerRect.left,
+        width: over.rect.width,
+      })
     },
-    [computeTarget, readPointer],
+    [computeTarget],
   )
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
-      const drop = lastTarget.current
-      if (drop) onDrop(drop)
-      setActiveTask(null)
-      lastTarget.current = null
-      setIndicator(null)
-      void event
+      const resolved = computeTarget(event)
+      const activeTask = activeTaskRef.current
+      if (resolved && activeTask) {
+        onDrop({
+          taskId: activeTask.id_task,
+          parentId: resolved.drop.parentId,
+          oldParentId: activeTask.parent_task_id ?? null,
+          index: resolved.drop.index,
+        })
+      }
+      reset()
     },
-    [onDrop],
+    [computeTarget, onDrop, reset],
   )
-
-  const handleDragCancel = useCallback((event: DragCancelEvent) => {
-    setActiveTask(null)
-    lastTarget.current = null
-    setIndicator(null)
-    void event
-  }, [])
 
   return {
     containerRef,
     activeTask,
     indicator,
+    dropTarget,
     sensors,
-    collisionDetection: verticalRowCollisionDetection,
+    collisionDetection,
     onDragStart: handleDragStart,
     onDragMove: handleDragMove,
     onDragEnd: handleDragEnd,
-    onDragCancel: handleDragCancel,
+    onDragCancel: reset,
   }
 }

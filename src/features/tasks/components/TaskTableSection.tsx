@@ -8,10 +8,10 @@ import { getProjectTasks } from "@/features/projects/actions/project.api"
 import { createTask, reorderTask } from "@/features/tasks/actions/task.api"
 import type { BackendTask } from "@/features/shared/lib/types"
 import { useTaskMutations } from "../hooks/useTaskMutations"
-import { useTaskTableDnD } from "../hooks/useTaskTableDnD"
-import { applyMoveInCache, type TaskDrop } from "@/features/tasks/lib/task-tree-dnd"
+import { useTaskTableDnD, type TaskDrop } from "../hooks/useTaskTableDnD"
 import { TaskRowDnd, TaskDragHandle } from "./TaskRowDnd"
 import TaskTableSubtasks from "./TaskTableSubtasks"
+import { TaskDndProvider } from "./TaskDndContext"
 import { buildVisibleTaskIds, buildForcedOpenTaskIds, buildDimmedTaskIds, filterByStatus } from "@/features/tasks/lib/task-status-filter"
 import TaskStatusPopover from "./TaskStatusPopover"
 import ResponsiblePopover from "@/features/shared/components/ResponsiblePopover"
@@ -122,11 +122,10 @@ export default function TaskTableSection({
     })
 
     const handleDrop = useCallback((drop: TaskDrop) => {
-        applyMoveInCache(queryClient, projectIdNum, drop)
         reorderMutation.mutate(drop)
-    }, [queryClient, projectIdNum, reorderMutation])
+    }, [reorderMutation])
 
-    const dnd = useTaskTableDnD(handleDrop)
+    const dnd = useTaskTableDnD(tasks, handleDrop)
 
     const createRootTask = useMutation({
         mutationFn: (name: string) =>
@@ -290,6 +289,7 @@ export default function TaskTableSection({
                     onDragEnd={dnd.onDragEnd}
                     onDragCancel={dnd.onDragCancel}
                 >
+                    <TaskDndProvider value={dnd.dropTarget}>
                     <Table className="table-fixed">
                         <colgroup>
                             {COL_GROUP.map((c, i) => (
@@ -298,14 +298,10 @@ export default function TaskTableSection({
                         </colgroup>
                         <TableBody>
                             {displayedTasks.map((task) => {
-                                const siblingIndex = rootTasks.findIndex((t) => t.id_task === task.id_task)
                                 return (
                                     <TaskRowDnd
                                         key={task.id_task}
                                         task={task}
-                                        depth={depth}
-                                        siblingIndex={siblingIndex}
-                                        ancestors={[]}
                                         canEdit={canEdit}
                                         className={cn(
                                             "hover:bg-muted transition-colors group",
@@ -317,8 +313,6 @@ export default function TaskTableSection({
                                                     <TableCell colSpan={9} className="p-0">
                                                         <TaskTableSubtasks
                                                             taskId={task.id_task}
-                                                            taskSiblingIndex={siblingIndex}
-                                                            ancestors={[]}
                                                             projectId={projectId}
                                                             canEdit={canEdit}
                                                             depth={depth + 1}
@@ -460,6 +454,7 @@ export default function TaskTableSection({
                             style={{ top: dnd.indicator.top, left: dnd.indicator.left, width: dnd.indicator.width }}
                         />
                     )}
+                    </TaskDndProvider>
 
                     <DragOverlay>
                         {dnd.activeTask && (

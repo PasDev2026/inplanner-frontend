@@ -10,6 +10,7 @@ import { getSedeSlug } from "@/features/auth/actions/auth.api"
 const ProjectListPage = lazy(() => import("@/features/projects/pages/ProjectListPage"))
 const UserListPage = lazy(() => import("@/features/admin/pages/UserListPage"))
 const ProjectDetailPage = lazy(() => import("@/features/projects/pages/ProjectDetailPage"))
+const ProjectDiagramPage = lazy(() => import("@/features/projects/branches/diagram/ProjectDiagramPage"))
 const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"))
 const ProfilePage = lazy(() => import("@/features/profile/pages/ProfilePage"))
 const ChangePasswordProfile = lazy(() => import("@/features/profile/components/ChangePasswordProfile"))
@@ -40,6 +41,7 @@ export default function Router() {
                     <Route path="/plantillas" element={<TemplatesPage />}/>
                     <Route path="/admin/users" element={<UserListPage/>}/>
                     <Route path="/projects/:projectId/details-projects" element={<ProjectDetailPage />}/>
+                    <Route path="/projects/:projectId/branches" element={<ProjectDiagramPage />}/>
 
                     <Route element={<ProfileLayout/>}>
                         <Route path="/profile" element={<ProfilePage />}/>

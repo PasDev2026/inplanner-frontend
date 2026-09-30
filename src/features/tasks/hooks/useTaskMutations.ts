@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { PROJECTS_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import { DASHBOARD_TASKS_KEY } from "@/features/tasks/lib/task-keys"
-import { updateTask, updateTaskStatus, createAssignment, removeAssignment, deleteTask } from "@/features/tasks/actions/task.api"
+import { updateTask, updateTaskStatus, createAssignment, removeAssignment, deleteTask, reorderTask } from "@/features/tasks/actions/task.api"
 import { toast } from "sonner"
 
 export function useTaskMutations(projectIdNum: number) {
@@ -69,5 +69,14 @@ export function useTaskMutations(projectIdNum: number) {
         },
     })
 
-    return { statusMutation, priorityMutation, renameMutation, assignmentMutation, deleteTaskMutation }
+    const reorderMutation = useMutation({
+        mutationFn: ({ taskId, parentTaskId, position }: { taskId: number; parentTaskId: number | null; position: number }) =>
+            reorderTask({ taskId, parentTaskId, position }),
+        onSuccess: invalidateProject,
+        onError: (error) => {
+            toast.error((error as Error).message)
+        },
+    })
+
+    return { statusMutation, priorityMutation, renameMutation, assignmentMutation, deleteTaskMutation, reorderMutation }
 }
