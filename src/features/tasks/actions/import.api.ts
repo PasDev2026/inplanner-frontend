@@ -11,6 +11,9 @@ export interface ImportPreviewRow {
   numeroFila: number
   task_name: string
   nivel: number
+  start_date?: string
+  due_date?: string
+  responsables?: string[]
   estado: number
 }
 

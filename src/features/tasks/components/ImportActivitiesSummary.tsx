@@ -91,6 +91,8 @@ export default function ImportActivitiesSummary({
                 <TableRow>
                   <TableHead className="w-20 px-3">Fila</TableHead>
                   <TableHead className="px-3">Tarea</TableHead>
+                  <TableHead className="w-40 px-3">Responsable</TableHead>
+                  <TableHead className="w-32 px-3">Fecha</TableHead>
                   <TableHead className="w-32 px-3 text-right">Estado</TableHead>
                 </TableRow>
               </TableHeader>
@@ -112,6 +114,14 @@ export default function ImportActivitiesSummary({
                           {fila.task_name}
                         </span>
                       </div>
+                    </TableCell>
+                    <TableCell className="px-3 text-xs text-muted-foreground">
+                      {fila.responsables && fila.responsables.length > 0
+                        ? fila.responsables.join(", ")
+                        : "—"}
+                    </TableCell>
+                    <TableCell className="px-3 text-xs text-muted-foreground">
+                      {fila.start_date || "—"}
                     </TableCell>
                     <TableCell className="px-3 text-right">
                       <EstadoBadge estado={fila.estado} />

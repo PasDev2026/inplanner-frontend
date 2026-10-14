@@ -92,7 +92,8 @@ export default function ImportActivitiesDialog({
               <DialogDescription>
                 Columnas:{" "}
                 <span className="font-medium text-foreground">
-                  Tarea, Descripcion, Nivel, Estado
+                  Tarea, Descripcion, Nivel, Fecha inicio, Fecha vencimiento,
+                  Estado, Responsable, Responsable 2
                 </span>
                 . {parentTaskId
                   ? "Se crearán como subtareas de esta tarea."
