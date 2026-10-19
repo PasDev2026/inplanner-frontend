@@ -2,3 +2,4 @@
 export const USERS_KEY = ["users"] as const
 export const USERS_PAGINATED_KEY = (page: number, limit: number, filters?: Record<string, string | undefined>) => ["users", { page, limit, filters }] as const
 export const USER_DETAIL_KEY = (id: number | string) => ["user", String(id)] as const
+export const USER_ASSIGNMENTS_KEY = (id: number | string) => [...USER_DETAIL_KEY(id), "asignaciones"] as const

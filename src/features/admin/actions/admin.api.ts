@@ -9,6 +9,12 @@ export type UserFilters = {
   sede_id?: string
 }
 
+export type UserAssignment = {
+  sede_uuid: string
+  rol_uuid: string
+  especialidad_uuids: string[]
+}
+
 export type CreateUserPayload = {
   tipo_documento_uuid: string
   numero_documento: string
@@ -82,7 +88,14 @@ export async function updateUserStatus(userId: string, estado: boolean) {
   return data
 }
 
-export async function updateUserProfileApi(userId: string, payload: { area_id?: string; estado?: boolean }) {
+export async function updateUserProfileApi(
+  userId: string,
+  payload: {
+    area_id?: string
+    estado?: boolean
+    asignaciones?: UserAssignment[]
+  },
+) {
   const { data } = await api.patch(`/users/${userId}`, payload)
   return data
 }
@@ -90,4 +103,11 @@ export async function updateUserProfileApi(userId: string, payload: { area_id?: 
 export async function getUserById(userId: string) {
   const { data } = await api(`/users/${userId}`)
   return data
+}
+
+export async function getUserAssignments(userId: string) {
+  const { data } = await api<{ asignaciones: UserAssignment[] }>(
+    `/centralizado/trabajadores/${userId}`,
+  )
+  return data.asignaciones
 }

@@ -12,12 +12,26 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select } from "@/components/ui/select"
 import { AREAS_KEY, SEDES_KEY } from "@/features/shared/lib/shared-keys"
-import { getAreas, getSedes } from "@/features/shared/actions/centralizado.api"
-import { getUserById, updateUserProfileApi } from "../actions/admin.api"
-import { USERS_KEY, USER_DETAIL_KEY } from "../lib/admin-keys"
+import {
+  getAreas,
+  getRoles,
+  getSedes,
+} from "@/features/shared/actions/centralizado.api"
+import {
+  getUserAssignments,
+  getUserById,
+  updateUserProfileApi,
+  type UserAssignment,
+} from "../actions/admin.api"
+import {
+  USERS_KEY,
+  USER_ASSIGNMENTS_KEY,
+  USER_DETAIL_KEY,
+} from "../lib/admin-keys"
 import { userEditSchema, type UserEditForm } from "../schemas/user.schema"
 import UserReadonlyFields from "./UserReadonlyFields"
 
@@ -26,6 +40,8 @@ type EditUserModalProps = {
   onClose: () => void
   userId: string
 }
+
+const EMPTY_ASSIGNMENTS: UserAssignment[] = []
 
 export default function EditUserModal({
   isOpen,
@@ -53,24 +69,45 @@ export default function EditUserModal({
     staleTime: 5 * 60_000,
   })
 
+  const { data: roles = [] } = useQuery({
+    queryKey: ["centralizado", "roles"],
+    queryFn: getRoles,
+    enabled: isOpen,
+    staleTime: 5 * 60_000,
+  })
+
+  const { data: assignments = EMPTY_ASSIGNMENTS } = useQuery({
+    queryKey: USER_ASSIGNMENTS_KEY(userId),
+    queryFn: () => getUserAssignments(userId),
+    enabled: isOpen,
+  })
+
   const { control, handleSubmit, reset } = useForm<UserEditForm>({
     resolver: zodResolver(userEditSchema),
-    defaultValues: { area_id: "" },
+    defaultValues: { area_id: "", asignaciones: [] },
   })
 
   useEffect(() => {
     if (user && isOpen) {
-      reset({ area_id: user.area?.id_area?.toString() ?? "" })
+      reset({
+        area_id: user.area?.id_area?.toString() ?? "",
+        asignaciones: assignments.map((assignment) => ({ ...assignment })),
+      })
     }
-  }, [user, isOpen, reset])
+  }, [user, isOpen, assignments, reset])
 
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: ({ uid, data }: { uid: string; data: { area_id?: string } }) =>
-      updateUserProfileApi(uid, data),
+    mutationFn: ({
+      uid,
+      data,
+    }: {
+      uid: string
+      data: { area_id?: string; asignaciones?: UserAssignment[] }
+    }) => updateUserProfileApi(uid, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: USERS_KEY })
       queryClient.invalidateQueries({ queryKey: USER_DETAIL_KEY(userId) })
-      toast.success("Área actualizada correctamente")
+      toast.success("Usuario actualizado correctamente")
       onClose()
     },
     onError: (err) => toast.error((err as Error).message),
@@ -78,8 +115,11 @@ export default function EditUserModal({
 
   const onSubmit = async (formData: UserEditForm) => {
     if (!user) return
-    const payload: { area_id?: string } = {}
+    const payload: { area_id?: string; asignaciones?: UserAssignment[] } = {}
     if (formData.area_id) payload.area_id = formData.area_id
+    if (formData.asignaciones?.length) {
+      payload.asignaciones = formData.asignaciones
+    }
     await mutateAsync({ uid: user.id_user, data: payload })
   }
 
@@ -98,8 +138,8 @@ export default function EditUserModal({
         <DialogHeader>
           <DialogTitle>Editar usuario</DialogTitle>
           <DialogDescription>
-            Los datos de la persona se administran en Centralizado; aquí solo
-            asignas el área.
+            El área se administra en Inplanner; la sede y el rol se actualizan
+            en Centralizado.
           </DialogDescription>
         </DialogHeader>
 
@@ -152,6 +192,76 @@ export default function EditUserModal({
                 )}
               />
             </div>
+
+            {assignments.length > 0 && (
+              <div className="space-y-3 border-t pt-5">
+                <div>
+                  <Label className="text-xs font-medium text-foreground">
+                    Sedes y roles
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    La sede se administra en Centralizado; aquí puedes cambiar
+                    el rol.
+                  </p>
+                </div>
+
+                {assignments.map((assignment, index) => (
+                  <div
+                    key={assignment.sede_uuid}
+                    className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+                  >
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-muted-foreground">
+                        Sede
+                      </Label>
+                      <Input
+                        value={
+                          sedes?.find((s) => s.id === assignment.sede_uuid)
+                            ?.nombre ?? "—"
+                        }
+                        disabled
+                        readOnly
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor={`edit-rol-${index}`}
+                        className="text-xs font-medium text-foreground"
+                      >
+                        Rol
+                      </Label>
+                      <Controller
+                        control={control}
+                        name={`asignaciones.${index}.rol_uuid`}
+                        render={({ field }) => (
+                          <Select
+                            value={field.value ?? ""}
+                            onValueChange={field.onChange}
+                          >
+                            <Select.Trigger id={`edit-rol-${index}`}>
+                              <Select.Value placeholder="Seleccionar">
+                                {roles.find((rol) => rol.id === field.value)
+                                  ?.nombre}
+                              </Select.Value>
+                            </Select.Trigger>
+                            <Select.Popup>
+                              <Select.List>
+                                {roles.map((rol) => (
+                                  <Select.Item key={rol.id} value={rol.id}>
+                                    {rol.nombre}
+                                  </Select.Item>
+                                ))}
+                              </Select.List>
+                            </Select.Popup>
+                          </Select>
+                        )}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <DialogFooter className="pt-2">
               <Button
