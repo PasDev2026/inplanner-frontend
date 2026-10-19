@@ -23,9 +23,10 @@ export const userAdminSchema = z.object({
 export type UserAdmin = z.infer<typeof userAdminSchema>
 
 export const userEditAssignmentSchema = z.object({
-  sede_uuid: z.string().min(1),
+  sede_uuid: z.string().min(1, 'Selecciona una sede'),
   rol_uuid: z.string().min(1, 'Selecciona un rol'),
   especialidad_uuids: z.array(z.string()),
+  is_new: z.boolean().default(false),
 })
 
 export const userEditSchema = z.object({

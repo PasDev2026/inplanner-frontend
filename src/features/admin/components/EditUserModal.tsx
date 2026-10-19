@@ -1,5 +1,6 @@
 import { useEffect } from "react"
-import { Controller, useForm } from "react-hook-form"
+import { Controller, useFieldArray, useForm } from "react-hook-form"
+import { Plus, Trash2 } from "lucide-react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
@@ -82,19 +83,50 @@ export default function EditUserModal({
     enabled: isOpen,
   })
 
-  const { control, handleSubmit, reset } = useForm<UserEditForm>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<UserEditForm>({
     resolver: zodResolver(userEditSchema),
     defaultValues: { area_id: "", asignaciones: [] },
+  })
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "asignaciones",
   })
 
   useEffect(() => {
     if (user && isOpen) {
       reset({
         area_id: user.area?.id_area?.toString() ?? "",
-        asignaciones: assignments.map((assignment) => ({ ...assignment })),
+        asignaciones: assignments.map((assignment) => ({
+          ...assignment,
+          is_new: false,
+        })),
       })
     }
   }, [user, isOpen, assignments, reset])
+
+  const watchedAssignments = watch("asignaciones") ?? []
+
+  const usedSedes = new Set(
+    watchedAssignments
+      .map((assignment) => assignment.sede_uuid)
+      .filter(Boolean),
+  )
+
+  const addAssignment = () =>
+    append({
+      sede_uuid: "",
+      rol_uuid: "",
+      especialidad_uuids: [],
+      is_new: true,
+    })
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: ({
@@ -118,7 +150,11 @@ export default function EditUserModal({
     const payload: { area_id?: string; asignaciones?: UserAssignment[] } = {}
     if (formData.area_id) payload.area_id = formData.area_id
     if (formData.asignaciones?.length) {
-      payload.asignaciones = formData.asignaciones
+      payload.asignaciones = formData.asignaciones.map((assignment) => ({
+        sede_uuid: assignment.sede_uuid,
+        rol_uuid: assignment.rol_uuid,
+        especialidad_uuids: assignment.especialidad_uuids ?? [],
+      }))
     }
     await mutateAsync({ uid: user.id_user, data: payload })
   }
@@ -195,71 +231,167 @@ export default function EditUserModal({
 
             {assignments.length > 0 && (
               <div className="space-y-3 border-t pt-5">
-                <div>
-                  <Label className="text-xs font-medium text-foreground">
-                    Sedes y roles
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    La sede se administra en Centralizado; aquí puedes cambiar
-                    el rol.
-                  </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <Label className="text-xs font-medium text-foreground">
+                      Sedes y roles
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Cambia el rol de tus sedes actuales o agrega una nueva.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addAssignment}
+                  >
+                    <Plus className="mr-1 h-3.5 w-3.5" /> Agregar sede
+                  </Button>
                 </div>
 
-                {assignments.map((assignment, index) => (
-                  <div
-                    key={assignment.sede_uuid}
-                    className="grid grid-cols-1 gap-3 sm:grid-cols-2"
-                  >
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-muted-foreground">
-                        Sede
-                      </Label>
-                      <Input
-                        value={
-                          sedes?.find((s) => s.id === assignment.sede_uuid)
-                            ?.nombre ?? "—"
-                        }
-                        disabled
-                        readOnly
-                      />
-                    </div>
+                {fields.map((field, index) => {
+                  const sedeError =
+                    errors.asignaciones?.[index]?.sede_uuid?.message
+                  const rolError =
+                    errors.asignaciones?.[index]?.rol_uuid?.message
+                  const selectedSede =
+                    watchedAssignments[index]?.sede_uuid ?? ""
+                  const sedeOptions = sedes?.filter(
+                    (sede) =>
+                      !usedSedes.has(sede.id) || sede.id === selectedSede,
+                  )
 
-                    <div className="space-y-1.5">
-                      <Label
-                        htmlFor={`edit-rol-${index}`}
-                        className="text-xs font-medium text-foreground"
-                      >
-                        Rol
-                      </Label>
-                      <Controller
-                        control={control}
-                        name={`asignaciones.${index}.rol_uuid`}
-                        render={({ field }) => (
-                          <Select
-                            value={field.value ?? ""}
-                            onValueChange={field.onChange}
-                          >
-                            <Select.Trigger id={`edit-rol-${index}`}>
-                              <Select.Value placeholder="Seleccionar">
-                                {roles.find((rol) => rol.id === field.value)
-                                  ?.nombre}
-                              </Select.Value>
-                            </Select.Trigger>
-                            <Select.Popup>
-                              <Select.List>
-                                {roles.map((rol) => (
-                                  <Select.Item key={rol.id} value={rol.id}>
-                                    {rol.nombre}
-                                  </Select.Item>
-                                ))}
-                              </Select.List>
-                            </Select.Popup>
-                          </Select>
+                  return (
+                    <div
+                      key={field.id}
+                      className="flex flex-col gap-2 sm:flex-row sm:items-end"
+                    >
+                      <div className="flex-1 space-y-1.5">
+                        <Label
+                          htmlFor={
+                            field.is_new ? `edit-sede-${index}` : undefined
+                          }
+                          className="text-xs font-medium text-muted-foreground"
+                        >
+                          Sede
+                        </Label>
+                        {field.is_new ? (
+                          <Controller
+                            control={control}
+                            name={`asignaciones.${index}.sede_uuid`}
+                            render={({ field: sedeField }) => (
+                              <Select
+                                value={sedeField.value ?? ""}
+                                onValueChange={(value) => {
+                                  sedeField.onChange(value)
+                                  setValue(
+                                    `asignaciones.${index}.especialidad_uuids`,
+                                    [],
+                                  )
+                                }}
+                              >
+                                <Select.Trigger id={`edit-sede-${index}`}>
+                                  <Select.Value placeholder="Seleccionar sede">
+                                    {
+                                      sedeOptions?.find(
+                                        (sede) => sede.id === sedeField.value,
+                                      )?.nombre
+                                    }
+                                  </Select.Value>
+                                </Select.Trigger>
+                                <Select.Popup>
+                                  <Select.List>
+                                    {sedeOptions?.map((sede) => (
+                                      <Select.Item
+                                        key={sede.id}
+                                        value={sede.id}
+                                      >
+                                        {sede.nombre}
+                                      </Select.Item>
+                                    ))}
+                                  </Select.List>
+                                </Select.Popup>
+                              </Select>
+                            )}
+                          />
+                        ) : (
+                          <Input
+                            value={
+                              sedes?.find(
+                                (sede) => sede.id === selectedSede,
+                              )?.nombre ?? "—"
+                            }
+                            disabled
+                            readOnly
+                          />
                         )}
-                      />
+                        {sedeError && (
+                          <p className="text-xs text-destructive">
+                            {sedeError}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex-1 space-y-1.5">
+                        <Label
+                          htmlFor={`edit-rol-${index}`}
+                          className="text-xs font-medium text-foreground"
+                        >
+                          Rol
+                        </Label>
+                        <Controller
+                          control={control}
+                          name={`asignaciones.${index}.rol_uuid`}
+                          render={({ field: rolField }) => (
+                            <Select
+                              value={rolField.value ?? ""}
+                              onValueChange={rolField.onChange}
+                            >
+                              <Select.Trigger id={`edit-rol-${index}`}>
+                                <Select.Value placeholder="Seleccionar">
+                                  {
+                                    roles.find(
+                                      (rol) => rol.id === rolField.value,
+                                    )?.nombre
+                                  }
+                                </Select.Value>
+                              </Select.Trigger>
+                              <Select.Popup>
+                                <Select.List>
+                                  {roles.map((rol) => (
+                                    <Select.Item key={rol.id} value={rol.id}>
+                                      {rol.nombre}
+                                    </Select.Item>
+                                  ))}
+                                </Select.List>
+                              </Select.Popup>
+                            </Select>
+                          )}
+                        />
+                        {rolError && (
+                          <p className="text-xs text-destructive">
+                            {rolError}
+                          </p>
+                        )}
+                      </div>
+
+                      {field.is_new && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive"
+                          onClick={() => remove(index)}
+                          disabled={fields.length === 1}
+                          title="Quitar sede"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
 
