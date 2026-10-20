@@ -5,6 +5,7 @@ import CircularProgress from "@/components/ui/CircularProgress"
 import EditableName from "@/features/projects/components/EditableName"
 import EditProjectSheet from "@/features/projects/components/EditProjectSheet"
 import { useUpdateProject } from "@/features/projects/hooks/useUpdateProject"
+import { canManageProject } from "@/features/shared/lib/policies"
 import type { CentralizadoItem } from "@/features/shared/actions/centralizado.api"
 import type { AuthUser } from "@/features/auth/actions/auth.api"
 import type { BackendProject } from "@/features/shared/lib/types"
@@ -36,6 +37,7 @@ export default function ProjectBranchNode({
   const { data: tasks, isLoading, isFetching } = useProjectBranches(project.id_project, expanded)
 
   const roots = useMemo(() => buildBranchTree(tasks ?? []), [tasks])
+  const canExport = canManageProject(project.manager_id, user)
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
@@ -105,7 +107,11 @@ export default function ProjectBranchNode({
 
       {expanded && (
         <div className="space-y-3 border-t border-border bg-muted/20 p-3 sm:p-4">
-          <ProjectAddBar projectId={project.id_project} />
+          <ProjectAddBar
+            projectId={project.id_project}
+            projectName={project.name_project}
+            canExport={canExport}
+          />
           {isLoading ? (
             <BranchSkeleton />
           ) : (

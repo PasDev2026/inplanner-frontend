@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { FileSpreadsheet, FileCheck2, Loader2 } from "lucide-react"
+import { AlertTriangle, FileSpreadsheet, FileCheck2, Loader2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -65,11 +65,22 @@ export default function ImportActivitiesDialog({
     }
   }
 
-  const totalFilas = preview?.filas.length ?? 0
+  const hayCambios = Boolean(
+    preview && preview.creadas + preview.actualizadas > 0,
+  )
+  const cantidadCambios = preview
+    ? preview.creadas + preview.actualizadas
+    : 0
   const puedeImportar =
-    Boolean(file && preview && totalFilas > 0 && preview.errores.length === 0) &&
+    Boolean(file && preview && hayCambios && preview.errores.length === 0) &&
     !previewMutation.isPending &&
     !importMutation.isPending
+
+  const advertenciaSubtareas = Boolean(
+    parentTaskId &&
+      preview &&
+      (preview.actualizadas > 0 || preview.omitidas > 0),
+  )
 
   const handleImport = () => {
     if (!file || !puedeImportar) return
@@ -81,7 +92,7 @@ export default function ImportActivitiesDialog({
 
   return (
     <Dialog open={open} onOpenChange={(next) => (next ? onOpenChange(true) : close())}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary">
@@ -93,11 +104,13 @@ export default function ImportActivitiesDialog({
                 Columnas:{" "}
                 <span className="font-medium text-foreground">
                   Tarea, Descripcion, Nivel, Fecha inicio, Fecha vencimiento,
-                  Estado, Responsable, Responsable 2
+                  Estado, Responsable, Responsable 2, ID
                 </span>
-                . {parentTaskId
-                  ? "Se crearán como subtareas de esta tarea."
-                  : "Se crearán en este proyecto."}
+                . Las filas con ID se omiten si no cambiaron y se actualizan si
+                cambiaron; deja el ID vacío para crear una tarea nueva.{" "}
+                {parentTaskId
+                  ? "Las filas nuevas se crearán como subtareas de esta tarea."
+                  : "Las filas nuevas se crearán en este proyecto."}
               </DialogDescription>
             </div>
           </div>
@@ -111,7 +124,23 @@ export default function ImportActivitiesDialog({
             onSelect={handleSelect}
           />
 
+          {advertenciaSubtareas && (
+            <div className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-xs text-amber-800 dark:text-amber-300">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+              <p>
+                Este archivo contiene tareas existentes del proyecto. Se
+                actualizarán u omitirán aunque estés importando como subtareas.
+              </p>
+            </div>
+          )}
+
           {preview && <ImportActivitiesSummary preview={preview} />}
+
+          {preview && !hayCambios && preview.errores.length === 0 && (
+            <p className="text-xs text-muted-foreground">
+              Todas las filas ya están al día; no hay cambios por aplicar.
+            </p>
+          )}
         </div>
 
         <DialogFooter className="gap-2 pt-2">
@@ -132,7 +161,7 @@ export default function ImportActivitiesDialog({
             ) : (
               <>
                 <FileCheck2 className="h-4 w-4" />
-                Importar {totalFilas > 0 ? `(${totalFilas})` : ""}
+                Aplicar cambios{cantidadCambios > 0 ? ` (${cantidadCambios})` : ""}
               </>
             )}
           </Button>

@@ -1,5 +1,6 @@
 import type { BackendProject } from "@/features/shared/lib/types"
 import type { CentralizadoItem } from "@/features/shared/actions/centralizado.api"
+import type { AuthUser } from "@/features/auth/actions/auth.api"
 import { memo } from "react"
 import { MoreVertical, Trash2, Building2, ArrowDown, ArrowRight, ArrowUp, ChevronsUp, Calendar } from "lucide-react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -20,9 +21,12 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
 import { formatDateRange } from "@/features/shared/lib/format-date"
+import { canManageProject } from "@/features/shared/lib/policies"
+import ExportProjectTasksMenuItem from "@/features/projects/components/ExportProjectTasksMenuItem"
 
 type ProjectKanbanCardProps = {
   project: BackendProject
+  user: AuthUser
   offsetY?: number
   sedes: CentralizadoItem[]
 }
@@ -42,7 +46,7 @@ function PriorityIcon({ priority }: { priority: number }) {
   return null
 }
 
-const ProjectKanbanCard = memo(function ProjectKanbanCard({ project, offsetY, sedes }: ProjectKanbanCardProps) {
+const ProjectKanbanCard = memo(function ProjectKanbanCard({ project, user, offsetY, sedes }: ProjectKanbanCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: project.id_project.toString(),
   })
@@ -74,6 +78,7 @@ const ProjectKanbanCard = memo(function ProjectKanbanCard({ project, offsetY, se
   const sedeName = project.sede_id != null ? sedes.find(s => s.id === project.sede_id)?.nombre : undefined
   const priorityInfo = PRIORITY_MAP[project.priority]
   const dateRange = formatDateRange(project.start_date, project.due_date)
+  const isManagerUser = canManageProject(project.manager_id, user)
 
   return (
     <div ref={setNodeRef} style={style}>
@@ -97,7 +102,13 @@ const ProjectKanbanCard = memo(function ProjectKanbanCard({ project, offsetY, se
                         </button>
                       }
                     />
-                    <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuContent align="end" className="w-56">
+                      {isManagerUser && (
+                        <ExportProjectTasksMenuItem
+                          projectId={project.id_project}
+                          projectName={project.name_project}
+                        />
+                      )}
                       <DropdownMenuItem onClick={() => removeProject()} className="text-destructive focus:text-destructive">
                         <Trash2 className="w-4 h-4 mr-2" />
                         Eliminar proyecto

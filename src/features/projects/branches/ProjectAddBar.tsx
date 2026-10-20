@@ -7,12 +7,15 @@ import { DASHBOARD_TASKS_KEY } from "@/features/tasks/lib/task-keys"
 import { PROJECTS_KEY, PROJECT_TASKS_KEY } from "@/features/projects/lib/project-keys"
 import AddTemplateButton from "@/features/templates/components/AddTemplateButton"
 import ImportActivitiesButton from "@/features/tasks/components/ImportActivitiesButton"
+import ExportProjectTasksButton from "@/features/projects/components/ExportProjectTasksButton"
 
 type ProjectAddBarProps = {
   projectId: number
+  projectName?: string
+  canExport?: boolean
 }
 
-export default function ProjectAddBar({ projectId }: ProjectAddBarProps) {
+export default function ProjectAddBar({ projectId, projectName, canExport }: ProjectAddBarProps) {
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState("")
   const queryClient = useQueryClient()
@@ -89,6 +92,13 @@ export default function ProjectAddBar({ projectId }: ProjectAddBarProps) {
       </button>
       <AddTemplateButton projectId={projectId} />
       <ImportActivitiesButton projectId={projectId} />
+      {canExport && (
+        <ExportProjectTasksButton
+          projectId={projectId}
+          projectName={projectName}
+          appearance="link"
+        />
+      )}
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import api from "@/features/shared/lib/axios";
+import { downloadBlob, sanitizeFilename } from "@/features/shared/lib/download";
 import { handleApiError } from "@/features/shared/lib/handle-api-error";
 import { BackendPaginatedResponse, BackendProject } from "@/features/shared/lib/types";
 
@@ -94,6 +95,18 @@ export async function getProjectTasks(projectId: number, page = 1, limit = 0) {
     return data;
   } catch (error) {
     handleApiError(error, 'Error al cargar tareas');
+  }
+}
+
+export async function exportProjectTasks(projectId: number, projectName?: string) {
+  try {
+    const response = await api.get<Blob>(`/projects/${projectId}/tasks/export`, {
+      responseType: 'blob',
+    });
+    const name = sanitizeFilename(projectName) || `Proyecto_${projectId}`;
+    downloadBlob(response.data, `Actividades_${name}.xlsx`);
+  } catch (error) {
+    handleApiError(error, 'Error al exportar las tareas del proyecto');
   }
 }
 

@@ -1,4 +1,5 @@
 import api from "@/features/shared/lib/axios";
+import { downloadBlob } from "@/features/shared/lib/download";
 import { handleApiError } from "@/features/shared/lib/handle-api-error";
 import type { ActivityReportItem, BackendPaginatedResponse } from "@/features/shared/lib/types";
 
@@ -52,16 +53,9 @@ export async function exportReportActivities(filters: ReportFilters) {
       params: buildParams(filters),
       responseType: "blob",
     });
-    const url = URL.createObjectURL(response.data);
-    const link = document.createElement("a");
-    link.href = url;
-    const d = new Date()
-    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
-    link.download = `actividades_${date}.xlsx`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const d = new Date();
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    downloadBlob(response.data, `actividades_${date}.xlsx`);
   } catch (error) {
     handleApiError(error, "Error al exportar el reporte");
   }

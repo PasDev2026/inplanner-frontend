@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge"
 import { useLocation, useNavigate } from "react-router-dom"
 import { BackendProject } from "@/features/shared/lib/types"
 import type { CentralizadoItem } from "@/features/shared/actions/centralizado.api"
-import isManager from "@/features/shared/lib/policies"
+import type { AuthUser } from "@/features/auth/actions/auth.api"
+import isManager, { canManageProject } from "@/features/shared/lib/policies"
 import CircularProgress from "@/components/ui/CircularProgress"
 import DateCellPopover from "./DateCellPopover"
 import EditableName from "./EditableName"
@@ -20,6 +21,7 @@ import StatusPopover from "./StatusPopover"
 import ResponsiblePopover from "@/features/shared/components/ResponsiblePopover"
 import PriorityPopover from "@/features/shared/components/PriorityPopover"
 import EditProjectSheet from "./EditProjectSheet"
+import ExportProjectTasksMenuItem from "./ExportProjectTasksMenuItem"
 import { useUpdateProject } from "../hooks/useUpdateProject"
 import { useUpdateProjectResponsible } from "../hooks/useUpdateProjectResponsible"
 import { useExpandState } from "@/features/shared/providers/ExpandStateProvider"
@@ -27,7 +29,7 @@ import { TableRow, TableCell } from "@/components/ui/table"
 
 type ProjectTableRowProps = {
     project: BackendProject
-    user: { id: string }
+    user: AuthUser
     sedes: CentralizadoItem[]
     taskStatusSelected: string[]
 }
@@ -40,6 +42,8 @@ export default function ProjectTableRow({ project, user, sedes, taskStatusSelect
     const { expandedProjects, toggleProject } = useExpandState()
     const expanded = expandedProjects.has(project.id_project)
     const [editOpen, setEditOpen] = useState(false)
+    const isManagerUser = isManager(project.manager_id, user.id)
+    const canExport = canManageProject(project.manager_id, user)
 
     const sedeMap = useMemo(() => new Map(sedes.map(s => [s.id, s.nombre])), [sedes])
     const sedeName = project.sede_id != null ? sedeMap.get(project.sede_id) ?? "" : ""
@@ -78,7 +82,7 @@ export default function ProjectTableRow({ project, user, sedes, taskStatusSelect
                             <span className="sr-only">Ver diagrama de ramas</span>
                             <GitBranch className="h-3.5 w-3.5" aria-hidden="true" />
                         </button>
-                        {isManager(project.manager_id, user.id) ? (
+                        {isManagerUser ? (
                             <Badge variant="brand-light">Manager</Badge>
                         ) : (
                             <Badge variant="brand">Colaborador</Badge>
@@ -133,7 +137,13 @@ export default function ProjectTableRow({ project, user, sedes, taskStatusSelect
                             <DropdownMenuItem onClick={() => navigate(`/projects/${project.id_project}/details-projects`)}>
                                 Ver Proyecto
                             </DropdownMenuItem>
-                            {isManager(project.manager_id, user.id) && (
+                            {canExport && (
+                                <ExportProjectTasksMenuItem
+                                    projectId={project.id_project}
+                                    projectName={project.name_project}
+                                />
+                            )}
+                            {isManagerUser && (
                                 <>
                                     <DropdownMenuItem onClick={() => setEditOpen(true)}>
                                         Editar Proyecto
@@ -157,6 +167,8 @@ export default function ProjectTableRow({ project, user, sedes, taskStatusSelect
                         <TaskTableSection
                             projectId={String(project.id_project)}
                             canEdit={true}
+                            canExport={canExport}
+                            projectName={project.name_project}
                             projectStartDate={project.start_date}
                             projectDueDate={project.due_date}
                             taskStatusSelected={taskStatusSelected}

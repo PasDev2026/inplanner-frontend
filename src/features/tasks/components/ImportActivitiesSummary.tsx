@@ -1,4 +1,13 @@
-import { AlertTriangle, CheckCircle2, CornerDownRight, Table2 } from "lucide-react"
+import {
+  AlertTriangle,
+  CheckCircle2,
+  CornerDownRight,
+  Info,
+  MinusCircle,
+  Pencil,
+  PlusCircle,
+  Table2,
+} from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import {
   Table,
@@ -10,7 +19,8 @@ import {
 } from "@/components/ui/table"
 import { TASK_STATUS_MAP } from "@/features/shared/constants/task-status.constant"
 import { cn } from "@/features/shared/lib/utils"
-import type { ImportPreview } from "../actions/import.api"
+import type { ImportAction, ImportPreview } from "../actions/import.api"
+import { IMPORT_ACTION_META, IMPORT_CHANGE_LABELS } from "../lib/import-labels"
 
 const PREVIEW_LIMITE = 8
 
@@ -29,12 +39,37 @@ function EstadoBadge({ estado }: { estado: number }) {
   )
 }
 
+function AccionBadge({ accion }: { accion: ImportAction }) {
+  const meta = IMPORT_ACTION_META[accion]
+  const Icon = meta.icon
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+        meta.className,
+      )}
+    >
+      <Icon className="h-3 w-3" />
+      {meta.label}
+    </span>
+  )
+}
+
 export default function ImportActivitiesSummary({
   preview,
 }: {
   preview: ImportPreview
 }) {
-  const { validas, ignoradas, errores, filas } = preview
+  const {
+    validas,
+    creadas,
+    actualizadas,
+    omitidas,
+    ignoradas,
+    errores,
+    avisos,
+    filas,
+  } = preview
   const hayErrores = errores.length > 0
 
   return (
@@ -42,8 +77,26 @@ export default function ImportActivitiesSummary({
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="secondary" className="gap-1">
           <Table2 className="h-3.5 w-3.5" />
-          {validas} {validas === 1 ? "tarea" : "tareas"}
+          {validas} {validas === 1 ? "fila" : "filas"}
         </Badge>
+        {creadas > 0 && (
+          <Badge className="gap-1 bg-emerald-600 text-white hover:bg-emerald-600">
+            <PlusCircle className="h-3.5 w-3.5" />
+            {creadas} {creadas === 1 ? "nueva" : "nuevas"}
+          </Badge>
+        )}
+        {actualizadas > 0 && (
+          <Badge className="gap-1 bg-blue-600 text-white hover:bg-blue-600">
+            <Pencil className="h-3.5 w-3.5" />
+            {actualizadas} {actualizadas === 1 ? "actualizada" : "actualizadas"}
+          </Badge>
+        )}
+        {omitidas > 0 && (
+          <Badge variant="outline" className="gap-1">
+            <MinusCircle className="h-3.5 w-3.5" />
+            {omitidas} {omitidas === 1 ? "omitida" : "omitidas"}
+          </Badge>
+        )}
         {ignoradas > 0 && (
           <Badge variant="outline">{ignoradas} ignoradas</Badge>
         )}
@@ -59,6 +112,23 @@ export default function ImportActivitiesSummary({
           </Badge>
         )}
       </div>
+
+      {avisos.length > 0 && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3">
+          <p className="mb-2 flex items-center gap-1.5 text-sm font-medium text-amber-700 dark:text-amber-400">
+            <Info className="h-4 w-4" />
+            Avisos
+          </p>
+          <ul className="flex max-h-32 flex-col gap-1 overflow-y-auto text-xs text-amber-800 dark:text-amber-300">
+            {avisos.map((aviso, index) => (
+              <li key={`${aviso.numeroFila}-${index}`}>
+                {aviso.numeroFila > 0 ? `Fila ${aviso.numeroFila}: ` : ""}
+                {aviso.mensaje}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {hayErrores && (
         <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3">
@@ -89,11 +159,12 @@ export default function ImportActivitiesSummary({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-20 px-3">Fila</TableHead>
+                  <TableHead className="w-16 px-3">Fila</TableHead>
                   <TableHead className="px-3">Tarea</TableHead>
-                  <TableHead className="w-40 px-3">Responsable</TableHead>
-                  <TableHead className="w-32 px-3">Fecha</TableHead>
-                  <TableHead className="w-32 px-3 text-right">Estado</TableHead>
+                  <TableHead className="w-28 px-3">Acción</TableHead>
+                  <TableHead className="w-36 px-3">Responsable</TableHead>
+                  <TableHead className="w-28 px-3">Fecha</TableHead>
+                  <TableHead className="w-28 px-3 text-right">Estado</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -104,16 +175,28 @@ export default function ImportActivitiesSummary({
                     </TableCell>
                     <TableCell className="px-3">
                       <div
-                        className="flex items-center gap-1.5"
+                        className="flex items-start gap-1.5"
                         style={{ paddingLeft: `${Math.max(0, fila.nivel - 1) * 18}px` }}
                       >
                         {fila.nivel > 1 && (
-                          <CornerDownRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                          <CornerDownRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                         )}
-                        <span className="truncate font-medium text-foreground">
-                          {fila.task_name}
-                        </span>
+                        <div className="min-w-0">
+                          <span className="block truncate font-medium text-foreground">
+                            {fila.task_name}
+                          </span>
+                          {fila.cambios.length > 0 && (
+                            <span className="block text-[11px] text-muted-foreground">
+                              {fila.cambios
+                                .map((cambio) => IMPORT_CHANGE_LABELS[cambio])
+                                .join(", ")}
+                            </span>
+                          )}
+                        </div>
                       </div>
+                    </TableCell>
+                    <TableCell className="px-3">
+                      <AccionBadge accion={fila.accion} />
                     </TableCell>
                     <TableCell className="px-3 text-xs text-muted-foreground">
                       {fila.responsables && fila.responsables.length > 0

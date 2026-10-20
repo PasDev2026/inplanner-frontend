@@ -1,4 +1,5 @@
 import api from "@/features/shared/lib/axios"
+import { downloadBlob } from "@/features/shared/lib/download"
 import { handleApiError } from "@/features/shared/lib/handle-api-error"
 import type { BackendTask } from "@/features/shared/lib/types"
 
@@ -6,6 +7,22 @@ export interface ImportRowError {
   numeroFila: number
   mensaje: string
 }
+
+export interface ImportRowWarning {
+  numeroFila: number
+  mensaje: string
+}
+
+export type ImportAction = "crear" | "actualizar" | "omitir"
+
+export type ImportChange =
+  | "name"
+  | "description"
+  | "startDate"
+  | "dueDate"
+  | "status"
+  | "parent"
+  | "responsibles"
 
 export interface ImportPreviewRow {
   numeroFila: number
@@ -15,14 +32,27 @@ export interface ImportPreviewRow {
   due_date?: string
   responsables?: string[]
   estado: number
+  accion: ImportAction
+  cambios: ImportChange[]
 }
 
 export interface ImportPreview {
   total: number
   validas: number
+  creadas: number
+  actualizadas: number
+  omitidas: number
   ignoradas: number
   errores: ImportRowError[]
+  avisos: ImportRowWarning[]
   filas: ImportPreviewRow[]
+}
+
+export interface ImportResult {
+  creadas: number
+  actualizadas: number
+  omitidas: number
+  tareas: BackendTask[]
 }
 
 type ImportOptions = { projectId: number; parentTaskId?: number }
@@ -55,9 +85,9 @@ export async function previewTasksFromFile(
 export async function importTasksFromFile(
   file: File,
   options: ImportOptions,
-): Promise<BackendTask[]> {
+): Promise<ImportResult> {
   try {
-    const { data } = await api.post<BackendTask[]>(
+    const { data } = await api.post<ImportResult>(
       "/tasks/import",
       buildImportForm(file, options),
     )
@@ -72,14 +102,7 @@ export async function downloadImportTemplate(): Promise<void> {
     const response = await api.get<Blob>("/tasks/import/template", {
       responseType: "blob",
     })
-    const url = URL.createObjectURL(response.data)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = "Plantilla_Importar_Actividades.xlsx"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    downloadBlob(response.data, "Plantilla_Importar_Actividades.xlsx")
   } catch (error) {
     handleApiError(error, "Error al descargar la plantilla")
   }

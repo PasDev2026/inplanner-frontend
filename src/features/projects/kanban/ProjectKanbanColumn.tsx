@@ -4,17 +4,19 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { PROJECT_STATUS_MAP, projectStatusColors, PROJECT_STATUS_NAMES } from "@/features/shared/constants/project-status.constant"
 import type { BackendProject } from "@/features/shared/lib/types"
 import type { CentralizadoItem } from "@/features/shared/actions/centralizado.api"
+import type { AuthUser } from "@/features/auth/actions/auth.api"
 import ProjectKanbanCard from "./ProjectKanbanCard"
 
 type ProjectKanbanColumnProps = {
   status: number
   projects: BackendProject[]
+  user: AuthUser
   sedes: CentralizadoItem[]
 }
 
 const STATUS_SET = new Set(["0", "1", "2", "3", "4"])
 
-const ProjectKanbanColumn = memo(function ProjectKanbanColumn({ status, projects, sedes }: ProjectKanbanColumnProps) {
+const ProjectKanbanColumn = memo(function ProjectKanbanColumn({ status, projects, user, sedes }: ProjectKanbanColumnProps) {
   const { setNodeRef } = useDroppable({ id: status.toString() })
   const { active, collisions } = useDndContext()
   const isOver = active
@@ -84,7 +86,7 @@ const ProjectKanbanColumn = memo(function ProjectKanbanColumn({ status, projects
       <div className="space-y-2 p-2 overflow-y-auto flex-1 min-h-[120px]">
         <SortableContext items={projectIds} strategy={verticalListSortingStrategy}>
           {sortedProjects.map((project, index) => (
-            <ProjectKanbanCard key={project.id_project} project={project} sedes={sedes}
+            <ProjectKanbanCard key={project.id_project} project={project} user={user} sedes={sedes}
               offsetY={isDest && index >= overTarget!.idx ? 88 : 0} />
           ))}
           {isDest && overTarget!.idx === sortedProjects.length && (

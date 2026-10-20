@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from "react"
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, pointerWithin, MeasuringStrategy } from "@dnd-kit/core"
 import type { BackendProject } from "@/features/shared/lib/types"
+import type { AuthUser } from "@/features/auth/actions/auth.api"
 import ProjectKanbanColumn from "./ProjectKanbanColumn"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { PROJECTS_KEY, PROJECTS_KANBAN_KEY } from "@/features/projects/lib/project-keys"
@@ -20,7 +21,11 @@ type GroupedProjects = {
 
 const STATUS_KEYS = ["0", "1", "2", "3", "4"]
 
-export default function ProjectKanbanBoard() {
+type ProjectKanbanBoardProps = {
+  user: AuthUser
+}
+
+export default function ProjectKanbanBoard({ user }: ProjectKanbanBoardProps) {
   const queryClient = useQueryClient()
   const [activeProject, setActiveProject] = useState<BackendProject | null>(null)
   const filters = useProjectListFilters()
@@ -119,7 +124,7 @@ export default function ProjectKanbanBoard() {
           }}>
           <div className="grid grid-cols-5 gap-6" style={{ minWidth: '1500px' }}>
             {STATUS_KEYS.map((statusKey) => (
-              <ProjectKanbanColumn key={statusKey} status={Number(statusKey)} projects={groupedProjects[statusKey] ?? []} sedes={sedes} />
+              <ProjectKanbanColumn key={statusKey} status={Number(statusKey)} projects={groupedProjects[statusKey] ?? []} user={user} sedes={sedes} />
             ))}
           </div>
           <DragOverlay>

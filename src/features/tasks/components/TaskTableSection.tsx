@@ -25,12 +25,15 @@ import { useExpandState } from "@/features/shared/providers/ExpandStateProvider"
 import AddTemplateButton from "@/features/templates/components/AddTemplateButton"
 import SaveAsTemplateDialog from "@/features/templates/components/SaveAsTemplateDialog"
 import ImportActivitiesButton from "./ImportActivitiesButton"
+import ExportProjectTasksButton from "@/features/projects/components/ExportProjectTasksButton"
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table"
 import { COL_GROUP } from "@/features/shared/lib/tableColumns"
 
 type TaskTableSectionProps = {
     projectId: string
     canEdit: boolean
+    canExport?: boolean
+    projectName?: string
     depth?: number
     projectStartDate?: string | null
     projectDueDate?: string | null
@@ -40,6 +43,8 @@ type TaskTableSectionProps = {
 export default function TaskTableSection({
     projectId,
     canEdit,
+    canExport = false,
+    projectName,
     depth = 1,
     projectStartDate,
     projectDueDate,
@@ -214,17 +219,26 @@ export default function TaskTableSection({
     if (rootTasks.length === 0) {
         return (
             <div className="border-t border-border">
-                {canEdit && (
+                {(canEdit || canExport) && (
                     <div className="px-4 py-3 flex items-center gap-4">
-                        <button
-                            onClick={() => setShowForm(true)}
-                            className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-dark transition-colors"
-                        >
-                            <Plus className="h-3.5 w-3.5" />
-                            Añadir tarea
-                        </button>
-                        <AddTemplateButton projectId={projectIdNum} />
-                        <ImportActivitiesButton projectId={projectIdNum} />
+                        {canEdit && (
+                            <button
+                                onClick={() => setShowForm(true)}
+                                className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-dark transition-colors"
+                            >
+                                <Plus className="h-3.5 w-3.5" />
+                                Añadir tarea
+                            </button>
+                        )}
+                        {canEdit && <AddTemplateButton projectId={projectIdNum} />}
+                        {canEdit && <ImportActivitiesButton projectId={projectIdNum} />}
+                        {canExport && (
+                            <ExportProjectTasksButton
+                                projectId={projectIdNum}
+                                projectName={projectName}
+                                appearance="link"
+                            />
+                        )}
                     </div>
                 )}
                 {canEdit && showForm && (
@@ -485,18 +499,27 @@ export default function TaskTableSection({
                 </div>
             )}
 
-            {canEdit && !showForm && (
+            {(canEdit || canExport) && !showForm && (
                 <div className="border-t border-border">
                     <div className="flex items-center gap-4 px-4 py-2">
-                        <button
-                            onClick={() => setShowForm(true)}
-                            className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-dark transition-colors"
-                        >
-                            <Plus className="h-3.5 w-3.5" />
-                            Añadir tarea
-                        </button>
-                        <AddTemplateButton projectId={projectIdNum} />
-                        <ImportActivitiesButton projectId={projectIdNum} />
+                        {canEdit && (
+                            <button
+                                onClick={() => setShowForm(true)}
+                                className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-dark transition-colors"
+                            >
+                                <Plus className="h-3.5 w-3.5" />
+                                Añadir tarea
+                            </button>
+                        )}
+                        {canEdit && <AddTemplateButton projectId={projectIdNum} />}
+                        {canEdit && <ImportActivitiesButton projectId={projectIdNum} />}
+                        {canExport && (
+                            <ExportProjectTasksButton
+                                projectId={projectIdNum}
+                                projectName={projectName}
+                                appearance="link"
+                            />
+                        )}
                     </div>
                 </div>
             )}

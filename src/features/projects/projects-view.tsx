@@ -152,7 +152,7 @@ export default function ProjectsView({ tab = 'active' }: ProjectsViewProps) {
           onLoadMore={fetchNextPage}
         />
       ) : effectiveView === 'kanban' ? (
-        <ProjectKanbanBoard />
+        <ProjectKanbanBoard user={user!} />
       ) : (
         <ProjectTableSection
           projects={projects}
