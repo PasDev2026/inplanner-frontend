@@ -51,6 +51,7 @@ interface JwtClaims {
   nombres: string;
   apellido_paterno: string;
   email?: string;
+  sistema?: string;
   sede_activa: UserSede;
   otras_sedes: UserSede[];
 }
