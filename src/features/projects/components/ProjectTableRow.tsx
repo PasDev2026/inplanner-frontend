@@ -12,7 +12,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { BackendProject } from "@/features/shared/lib/types"
 import type { CentralizadoItem } from "@/features/shared/actions/centralizado.api"
 import type { AuthUser } from "@/features/auth/actions/auth.api"
-import isManager, { canManageProject } from "@/features/shared/lib/policies"
+import isManager, { canAccessProjectActivities } from "@/features/shared/lib/policies"
 import CircularProgress from "@/components/ui/CircularProgress"
 import DateCellPopover from "./DateCellPopover"
 import EditableName from "./EditableName"
@@ -43,7 +43,7 @@ export default function ProjectTableRow({ project, user, sedes, taskStatusSelect
     const expanded = expandedProjects.has(project.id_project)
     const [editOpen, setEditOpen] = useState(false)
     const isManagerUser = isManager(project.manager_id, user.id)
-    const canExport = canManageProject(project.manager_id, user)
+    const canAccessActivities = canAccessProjectActivities(project, user)
 
     const sedeMap = useMemo(() => new Map(sedes.map(s => [s.id, s.nombre])), [sedes])
     const sedeName = project.sede_id != null ? sedeMap.get(project.sede_id) ?? "" : ""
@@ -137,7 +137,7 @@ export default function ProjectTableRow({ project, user, sedes, taskStatusSelect
                             <DropdownMenuItem onClick={() => navigate(`/projects/${project.id_project}/details-projects`)}>
                                 Ver Proyecto
                             </DropdownMenuItem>
-                            {canExport && (
+                            {canAccessActivities && (
                                 <ExportProjectTasksMenuItem
                                     projectId={project.id_project}
                                     projectName={project.name_project}
@@ -167,7 +167,8 @@ export default function ProjectTableRow({ project, user, sedes, taskStatusSelect
                         <TaskTableSection
                             projectId={String(project.id_project)}
                             canEdit={true}
-                            canExport={canExport}
+                            canExport={canAccessActivities}
+                            canImport={canAccessActivities}
                             projectName={project.name_project}
                             projectStartDate={project.start_date}
                             projectDueDate={project.due_date}

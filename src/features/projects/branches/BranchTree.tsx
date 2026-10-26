@@ -16,6 +16,7 @@ type BranchTreeProps = {
   projectId: number
   projectStartDate?: string | null
   projectDueDate?: string | null
+  canImport?: boolean
   emptyLabel?: string
 }
 
@@ -26,6 +27,7 @@ export default function BranchTree({
   projectId,
   projectStartDate,
   projectDueDate,
+  canImport = false,
   emptyLabel = "Sin tareas",
 }: BranchTreeProps) {
   const [expanded, setExpanded] = useState<Set<number>>(new Set())
@@ -96,6 +98,7 @@ export default function BranchTree({
               projectId={projectId}
               projectStartDate={projectStartDate}
               projectDueDate={projectDueDate}
+              canImport={canImport}
             />
           ))}
         </div>

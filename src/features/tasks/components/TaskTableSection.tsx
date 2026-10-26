@@ -33,6 +33,7 @@ type TaskTableSectionProps = {
     projectId: string
     canEdit: boolean
     canExport?: boolean
+    canImport?: boolean
     projectName?: string
     depth?: number
     projectStartDate?: string | null
@@ -44,6 +45,7 @@ export default function TaskTableSection({
     projectId,
     canEdit,
     canExport = false,
+    canImport = false,
     projectName,
     depth = 1,
     projectStartDate,
@@ -231,7 +233,7 @@ export default function TaskTableSection({
                             </button>
                         )}
                         {canEdit && <AddTemplateButton projectId={projectIdNum} />}
-                        {canEdit && <ImportActivitiesButton projectId={projectIdNum} />}
+                        {canImport && <ImportActivitiesButton projectId={projectIdNum} />}
                         {canExport && (
                             <ExportProjectTasksButton
                                 projectId={projectIdNum}
@@ -329,6 +331,7 @@ export default function TaskTableSection({
                                                             taskId={task.id_task}
                                                             projectId={projectId}
                                                             canEdit={canEdit}
+                                                            canImport={canImport}
                                                             depth={depth + 1}
                                                             projectStartDate={projectStartDate}
                                                             projectDueDate={projectDueDate}
@@ -512,7 +515,7 @@ export default function TaskTableSection({
                             </button>
                         )}
                         {canEdit && <AddTemplateButton projectId={projectIdNum} />}
-                        {canEdit && <ImportActivitiesButton projectId={projectIdNum} />}
+                        {canImport && <ImportActivitiesButton projectId={projectIdNum} />}
                         {canExport && (
                             <ExportProjectTasksButton
                                 projectId={projectIdNum}

@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
 import { formatDateRange } from "@/features/shared/lib/format-date"
-import { canManageProject } from "@/features/shared/lib/policies"
+import { canAccessProjectActivities } from "@/features/shared/lib/policies"
 import ExportProjectTasksMenuItem from "@/features/projects/components/ExportProjectTasksMenuItem"
 
 type ProjectKanbanCardProps = {
@@ -78,7 +78,7 @@ const ProjectKanbanCard = memo(function ProjectKanbanCard({ project, user, offse
   const sedeName = project.sede_id != null ? sedes.find(s => s.id === project.sede_id)?.nombre : undefined
   const priorityInfo = PRIORITY_MAP[project.priority]
   const dateRange = formatDateRange(project.start_date, project.due_date)
-  const isManagerUser = canManageProject(project.manager_id, user)
+  const canExport = canAccessProjectActivities(project, user)
 
   return (
     <div ref={setNodeRef} style={style}>
@@ -103,7 +103,7 @@ const ProjectKanbanCard = memo(function ProjectKanbanCard({ project, user, offse
                       }
                     />
                     <DropdownMenuContent align="end" className="w-56">
-                      {isManagerUser && (
+                      {canExport && (
                         <ExportProjectTasksMenuItem
                           projectId={project.id_project}
                           projectName={project.name_project}

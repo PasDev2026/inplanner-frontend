@@ -12,6 +12,7 @@ type TaskTableSubtasksProps = {
     taskId: number
     projectId: string
     canEdit: boolean
+    canImport?: boolean
     depth?: number
     projectStartDate?: string | null
     projectDueDate?: string | null
@@ -23,6 +24,7 @@ export default function TaskTableSubtasks({
     taskId,
     projectId,
     canEdit,
+    canImport = false,
     depth = 0,
     projectStartDate,
     projectDueDate,
@@ -57,6 +59,7 @@ export default function TaskTableSubtasks({
                         subtask={child}
                         projectId={projectId}
                         canEdit={canEdit}
+                        canImport={canImport}
                         depth={depth}
                         projectStartDate={projectStartDate}
                         projectDueDate={projectDueDate}
@@ -68,7 +71,7 @@ export default function TaskTableSubtasks({
                 {canEdit && (
                     <TableRow>
                         <TableCell colSpan={9} className="px-4 py-2" style={{ paddingLeft: padLeft }}>
-                            <TaskAddBar projectId={projectIdNum} parentTaskId={taskId} />
+                            <TaskAddBar projectId={projectIdNum} parentTaskId={taskId} canImport={canImport} />
                         </TableCell>
                     </TableRow>
                 )}

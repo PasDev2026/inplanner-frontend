@@ -14,6 +14,7 @@ type BranchNodeProps = {
   projectId: number
   projectStartDate?: string | null
   projectDueDate?: string | null
+  canImport?: boolean
 }
 
 function BranchChildren({
@@ -23,6 +24,7 @@ function BranchChildren({
   projectId,
   projectStartDate,
   projectDueDate,
+  canImport,
 }: {
   nodes: BranchNodeModel[]
   expanded: Set<number>
@@ -30,6 +32,7 @@ function BranchChildren({
   projectId: number
   projectStartDate?: string | null
   projectDueDate?: string | null
+  canImport?: boolean
 }) {
   return (
     <div className="animate-in fade-in duration-200 slide-in-from-top-1 flex flex-col gap-2">
@@ -42,6 +45,7 @@ function BranchChildren({
           projectId={projectId}
           projectStartDate={projectStartDate}
           projectDueDate={projectDueDate}
+          canImport={canImport}
         />
       ))}
     </div>
@@ -55,6 +59,7 @@ export default function BranchNode({
   projectId,
   projectStartDate,
   projectDueDate,
+  canImport = false,
 }: BranchNodeProps) {
   const isOpen = expanded.has(node.task.id_task)
   const hasChildren = node.children.length > 0
@@ -111,10 +116,11 @@ export default function BranchNode({
               projectId={projectId}
               projectStartDate={projectStartDate}
               projectDueDate={projectDueDate}
+              canImport={canImport}
             />
           )}
           <div className={cn(hasChildren && "pt-2")}>
-            <TaskAddBar projectId={projectId} parentTaskId={taskId} />
+            <TaskAddBar projectId={projectId} parentTaskId={taskId} canImport={canImport} />
           </div>
         </div>
       )}

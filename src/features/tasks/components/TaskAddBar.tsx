@@ -11,9 +11,10 @@ import ImportActivitiesButton from "./ImportActivitiesButton"
 type TaskAddBarProps = {
   projectId: number
   parentTaskId: number
+  canImport?: boolean
 }
 
-export default function TaskAddBar({ projectId, parentTaskId }: TaskAddBarProps) {
+export default function TaskAddBar({ projectId, parentTaskId, canImport = false }: TaskAddBarProps) {
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState("")
   const queryClient = useQueryClient()
@@ -93,7 +94,9 @@ export default function TaskAddBar({ projectId, parentTaskId }: TaskAddBarProps)
         Añadir subtarea
       </button>
       <AddTemplateButton projectId={projectId} parentTaskId={parentTaskId} />
-      <ImportActivitiesButton projectId={projectId} parentTaskId={parentTaskId} />
+      {canImport && (
+        <ImportActivitiesButton projectId={projectId} parentTaskId={parentTaskId} />
+      )}
     </div>
   )
 }

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { PROJECT_DETAIL_KEY } from "@/features/projects/lib/project-keys"
 import PageSpinner from "@/components/ui/PageSpinner"
 import { useAuth } from "@/features/auth/hooks/useAuth"
-import isManager, { canManageProject } from "@/features/shared/lib/policies"
+import isManager, { canAccessProjectActivities } from "@/features/shared/lib/policies"
 import DeadlineBadge from "@/components/ui/DeadlineBadge"
 import DateBadge from "@/components/ui/DateBadge"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
@@ -34,7 +34,7 @@ export default function ProjectDetailPage() {
   if(isError) return <Navigate to='/404'/>
   if (data && user) {
     const canEdit = isManager(data.manager_id, user.id)
-    const canExport = canManageProject(data.manager_id, user)
+    const canExport = canAccessProjectActivities(data, user)
 
     return (
       <div className="space-y-6">

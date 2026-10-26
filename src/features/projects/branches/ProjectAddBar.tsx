@@ -13,9 +13,15 @@ type ProjectAddBarProps = {
   projectId: number
   projectName?: string
   canExport?: boolean
+  canImport?: boolean
 }
 
-export default function ProjectAddBar({ projectId, projectName, canExport }: ProjectAddBarProps) {
+export default function ProjectAddBar({
+  projectId,
+  projectName,
+  canExport,
+  canImport,
+}: ProjectAddBarProps) {
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState("")
   const queryClient = useQueryClient()
@@ -91,7 +97,7 @@ export default function ProjectAddBar({ projectId, projectName, canExport }: Pro
         Añadir tarea
       </button>
       <AddTemplateButton projectId={projectId} />
-      <ImportActivitiesButton projectId={projectId} />
+      {canImport && <ImportActivitiesButton projectId={projectId} />}
       {canExport && (
         <ExportProjectTasksButton
           projectId={projectId}
