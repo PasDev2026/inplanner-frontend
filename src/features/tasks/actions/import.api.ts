@@ -26,7 +26,9 @@ export type ImportChange =
 
 export interface ImportPreviewRow {
   numeroFila: number
+  existing_task_id?: number
   task_name: string
+  task_description?: string
   nivel: number
   start_date?: string
   due_date?: string
