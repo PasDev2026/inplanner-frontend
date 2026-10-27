@@ -15,7 +15,6 @@ type TaskDateCellPopoverProps = {
 }
 
 export default function TaskDateCellPopover({
-    projectId: _projectId,
     taskId,
     startDate,
     dueDate,

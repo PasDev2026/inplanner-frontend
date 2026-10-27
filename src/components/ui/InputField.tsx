@@ -1,4 +1,5 @@
 import { type InputHTMLAttributes, forwardRef, type ReactNode } from "react"
+import { cn } from "@/features/shared/lib/utils"
 
 interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
@@ -10,7 +11,7 @@ interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
   ({ label, icon, suffix, error, className, id, ...props }, ref) => {
     return (
-      <div className="flex flex-col gap-2">
+      <div className={cn("flex flex-col gap-2", className)}>
         <label htmlFor={id} className="text-sm font-semibold tracking-wide" style={{ color: 'var(--label-color)' }}>
           {label}
         </label>

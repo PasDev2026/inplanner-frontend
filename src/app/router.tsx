@@ -15,6 +15,7 @@ const LoginPage = lazy(() => import("@/features/auth/pages/LoginPage"))
 const ProfilePage = lazy(() => import("@/features/profile/pages/ProfilePage"))
 const ChangePasswordProfile = lazy(() => import("@/features/profile/components/ChangePasswordProfile"))
 const DashboardPage = lazy(() => import("@/features/dashboard/pages/DashboardPage"))
+const PredictiveRiskPage = lazy(() => import("@/features/ml-dashboard/pages/PredictiveRiskPage"))
 const MyTasksPage = lazy(() => import("@/features/my-tasks/pages/MyTasksPage"))
 const MiDashboardPage = lazy(() => import("@/features/mi-dashboard/pages/MiDashboardPage"))
 const CalendarPage = lazy(() => import("@/features/calendar/pages/CalendarPage"))
@@ -32,6 +33,7 @@ export default function Router() {
                 <Route path="/" element={<Navigate to={`/${getSedeSlug()}/auth/login`} replace />} />
                 <Route element={<AppLayout/>}>
                     <Route path="/dashboard" element={<DashboardPage />}/>
+                    <Route path="/dashboard/predictivo" element={<PredictiveRiskPage />}/>
                     <Route path="/projects" element={<ProjectListPage/>}/>
                     <Route path="/projects/completed" element={<ProjectListPage/>}/>
                     <Route path="/mis-tareas" element={<MyTasksPage />}/>

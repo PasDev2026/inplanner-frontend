@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, Folder, Users, LogOut, ChevronDown, LayoutDashboard, BarChart3, LayoutTemplate } from "lucide-react";
+import { User, Folder, Users, LogOut, ChevronDown, LayoutDashboard, BarChart3, LayoutTemplate, BrainCircuit } from "lucide-react";
 import { cn } from "@/features/shared/lib/utils";
 import { useAuthContext } from "@/features/auth/hooks/useAuthContext";
 import { disconnectSocket } from "@/features/shared/lib/socket";
@@ -58,16 +58,17 @@ export default function Sidebar({
   };
 
   const navLinks = [
-    { to: "/profile", label: "Mi perfil", icon: User, matchPaths: ["/profile"] },
+    { to: "/profile", label: "Mi perfil", icon: User, matchPaths: ["/profile"], exact: false },
     ...(canAccessDashboard
-      ? [{ to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, matchPaths: ["/dashboard"] }]
+      ? [{ to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, matchPaths: ["/dashboard"], exact: true }]
       : []),
+    { to: "/dashboard/predictivo", label: "Predictivo", icon: BrainCircuit, matchPaths: ["/dashboard/predictivo"], exact: false },
     /* { to: "/mis-tareas", label: "Mis tareas", icon: ListChecks, matchPaths: ["/mis-tareas"] },
     { to: "/calendario", label: "Calendario", icon: CalendarDays, matchPaths: ["/calendario"] }, */
-    { to: "/reportes", label: "Reportes", icon: BarChart3, matchPaths: ["/reportes"] },
-    { to: "/plantillas", label: "Plantillas", icon: LayoutTemplate, matchPaths: ["/plantillas"] },
+    { to: "/reportes", label: "Reportes", icon: BarChart3, matchPaths: ["/reportes"], exact: false },
+    { to: "/plantillas", label: "Plantillas", icon: LayoutTemplate, matchPaths: ["/plantillas"], exact: false },
     ...(isAdmin
-      ? [{ to: "/admin/users", label: "Usuarios", icon: Users, matchPaths: ["/admin/users"] }]
+      ? [{ to: "/admin/users", label: "Usuarios", icon: Users, matchPaths: ["/admin/users"], exact: false }]
       : []),
   ];
 
@@ -147,19 +148,25 @@ export default function Sidebar({
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {navLinks.map(({ to, label, icon: Icon, matchPaths }) => (
-                <SidebarMenuItem key={to}>
-                  <SidebarMenuButton
-                    isActive={matchPaths.some(p => location.pathname.startsWith(p))}
-                    render={<Link to={to} />}
-                    tooltip={label}
-                    className={matchPaths.some(p => location.pathname.startsWith(p)) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""}
-                  >
-                    <Icon />
-                    <span>{label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navLinks.map(({ to, label, icon: Icon, matchPaths, exact }) => {
+                const isActive = exact
+                  ? location.pathname === to
+                  : matchPaths.some((path) => location.pathname.startsWith(path))
+
+                return (
+                  <SidebarMenuItem key={to}>
+                    <SidebarMenuButton
+                      isActive={isActive}
+                      render={<Link to={to} />}
+                      tooltip={label}
+                      className={isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""}
+                    >
+                      <Icon />
+                      <span>{label}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
