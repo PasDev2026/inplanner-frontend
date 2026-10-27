@@ -62,7 +62,9 @@ export default function Sidebar({
     ...(canAccessDashboard
       ? [{ to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, matchPaths: ["/dashboard"], exact: true }]
       : []),
-    { to: "/dashboard/predictivo", label: "Predictivo", icon: BrainCircuit, matchPaths: ["/dashboard/predictivo"], exact: false },
+    ...(isAdmin
+      ? [{ to: "/dashboard/predictivo", label: "Predictivo", icon: BrainCircuit, matchPaths: ["/dashboard/predictivo"], exact: false }]
+      : []),
     /* { to: "/mis-tareas", label: "Mis tareas", icon: ListChecks, matchPaths: ["/mis-tareas"] },
     { to: "/calendario", label: "Calendario", icon: CalendarDays, matchPaths: ["/calendario"] }, */
     { to: "/reportes", label: "Reportes", icon: BarChart3, matchPaths: ["/reportes"], exact: false },

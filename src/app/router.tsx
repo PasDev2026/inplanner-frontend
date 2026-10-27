@@ -5,6 +5,7 @@ import AuthLayout from "@/features/shared/layouts/AuthLayout"
 import ProfileLayout from "@/features/shared/layouts/ProfileLayout"
 import NotFoundPage from "@/features/shared/pages/NotFoundPage"
 import { AuthProvider } from "@/features/auth/providers/AuthProvider"
+import SuperAdminRoute from "@/features/auth/components/SuperAdminRoute"
 import { getSedeSlug } from "@/features/auth/actions/auth.api"
 
 const ProjectListPage = lazy(() => import("@/features/projects/pages/ProjectListPage"))
@@ -33,7 +34,14 @@ export default function Router() {
                 <Route path="/" element={<Navigate to={`/${getSedeSlug()}/auth/login`} replace />} />
                 <Route element={<AppLayout/>}>
                     <Route path="/dashboard" element={<DashboardPage />}/>
-                    <Route path="/dashboard/predictivo" element={<PredictiveRiskPage />}/>
+                    <Route
+                        path="/dashboard/predictivo"
+                        element={
+                            <SuperAdminRoute>
+                                <PredictiveRiskPage />
+                            </SuperAdminRoute>
+                        }
+                    />
                     <Route path="/projects" element={<ProjectListPage/>}/>
                     <Route path="/projects/completed" element={<ProjectListPage/>}/>
                     <Route path="/mis-tareas" element={<MyTasksPage />}/>
