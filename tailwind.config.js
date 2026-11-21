@@ -73,6 +73,17 @@ module.exports = {
           ring: "hsl(var(--sidebar-ring))",
           border: "hsl(var(--sidebar-border))",
         },
+        doc: {
+          paper: "hsl(var(--doc-paper))",
+          "paper-strong": "hsl(var(--doc-paper-strong))",
+          ink: "hsl(var(--doc-ink))",
+          muted: "hsl(var(--doc-muted))",
+          line: "hsl(var(--doc-line))",
+          accent: "hsl(var(--doc-accent))",
+          "accent-soft": "hsl(var(--doc-accent-soft))",
+          warning: "hsl(var(--doc-warning))",
+          danger: "hsl(var(--doc-danger))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

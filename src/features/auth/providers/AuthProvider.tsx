@@ -7,6 +7,7 @@ import {
   getSedeSlug,
 } from '@/features/auth/actions/auth.api'
 import { startTokenRefreshLoop, stopTokenRefreshLoop } from '@/features/shared/lib/axios'
+import { AUTH_CHANGED_EVENT } from '@/features/shared/lib/auth-events'
 import type { AuthUser, LoginCredentials } from '@/features/auth/actions/auth.api'
 
 interface AuthContextType {
@@ -47,6 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const authUser = await authenticateApi(credentials)
     localStorage.setItem('auth_user', JSON.stringify(authUser))
     setUser(authUser)
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT))
   }, [])
 
   const logout = useCallback(async () => {
@@ -56,6 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('refresh_token')
     localStorage.removeItem('auth_user')
     setUser(null)
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT))
     navigate(`/${getSedeSlug()}/auth/login?session=closed`, { replace: true })
   }, [queryClient, navigate])
 
@@ -66,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('refresh_token')
       localStorage.removeItem('auth_user')
       setUser(null)
+      window.dispatchEvent(new Event(AUTH_CHANGED_EVENT))
       navigate(`/${getSedeSlug()}/auth/login?session=expired`, { replace: true })
     }
     window.addEventListener('auth:expired', onExpired)

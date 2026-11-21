@@ -1,5 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { DocumentAccessSocketSync } from "@/features/documents/components/DocumentAccessSocketSync"
+import { SocketProvider } from "@/features/shared/socket/socket.provider"
 import { ThemeProvider } from "./ThemeProvider"
 import { ThemedToaster } from "./ThemedToaster"
 
@@ -16,12 +18,15 @@ const queryClient = new QueryClient({
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <TooltipProvider>
-          {children}
-          <ThemedToaster />
-        </TooltipProvider>
-      </ThemeProvider>
+      <SocketProvider>
+        <ThemeProvider>
+          <TooltipProvider>
+            <DocumentAccessSocketSync />
+            {children}
+            <ThemedToaster />
+          </TooltipProvider>
+        </ThemeProvider>
+      </SocketProvider>
     </QueryClientProvider>
   )
 }

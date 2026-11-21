@@ -1,12 +1,15 @@
 import { Plus, Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import CreateProjectSheet from "@/features/projects/components/CreateProjectSheet";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
+  const location = useLocation();
   const [mounted, setMounted] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const isDocuments = location.pathname.startsWith("/documentos");
 
   useEffect(() => setMounted(true), []);
 
@@ -22,14 +25,16 @@ export default function Header() {
           >
             {mounted && (theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />)}
           </button>
-          <button
-              type="button"
-              onClick={() => setSheetOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-brand-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-primary/80"
-            >
-              <Plus className="h-4 w-4" />
-              Nuevo Proyecto
-          </button>
+          {!isDocuments && (
+            <button
+                type="button"
+                onClick={() => setSheetOpen(true)}
+                className="inline-flex items-center gap-2 rounded-lg bg-brand-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-primary/80"
+              >
+                <Plus className="h-4 w-4" />
+                Nuevo Proyecto
+            </button>
+          )}
         </div>
       </nav>
 

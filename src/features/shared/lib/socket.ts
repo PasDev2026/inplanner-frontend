@@ -12,16 +12,13 @@ const getSocketUrl = () => {
 }
 
 export const connectSocket = (): Socket => {
-    if (socket?.connected) {
-        return socket
-    }
+    const token = localStorage.getItem('auth_token') ?? ''
 
     if (socket) {
-        socket.disconnect()
-        socket = null
+        socket.auth = { token }
+        if (!socket.connected) socket.connect()
+        return socket
     }
-
-    const token = localStorage.getItem('auth_token') ?? ''
 
     socket = io(getSocketUrl(), {
         withCredentials: true,

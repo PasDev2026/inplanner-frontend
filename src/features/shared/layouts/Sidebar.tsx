@@ -1,8 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, Folder, Users, LogOut, ChevronDown, LayoutDashboard, BarChart3, LayoutTemplate, BrainCircuit } from "lucide-react";
+import { User, Folder, Users, LogOut, ChevronDown, LayoutDashboard, BarChart3, LayoutTemplate, BrainCircuit, Files } from "lucide-react";
+import { useDocumentAccess } from "@/features/documents/hooks/useDocumentAccess";
 import { cn } from "@/features/shared/lib/utils";
 import { useAuthContext } from "@/features/auth/hooks/useAuthContext";
-import { disconnectSocket } from "@/features/shared/lib/socket";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   Sidebar as SidebarBase,
@@ -51,10 +51,10 @@ export default function Sidebar({
   const location = useLocation();
   const { logout } = useAuthContext();
   const { state, isMobile } = useSidebar();
+  const { data: documentAccess } = useDocumentAccess();
 
   const handleLogout = async () => {
     await logout();
-    disconnectSocket();
   };
 
   const navLinks = [
@@ -69,6 +69,9 @@ export default function Sidebar({
     { to: "/calendario", label: "Calendario", icon: CalendarDays, matchPaths: ["/calendario"] }, */
     { to: "/reportes", label: "Reportes", icon: BarChart3, matchPaths: ["/reportes"], exact: false },
     { to: "/plantillas", label: "Plantillas", icon: LayoutTemplate, matchPaths: ["/plantillas"], exact: false },
+    ...(documentAccess?.canView
+      ? [{ to: "/documentos", label: "Documentos", icon: Files, matchPaths: ["/documentos"], exact: false }]
+      : []),
     ...(isAdmin
       ? [{ to: "/admin/users", label: "Usuarios", icon: Users, matchPaths: ["/admin/users"], exact: false }]
       : []),
