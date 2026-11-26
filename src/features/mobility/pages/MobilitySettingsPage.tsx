@@ -148,7 +148,7 @@ export default function MobilitySettingsPage() {
         <div>
           <h1 className="text-2xl font-bold">Configuración de movilidad</h1>
           <p className="text-sm text-muted-foreground">
-            Empresas, ubicaciones y asignaciones de jefatura, empresa y roles.
+            Empresas, ubicaciones, usuarios y pagos.
           </p>
         </div>
         <Link
@@ -164,6 +164,7 @@ export default function MobilitySettingsPage() {
           type="button"
           variant={tab === 'empresas' ? 'default' : 'outline'}
           size="sm"
+          className="rounded-full px-4"
           onClick={() => setTab('empresas')}
         >
           <Building2 className="mr-1.5 h-3.5 w-3.5" />
@@ -173,6 +174,7 @@ export default function MobilitySettingsPage() {
           type="button"
           variant={tab === 'ubicaciones' ? 'default' : 'outline'}
           size="sm"
+          className="rounded-full px-4"
           onClick={() => setTab('ubicaciones')}
         >
           <MapPin className="mr-1.5 h-3.5 w-3.5" />
@@ -182,6 +184,7 @@ export default function MobilitySettingsPage() {
           type="button"
           variant={tab === 'usuarios' ? 'default' : 'outline'}
           size="sm"
+          className="rounded-full px-4"
           onClick={() => setTab('usuarios')}
         >
           <Users className="mr-1.5 h-3.5 w-3.5" />
@@ -191,6 +194,7 @@ export default function MobilitySettingsPage() {
           type="button"
           variant={tab === 'pagos' ? 'default' : 'outline'}
           size="sm"
+          className="rounded-full px-4"
           onClick={() => setTab('pagos')}
         >
           <Wallet className="mr-1.5 h-3.5 w-3.5" />
