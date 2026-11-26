@@ -23,6 +23,10 @@ const CalendarPage = lazy(() => import("@/features/calendar/pages/CalendarPage")
 const ReportsPage = lazy(() => import("@/features/reports/pages/ReportsPage"))
 const TemplatesPage = lazy(() => import("@/features/templates/pages/TemplatesPage"))
 const DocumentsPage = lazy(() => import("@/features/documents/pages/DocumentsPage"))
+const MobilityListPage = lazy(() => import("@/features/mobility/pages/MobilityListPage"))
+const MobilityCreatePage = lazy(() => import("@/features/mobility/pages/MobilityCreatePage"))
+const MobilityDetailPage = lazy(() => import("@/features/mobility/pages/MobilityDetailPage"))
+const MobilitySettingsPage = lazy(() => import("@/features/mobility/pages/MobilitySettingsPage"))
 const DocumentsRoute = lazy(() =>
     import("@/features/documents/components/DocumentsRoute").then((module) => ({
         default: module.DocumentsRoute,
@@ -55,6 +59,10 @@ export default function Router() {
                     <Route path="/calendario" element={<CalendarPage />}/>
                     <Route path="/reportes" element={<ReportsPage />}/>
                     <Route path="/plantillas" element={<TemplatesPage />}/>
+                    <Route path="/movilidad" element={<MobilityListPage />}/>
+                    <Route path="/movilidad/nueva" element={<MobilityCreatePage />}/>
+                    <Route path="/movilidad/configuracion" element={<MobilitySettingsPage />}/>
+                    <Route path="/movilidad/:id" element={<MobilityDetailPage />}/>
                     <Route
                         path="/documentos"
                         element={

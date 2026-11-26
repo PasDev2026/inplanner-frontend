@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { DocumentAccessSocketSync } from "@/features/documents/components/DocumentAccessSocketSync"
+import { MobilitySocketSync } from "@/features/mobility/components/MobilitySocketSync"
 import { SocketProvider } from "@/features/shared/socket/socket.provider"
 import { ThemeProvider } from "./ThemeProvider"
 import { ThemedToaster } from "./ThemedToaster"
@@ -22,6 +23,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         <ThemeProvider>
           <TooltipProvider>
             <DocumentAccessSocketSync />
+            <MobilitySocketSync />
             {children}
             <ThemedToaster />
           </TooltipProvider>

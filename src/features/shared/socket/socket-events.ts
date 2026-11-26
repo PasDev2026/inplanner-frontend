@@ -1,5 +1,7 @@
 export const SOCKET_EVENTS = {
   DOCUMENTS_ACCESS_CHANGED: 'documents:access-changed',
+  MOBILITY_REQUEST_CHANGED: 'mobility:request-changed',
+  MOBILITY_CATALOGS_CHANGED: 'mobility:catalogs-changed',
 } as const
 
 export type SocketEventName =

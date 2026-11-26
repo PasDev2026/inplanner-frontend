@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, Folder, Users, LogOut, ChevronDown, LayoutDashboard, BarChart3, LayoutTemplate, BrainCircuit, Files } from "lucide-react";
+import { User, Folder, Users, LogOut, ChevronDown, LayoutDashboard, BarChart3, LayoutTemplate, BrainCircuit, Files, Car } from "lucide-react";
 import { useDocumentAccess } from "@/features/documents/hooks/useDocumentAccess";
 import { cn } from "@/features/shared/lib/utils";
 import { useAuthContext } from "@/features/auth/hooks/useAuthContext";
@@ -67,6 +67,7 @@ export default function Sidebar({
       : []),
     /* { to: "/mis-tareas", label: "Mis tareas", icon: ListChecks, matchPaths: ["/mis-tareas"] },
     { to: "/calendario", label: "Calendario", icon: CalendarDays, matchPaths: ["/calendario"] }, */
+    { to: "/movilidad", label: "Movilidad", icon: Car, matchPaths: ["/movilidad"], exact: false },
     { to: "/reportes", label: "Reportes", icon: BarChart3, matchPaths: ["/reportes"], exact: false },
     { to: "/plantillas", label: "Plantillas", icon: LayoutTemplate, matchPaths: ["/plantillas"], exact: false },
     ...(documentAccess?.canView
